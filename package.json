@@ -1,0 +1,15 @@
+{
+  "name": "midround",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MidRound — the tactical command center for Counter-Strike teams.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^4.21.2"
+  }
+}

@@ -1,0 +1,23 @@
+# dependencies
+node_modules/
+
+# database — contains real credentials (FACEIT API key, password hashes, sessions)
+midround.db
+midround.db-shm
+midround.db-wal
+*.db
+*.db-shm
+*.db-wal
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp
+
+# logs
+npm-debug.log*
+*.log
+
+# local env (none used today, but keep future secrets out)
+.env
+.env.*
