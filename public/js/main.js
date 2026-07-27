@@ -67,10 +67,12 @@ async function route() {
   }
   if (found.public && state.me) { nav('/'); return; }
 
-  // Signed in but not part of any organization yet — onboarding replaces
-  // every app view until they create an org or join a team.
-  if (!found.public && !state.me.orgs.length) {
-    await viewOnboarding();
+  // Signed in but not on any team yet — the normal app shell still loads;
+  // pages show the get-started panel until they join or create a team,
+  // which is entirely optional and done from inside the app.
+  if (!found.public && !state.teamId) {
+    renderShell(path);
+    await viewGetStarted(document.getElementById('view'));
     return;
   }
 
@@ -173,7 +175,7 @@ function renderShell(path) {
             <div class="dd-menu tb-profile-menu" hidden>
               <div class="tb-who">
                 <b>${esc(state.me.user.name)}</b>
-                <div class="small muted">${esc(team ? team.name : '')} · ${esc(roleLabel(state.role))}</div>
+                <div class="small muted">${team ? `${esc(team.name)} · ${esc(roleLabel(state.role))}` : 'No team yet'}</div>
               </div>
               <a class="dd-item" id="pm-profile" hidden>My player profile</a>
               <div id="pm-teams"></div>
@@ -193,7 +195,10 @@ function renderShell(path) {
     localStorage.removeItem('mr.route');
     nav('/login');
   };
-  document.getElementById('btn-matchmode').onclick = () => match.enterMatchMode();
+  document.getElementById('btn-matchmode').onclick = () => {
+    if (!state.teamId) return toast('Join or create a team first', 'err');
+    match.enterMatchMode();
+  };
   document.getElementById('menu-toggle').onclick = () => document.getElementById('sidebar').classList.toggle('open');
   const profBtn = document.getElementById('btn-profile');
   const profMenu = app.querySelector('.tb-profile-menu');
@@ -271,7 +276,7 @@ function wireGlobalSearch() {
 
   const run = debounce(async () => {
     const q = input.value.trim();
-    if (!q) { close(); return; }
+    if (!q || !state.teamId) { close(); return; }
     let r;
     try { r = await api.get(`/api/teams/${state.teamId}/search?q=${encodeURIComponent(q)}`); }
     catch { return; }
@@ -367,7 +372,7 @@ function viewRegister() {
       <div class="field"><label>Password (8+ characters)</label><input type="password" name="password" required minlength="8" autocomplete="new-password"></div>
       <button class="btn primary" type="submit" style="width:100%">Create account</button>
     </form>
-    <p class="small muted" style="margin-top:10px;text-align:center">You'll create your organization or join a team right after.</p>
+    <p class="small muted" style="margin-top:10px;text-align:center">No team needed — you can create or join one any time after signing in.</p>
     <div class="auth-switch">Already have an account? <a href="#/login">Sign in</a></div>`);
   document.getElementById('reg-form').onsubmit = async (e) => {
     e.preventDefault();
@@ -385,37 +390,41 @@ function viewRegister() {
   };
 }
 
-// First screen after signup (or whenever the account has no organization):
+// Shown inside the normal app shell while the account isn't on any team:
 // accept a pending invite, redeem an invite code, or create a new org.
-async function viewOnboarding() {
+// All of it is optional — the account itself works without a team.
+async function viewGetStarted(el) {
   let invites = [];
   try { invites = await api.get('/api/me/invites'); } catch { /* optional */ }
-  authFrame(`
-    <div id="auth-err"></div>
-    <h2 style="margin:0 0 4px">Welcome, ${esc(state.me.user.name)}</h2>
-    <p class="small muted" style="margin-bottom:16px">Join your team or create a new organization to get started.</p>
-    ${invites.length ? `
-      <div class="pm-label" style="padding-left:0">Your invites</div>
-      ${invites.map(i => `
-        <div class="row-item" style="margin-bottom:10px">
-          <span class="grow small"><b>${esc(i.team_name || i.org_name)}</b> · ${esc(roleLabel(i.role))}
-            <div class="muted">invited by ${esc(i.invited_by || 'a team owner')}</div></span>
-          <button class="btn primary small" data-acc="${i.id}">Join</button>
-          <button class="btn ghost small" data-dec="${i.id}">Decline</button>
-        </div>`).join('')}` : ''}
-    <form id="onb-code">
-      <div class="field"><label>Have an invite code?</label><input name="code" placeholder="Paste invite code" autocomplete="off"></div>
-      <button class="btn" type="submit" style="width:100%">Join with code</button>
-    </form>
-    <div class="small muted" style="text-align:center;margin:14px 0">— or —</div>
-    <form id="onb-org">
-      <div class="field"><label>Organization name</label><input name="orgName" required placeholder="e.g. Northlight Esports"></div>
-      <div class="field"><label>Team name</label><input name="teamName" placeholder="Main Team"></div>
-      <button class="btn primary" type="submit" style="width:100%">Create organization</button>
-    </form>
-    <div class="auth-switch"><a href="#" id="onb-logout">Sign out</a></div>`);
+  el.innerHTML = `
+    <div class="page-head">
+      <div><h1>Welcome, ${esc(state.me.user.name)}</h1>
+      <div class="sub">You're not on a team yet — join one or create your own whenever you're ready.</div></div>
+    </div>
+    <div class="panel" style="max-width:520px">
+      <div id="gs-err"></div>
+      ${invites.length ? `
+        <div class="pm-label" style="padding-left:0">Your invites</div>
+        ${invites.map(i => `
+          <div class="row-item" style="margin-bottom:10px">
+            <span class="grow small"><b>${esc(i.team_name || i.org_name)}</b> · ${esc(roleLabel(i.role))}
+              <div class="muted">invited by ${esc(i.invited_by || 'a team owner')}</div></span>
+            <button class="btn primary small" data-acc="${i.id}">Join</button>
+            <button class="btn ghost small" data-dec="${i.id}">Decline</button>
+          </div>`).join('')}` : ''}
+      <form id="onb-code">
+        <div class="field"><label>Have an invite code?</label><input name="code" placeholder="Paste invite code" autocomplete="off"></div>
+        <button class="btn" type="submit" style="width:100%">Join with code</button>
+      </form>
+      <div class="small muted" style="text-align:center;margin:14px 0">— or —</div>
+      <form id="onb-org">
+        <div class="field"><label>Organization name</label><input name="orgName" required placeholder="e.g. Northlight Esports"></div>
+        <div class="field"><label>Team name</label><input name="teamName" placeholder="Main Team"></div>
+        <button class="btn primary" type="submit" style="width:100%">Create organization</button>
+      </form>
+    </div>`;
 
-  const err = (m) => { document.getElementById('auth-err').innerHTML = `<div class="auth-err">${esc(m)}</div>`; };
+  const err = (m) => { document.getElementById('gs-err').innerHTML = `<div class="auth-err">${esc(m)}</div>`; };
   const enter = (teamId) => {
     if (teamId) localStorage.setItem('mr.teamId', String(teamId));
     localStorage.removeItem('mr.route');
@@ -423,22 +432,22 @@ async function viewOnboarding() {
     location.reload();
   };
 
-  app.querySelectorAll('[data-acc]').forEach(b => b.onclick = async () => {
+  el.querySelectorAll('[data-acc]').forEach(b => b.onclick = async () => {
     try { enter((await api.post(`/api/invites/${b.dataset.acc}/accept`)).team_id); }
     catch (e) { err(e.message); }
   });
-  app.querySelectorAll('[data-dec]').forEach(b => b.onclick = async () => {
+  el.querySelectorAll('[data-dec]').forEach(b => b.onclick = async () => {
     try { await api.post(`/api/invites/${b.dataset.dec}/decline`); b.closest('.row-item').remove(); }
     catch (e) { err(e.message); }
   });
-  document.getElementById('onb-code').onsubmit = async (e) => {
+  el.querySelector('#onb-code').onsubmit = async (e) => {
     e.preventDefault();
     const code = new FormData(e.target).get('code')?.trim();
     if (!code) return err('Paste an invite code first');
     try { enter((await api.post('/api/invites/redeem', { code })).team_id); }
     catch (e2) { err(e2.message); }
   };
-  document.getElementById('onb-org').onsubmit = async (e) => {
+  el.querySelector('#onb-org').onsubmit = async (e) => {
     e.preventDefault();
     const f = new FormData(e.target);
     try {
@@ -446,12 +455,6 @@ async function viewOnboarding() {
         name: f.get('orgName'), teamName: f.get('teamName')?.trim() || undefined,
       })).team_id);
     } catch (e2) { err(e2.message); }
-  };
-  document.getElementById('onb-logout').onclick = async (e) => {
-    e.preventDefault();
-    try { await api.post('/api/auth/logout'); } catch {}
-    state.me = null;
-    nav('/login');
   };
 }
 
