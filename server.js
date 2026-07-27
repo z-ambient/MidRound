@@ -1257,6 +1257,9 @@ setInterval(async () => {
       try {
         const s = await faceit.syncTeam(team);
         if (s.created || s.updated) console.log(`[faceit] team ${team.id}: +${s.created} new, ${s.updated} updated`);
+        // a sync that reached FACEIT but couldn't read part of it still counts
+        // as "last synced"; without this the failure is invisible
+        for (const err of s.errors) console.error(`[faceit] team ${team.id}: ${err}`);
       } catch (e) {
         console.error(`[faceit] sync failed for team ${team.id}: ${e.message}`);
       }

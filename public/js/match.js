@@ -162,7 +162,7 @@ export async function viewMatchMode(root, idStr) {
           </div>
           <div class="mm-right">
             <span class="mm-ctx">${match ? `vs ${esc(opponent ? opponent.name : 'TBD')} · ${esc(match.format || '')}` : 'Solo'}</span>
-            <a class="btn small" href="${match ? `#/matches/${matchId}` : '#/'}">Exit</a>
+            <a class="btn small" href="#/">Exit</a>
           </div>
         </div>
         <div class="mm-body2">

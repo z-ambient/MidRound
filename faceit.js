@@ -5,7 +5,12 @@ const BASE = process.env.FACEIT_API_BASE || 'https://open.faceit.com/data/v4';
 const db = require('./db');
 
 async function fApi(key, path) {
-  const res = await fetch(BASE + path, { headers: { Authorization: `Bearer ${key}` } });
+  // A hung request would otherwise stall a whole sync and let the next 30-minute
+  // poll start on top of it.
+  const res = await fetch(BASE + path, {
+    headers: { Authorization: `Bearer ${key}` },
+    signal: AbortSignal.timeout(20000),
+  });
   if (res.status === 401 || res.status === 403) {
     const e = new Error('FACEIT rejected the API key'); e.code = 401; throw e;
   }
@@ -29,6 +34,25 @@ async function lookupTeam(key, teamInput) {
 }
 
 const iso = (epochSec) => epochSec ? new Date(epochSec * 1000).toISOString() : null;
+
+// A championship's match list is paged, and FACEIT does NOT return it in
+// chronological order — a team's own match can sit at any index. Reading only
+// the first page silently loses every match past it, which in a full ESEA
+// division is most of them. Page until a short page arrives, with a hard cap so
+// one enormous championship can't stall the sync.
+const PAGE_SIZE = 100;
+const MAX_PAGES = 25;
+
+async function championshipMatches(key, cid, type) {
+  const items = [];
+  for (let page = 0; page < MAX_PAGES; page++) {
+    const res = await fApi(key, `/championships/${cid}/matches?type=${type}&offset=${page * PAGE_SIZE}&limit=${PAGE_SIZE}`);
+    const batch = res.items || [];
+    items.push(...batch);
+    if (batch.length < PAGE_SIZE) return { items, truncated: false };
+  }
+  return { items, truncated: true };
+}
 
 function mapStatus(s) {
   const st = String(s || '').toUpperCase();
@@ -219,15 +243,29 @@ async function syncTeam(team) {
       roster.push(entry);
     }
     await db.run('UPDATE teams SET faceit_roster = ? WHERE id = ?', JSON.stringify(roster), team.id);
-    for (const mem of (teamInfo.members || []).slice(0, 4)) {
+    // Scan every member over a wide window: a season only has to surface in one
+    // player's history, and a member on a pickup-game run can push league
+    // matches out of a short one.
+    const ourChamps = new Set(), otherChamps = new Set();
+    for (const mem of (teamInfo.members || [])) {
       if (!mem.user_id) continue;
       try {
-        const hist = await fApi(key, `/players/${mem.user_id}/history?game=${encodeURIComponent(game)}&offset=0&limit=20`);
+        const hist = await fApi(key, `/players/${mem.user_id}/history?game=${encodeURIComponent(game)}&offset=0&limit=50`);
         for (const h of (hist.items || [])) {
-          if (h.competition_type === 'championship' && h.competition_id) champIds.add(h.competition_id);
+          if (h.competition_type !== 'championship' || !h.competition_id) continue;
+          // Split by whether this team actually played it. A pickup-game
+          // championship names per-match factions, never our team id, and
+          // paging one of those to exhaustion spends the API budget on
+          // matches that can never be ours.
+          const ours = Object.values(h.teams || {}).some(f => (f.team_id || f.faction_id) === fteam);
+          (ours ? ourChamps : otherChamps).add(h.competition_id);
         }
       } catch { /* member history unavailable — not fatal */ }
     }
+    for (const id of ourChamps) champIds.add(id);
+    // Only fall back to the rest if that told us nothing — better to spend extra
+    // calls than to sync no matches at all.
+    if (!ourChamps.size) for (const id of otherChamps) champIds.add(id);
   } catch (e) {
     summary.errors.push(`team lookup: ${e.message}`);
   }
@@ -267,12 +305,15 @@ async function syncTeam(team) {
         oppRow.id, scheduled, event, format, status, existing.id);
       summary.updated++;
     } else {
-      await db.run(`INSERT INTO matches
+      // ON CONFLICT: two syncs can overlap, and both would clear the check
+      // above before either inserts — the second must not throw and abandon
+      // the remaining matches.
+      const ins = await db.run(`INSERT INTO matches
         (team_id, opponent_id, scheduled_at, event, format, expected_maps, veto_notes, starting_side, roster, subs, status, created_by, created_at, faceit_match_id)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT DO NOTHING`,
         team.id, oppRow.id, scheduled, event, format, '[]', null, null,
         JSON.stringify(starters), '[]', status, null, now(), matchId);
-      summary.created++;
+      if (ins.changes) summary.created++;
     }
   };
 
@@ -282,8 +323,13 @@ async function syncTeam(team) {
     let any = false;
     for (const type of ['upcoming', 'ongoing', 'past']) {
       try {
-        const page = await fApi(key, `/championships/${cid}/matches?type=${type}&offset=0&limit=100`);
-        for (const m of (page.items || [])) await upsertMatch(m, champName);
+        const { items, truncated } = await championshipMatches(key, cid, type);
+        for (const m of items) {
+          // one unusable item must not abandon the rest of the list
+          try { await upsertMatch(m, champName); }
+          catch (e) { summary.errors.push(`match ${String(m.match_id || '?').slice(0, 12)}…: ${e.message}`); }
+        }
+        if (truncated) summary.errors.push(`championship ${cid.slice(0, 8)}… ${type}: more than ${MAX_PAGES * PAGE_SIZE} matches, list truncated`);
         any = true;
       } catch (e) {
         if (e.code !== 404) summary.errors.push(`championship ${cid.slice(0, 8)}…: ${e.message}`);

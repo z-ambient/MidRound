@@ -103,6 +103,12 @@ async function loadMe() {
     const org = state.me.orgs.find(o => o.id === team.org_id);
     state.role = org ? org.role : null;
     localStorage.setItem('mr.teamId', String(team.id));
+  } else {
+    // Must be cleared, not left alone: signing out of a team account and into
+    // a team-less one in the same tab would otherwise keep the old team id and
+    // 403 every team request.
+    state.teamId = null;
+    state.role = null;
   }
   return true;
 }
@@ -127,6 +133,9 @@ function renderShell(path) {
       a.classList.toggle('active', active);
     });
     app.querySelector('.sidebar')?.classList.remove('open');
+    // re-resolve the profile link: it depends on roster data that can change
+    // (or have failed to load) after the shell was first built
+    populateProfileMenu();
     return;
   }
   const team = state.me.teams.find(t => t.id === state.teamId);
@@ -203,6 +212,10 @@ function renderShell(path) {
 // fills the profile menu: my player-profile link, team switcher, pending invites
 async function populateProfileMenu() {
   const profileLink = document.getElementById('pm-profile');
+  // Reset first: the link is only meaningful while it points at a roster slot,
+  // and this runs again on later navigations. An href left over from another
+  // team — or a visible row with no href at all — is a link that goes nowhere.
+  if (profileLink) { profileLink.hidden = true; profileLink.removeAttribute('href'); }
   if (profileLink && state.teamId) {
     try {
       const players = await api.get(`/api/teams/${state.teamId}/players`);
