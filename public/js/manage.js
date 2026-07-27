@@ -1559,7 +1559,7 @@ export async function viewTeam(el) {
           </select>
           <button class="btn primary small" type="submit">Send invite</button>
         </form>
-        <p class="small muted" style="margin-bottom:8px"><b>New to MidRound?</b> Generate a one-time code — they enter it when creating their account.</p>
+        <p class="small muted" style="margin-bottom:8px"><b>New to MidRound?</b> Generate a one-time code — they redeem it right after creating their account.</p>
         <form id="gen-invite" class="row-item" style="margin-bottom:12px">
           <select name="role" class="grow">
             ${['view', 'edit'].map(r => `<option value="${r}">${roleLabel(r)}</option>`).join('')}

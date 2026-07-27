@@ -25,14 +25,16 @@ test.before(async () => {
   strategyId = strategies[0].id;
 
   // The outsider has an account — in a completely different organization.
+  // Registration no longer creates an org; that happens in-app afterwards.
   const reg = await postJson(base, '/api/auth/register', {
     email: 'outsider@example.com',
     password: 'password123',
     name: 'Out Sider',
-    orgName: 'Rival Org',
   });
   assert.equal(reg.status, 200);
   outsiderCookie = cookieOf(reg);
+  const org = await postJson(base, '/api/orgs', { name: 'Rival Org' }, outsiderCookie);
+  assert.equal(org.status, 200);
 });
 test.after(() => server.close());
 

@@ -21,7 +21,6 @@ test('session tokens are stored hashed, never in plaintext', async () => {
     email: 'hashcheck@example.com',
     password: 'password123',
     name: 'Hash Check',
-    orgName: 'Hash Check Org',
   });
   assert.equal(res.status, 200);
   const token = cookieOf(res).split('=')[1];

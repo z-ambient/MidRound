@@ -67,6 +67,13 @@ async function route() {
   }
   if (found.public && state.me) { nav('/'); return; }
 
+  // Signed in but not part of any organization yet — onboarding replaces
+  // every app view until they create an org or join a team.
+  if (!found.public && !state.me.orgs.length) {
+    await viewOnboarding();
+    return;
+  }
+
   if (!found.public) {
     localStorage.setItem('mr.route', location.hash);
   }
@@ -358,15 +365,9 @@ function viewRegister() {
       <div class="field"><label>Name</label><input name="name" required placeholder='e.g. Morgan "Vector" Hale'></div>
       <div class="field"><label>Email</label><input type="email" name="email" required autocomplete="username"></div>
       <div class="field"><label>Password (8+ characters)</label><input type="password" name="password" required minlength="8" autocomplete="new-password"></div>
-      <div class="field"><label>Invite code (if joining an existing team)</label><input name="invite" placeholder="Paste invite code"></div>
-      <div class="field" id="org-fields">
-        <label>…or create a new organization</label>
-        <input name="orgName" placeholder="Organization name">
-        <div style="height:8px"></div>
-        <input name="teamName" placeholder="Team name (default: Main Team)">
-      </div>
       <button class="btn primary" type="submit" style="width:100%">Create account</button>
     </form>
+    <p class="small muted" style="margin-top:10px;text-align:center">You'll create your organization or join a team right after.</p>
     <div class="auth-switch">Already have an account? <a href="#/login">Sign in</a></div>`);
   document.getElementById('reg-form').onsubmit = async (e) => {
     e.preventDefault();
@@ -374,9 +375,6 @@ function viewRegister() {
     try {
       await api.post('/api/auth/register', {
         name: f.get('name'), email: f.get('email'), password: f.get('password'),
-        invite: f.get('invite')?.trim() || undefined,
-        orgName: f.get('orgName')?.trim() || undefined,
-        teamName: f.get('teamName')?.trim() || undefined,
       });
       await loadMe();
       app.dataset.shell = '';
@@ -384,6 +382,76 @@ function viewRegister() {
     } catch (err) {
       document.getElementById('auth-err').innerHTML = `<div class="auth-err">${esc(err.message)}</div>`;
     }
+  };
+}
+
+// First screen after signup (or whenever the account has no organization):
+// accept a pending invite, redeem an invite code, or create a new org.
+async function viewOnboarding() {
+  let invites = [];
+  try { invites = await api.get('/api/me/invites'); } catch { /* optional */ }
+  authFrame(`
+    <div id="auth-err"></div>
+    <h2 style="margin:0 0 4px">Welcome, ${esc(state.me.user.name)}</h2>
+    <p class="small muted" style="margin-bottom:16px">Join your team or create a new organization to get started.</p>
+    ${invites.length ? `
+      <div class="pm-label" style="padding-left:0">Your invites</div>
+      ${invites.map(i => `
+        <div class="row-item" style="margin-bottom:10px">
+          <span class="grow small"><b>${esc(i.team_name || i.org_name)}</b> · ${esc(roleLabel(i.role))}
+            <div class="muted">invited by ${esc(i.invited_by || 'a team owner')}</div></span>
+          <button class="btn primary small" data-acc="${i.id}">Join</button>
+          <button class="btn ghost small" data-dec="${i.id}">Decline</button>
+        </div>`).join('')}` : ''}
+    <form id="onb-code">
+      <div class="field"><label>Have an invite code?</label><input name="code" placeholder="Paste invite code" autocomplete="off"></div>
+      <button class="btn" type="submit" style="width:100%">Join with code</button>
+    </form>
+    <div class="small muted" style="text-align:center;margin:14px 0">— or —</div>
+    <form id="onb-org">
+      <div class="field"><label>Organization name</label><input name="orgName" required placeholder="e.g. Northlight Esports"></div>
+      <div class="field"><label>Team name</label><input name="teamName" placeholder="Main Team"></div>
+      <button class="btn primary" type="submit" style="width:100%">Create organization</button>
+    </form>
+    <div class="auth-switch"><a href="#" id="onb-logout">Sign out</a></div>`);
+
+  const err = (m) => { document.getElementById('auth-err').innerHTML = `<div class="auth-err">${esc(m)}</div>`; };
+  const enter = (teamId) => {
+    if (teamId) localStorage.setItem('mr.teamId', String(teamId));
+    localStorage.removeItem('mr.route');
+    location.hash = '#/';
+    location.reload();
+  };
+
+  app.querySelectorAll('[data-acc]').forEach(b => b.onclick = async () => {
+    try { enter((await api.post(`/api/invites/${b.dataset.acc}/accept`)).team_id); }
+    catch (e) { err(e.message); }
+  });
+  app.querySelectorAll('[data-dec]').forEach(b => b.onclick = async () => {
+    try { await api.post(`/api/invites/${b.dataset.dec}/decline`); b.closest('.row-item').remove(); }
+    catch (e) { err(e.message); }
+  });
+  document.getElementById('onb-code').onsubmit = async (e) => {
+    e.preventDefault();
+    const code = new FormData(e.target).get('code')?.trim();
+    if (!code) return err('Paste an invite code first');
+    try { enter((await api.post('/api/invites/redeem', { code })).team_id); }
+    catch (e2) { err(e2.message); }
+  };
+  document.getElementById('onb-org').onsubmit = async (e) => {
+    e.preventDefault();
+    const f = new FormData(e.target);
+    try {
+      enter((await api.post('/api/orgs', {
+        name: f.get('orgName'), teamName: f.get('teamName')?.trim() || undefined,
+      })).team_id);
+    } catch (e2) { err(e2.message); }
+  };
+  document.getElementById('onb-logout').onclick = async (e) => {
+    e.preventDefault();
+    try { await api.post('/api/auth/logout'); } catch {}
+    state.me = null;
+    nav('/login');
   };
 }
 

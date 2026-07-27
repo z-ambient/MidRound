@@ -204,7 +204,7 @@ function requireResource(kind, domain) {
 
 // ---------- auth routes ----------
 app.post('/api/auth/register', authLimiter, ah(async (req, res) => {
-  const { email, password, name, invite, orgName, teamName } = req.body || {};
+  const { email, password, name } = req.body || {};
   if (typeof email !== 'string' || email.length > 254 || !/^\S+@\S+\.\S+$/.test(email)) {
     return res.status(400).json({ error: 'Valid email required' });
   }
@@ -214,42 +214,18 @@ app.post('/api/auth/register', authLimiter, ah(async (req, res) => {
   // bcrypt only reads the first 72 bytes; reject longer so nothing is silently ignored
   if (password.length > 72) return res.status(400).json({ error: 'Password must be at most 72 characters' });
   if (!name || typeof name !== 'string' || !name.trim()) return res.status(400).json({ error: 'Name required' });
-  const lenErr = v.firstError(
-    v.requiredString(name, 'Name', 80),
-    v.optionalString(invite, 'Invite code', 50),
-    v.optionalString(orgName, 'Organization name', 120),
-    v.optionalString(teamName, 'Team name', 80),
-  );
+  const lenErr = v.firstError(v.requiredString(name, 'Name', 80));
   if (lenErr) return res.status(400).json({ error: lenErr });
   if (await db.get('SELECT id FROM users WHERE email = ?', email.toLowerCase())) {
     return res.status(409).json({ error: 'An account with that email already exists' });
   }
 
-  let inv = null;
-  if (invite) {
-    inv = await db.get('SELECT * FROM invites WHERE code = ? AND used_by IS NULL', invite.trim());
-    if (!inv) return res.status(400).json({ error: 'Invalid or already-used invite code' });
-    if (inv.email && inv.email !== email.toLowerCase()) {
-      return res.status(400).json({ error: 'This invite is addressed to a different email' });
-    }
-  } else if (!orgName || !orgName.trim()) {
-    return res.status(400).json({ error: 'Provide an invite code, or an organization name to create a new organization' });
-  }
-
+  // The account starts with no organization — the user creates one or joins
+  // via invite from inside the app (POST /api/orgs, /api/invites/redeem).
   const t = now();
   const userId = (await db.run(
     'INSERT INTO users (email, name, password_hash, created_at) VALUES (?,?,?,?) RETURNING id',
     email.toLowerCase(), name.trim(), bcrypt.hashSync(password, 10), t)).id;
-
-  if (inv) {
-    await db.run('INSERT INTO org_members (org_id, user_id, role) VALUES (?,?,?)', inv.org_id, userId, inv.role);
-    if (inv.team_id) await db.run('INSERT INTO team_members (team_id, user_id, is_starter) VALUES (?,?,0)', inv.team_id, userId);
-    await db.run('UPDATE invites SET used_by = ? WHERE id = ?', userId, inv.id);
-  } else {
-    const orgId = (await db.run('INSERT INTO organizations (name, created_at) VALUES (?,?) RETURNING id', orgName.trim(), t)).id;
-    await db.run('INSERT INTO org_members (org_id, user_id, role) VALUES (?,?,?)', orgId, userId, 'owner');
-    await db.run('INSERT INTO teams (org_id, name) VALUES (?,?)', orgId, (teamName || 'Main Team').trim());
-  }
 
   const token = crypto.randomBytes(32).toString('hex');
   await db.run('INSERT INTO sessions (token_hash, user_id, created_at, expires_at) VALUES (?,?,?,?)',
@@ -290,6 +266,23 @@ app.get('/api/me', meLimiter, auth, ah(async (req, res) => {
     SELECT t.id, t.org_id, t.name FROM teams t
     WHERE t.org_id IN (${orgs.map(() => '?').join(',')})`, ...orgs.map(o => o.id)) : [];
   res.json({ user: req.user, orgs, teams });
+}));
+
+// ---------- organizations ----------
+// In-app onboarding: create a new organization (+ first team); caller becomes owner.
+app.post('/api/orgs', auth, ah(async (req, res) => {
+  const { name, teamName } = req.body || {};
+  const lenErr = v.firstError(
+    v.requiredString(name, 'Organization name', 120),
+    v.optionalString(teamName, 'Team name', 80),
+  );
+  if (lenErr) return res.status(400).json({ error: lenErr });
+  const t = now();
+  const orgId = (await db.run('INSERT INTO organizations (name, created_at) VALUES (?,?) RETURNING id', name.trim(), t)).id;
+  await db.run('INSERT INTO org_members (org_id, user_id, role) VALUES (?,?,?)', orgId, req.user.id, 'owner');
+  const teamId = (await db.run('INSERT INTO teams (org_id, name) VALUES (?,?) RETURNING id',
+    orgId, (teamName || '').trim() || 'Main Team')).id;
+  res.json({ ok: true, org_id: orgId, team_id: teamId });
 }));
 
 // ---------- maps ----------
@@ -1020,7 +1013,7 @@ app.post('/api/teams/:teamId/invites/direct', auth, requireTeam('team'), ah(asyn
   if (email.length > 254 || !/^\S+@\S+\.\S+$/.test(email)) return res.status(400).json({ error: 'Valid email required' });
   if (!['edit', 'view'].includes(role)) return res.status(400).json({ error: 'Invalid invite role' });
   const user = await db.get('SELECT id FROM users WHERE email = ?', email);
-  if (!user) return res.status(404).json({ error: 'No account with that email — generate an invite code for new users instead' });
+  if (!user) return res.status(404).json({ error: 'No account with that email — generate an invite code instead; they redeem it after signing up' });
   if (await orgRole(user.id, req.access.team.org_id)) return res.status(409).json({ error: 'That user is already a member of this organization' });
   if (await db.get('SELECT 1 AS x FROM invites WHERE org_id = ? AND email = ? AND used_by IS NULL', req.access.team.org_id, email)) {
     return res.status(409).json({ error: 'That user already has a pending invite' });
@@ -1048,6 +1041,28 @@ app.post('/api/invites/:iid/accept', auth, ah(async (req, res) => {
   if (!(await orgRole(req.user.id, inv.org_id))) {
     await db.run('INSERT INTO org_members (org_id, user_id, role) VALUES (?,?,?)', inv.org_id, req.user.id, inv.role);
   }
+  if (inv.team_id && !(await db.get('SELECT 1 AS x FROM team_members WHERE team_id = ? AND user_id = ?', inv.team_id, req.user.id))) {
+    await db.run('INSERT INTO team_members (team_id, user_id, is_starter) VALUES (?,?,0)', inv.team_id, req.user.id);
+  }
+  await db.run('UPDATE invites SET used_by = ? WHERE id = ?', req.user.id, inv.id);
+  res.json({ ok: true, team_id: inv.team_id });
+}));
+
+// Redeem an invite code from inside the app (signup no longer accepts codes).
+// authLimiter keeps codes from being brute-forced.
+app.post('/api/invites/redeem', authLimiter, auth, ah(async (req, res) => {
+  const code = req.body?.code;
+  const lenErr = v.firstError(v.requiredString(code, 'Invite code', 50));
+  if (lenErr) return res.status(400).json({ error: lenErr });
+  const inv = await db.get('SELECT * FROM invites WHERE code = ? AND used_by IS NULL', code.trim());
+  if (!inv) return res.status(400).json({ error: 'Invalid or already-used invite code' });
+  if (inv.email && inv.email !== req.user.email) {
+    return res.status(400).json({ error: 'This invite is addressed to a different email' });
+  }
+  if (await orgRole(req.user.id, inv.org_id)) {
+    return res.status(409).json({ error: 'You are already a member of this organization' });
+  }
+  await db.run('INSERT INTO org_members (org_id, user_id, role) VALUES (?,?,?)', inv.org_id, req.user.id, inv.role);
   if (inv.team_id && !(await db.get('SELECT 1 AS x FROM team_members WHERE team_id = ? AND user_id = ?', inv.team_id, req.user.id))) {
     await db.run('INSERT INTO team_members (team_id, user_id, is_starter) VALUES (?,?,0)', inv.team_id, req.user.id);
   }
