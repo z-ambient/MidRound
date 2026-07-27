@@ -4,9 +4,13 @@
   "private": true,
   "description": "MidRound — the tactical command center for Counter-Strike teams.",
   "main": "server.js",
+  "engines": {
+    "node": ">=22.5"
+  },
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "test": "node --test"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

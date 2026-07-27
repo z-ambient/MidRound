@@ -5,6 +5,13 @@ export function esc(s) {
   return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
+// Only plain web links may become clickable hrefs. HTML-escaping is not
+// enough for URLs — an escaped "javascript:" href still runs when clicked.
+// The server rejects such URLs on save; this guards rows saved before that.
+export function safeHref(url) {
+  return /^https?:\/\//i.test(String(url || '').trim());
+}
+
 export function sideBadge(side) {
   if (side === 'T') return '<span class="badge t">T SIDE</span>';
   if (side === 'CT') return '<span class="badge ct">CT SIDE</span>';

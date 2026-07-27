@@ -1,6 +1,6 @@
 // MidRound — Management Mode views
 import { api } from './api.js';
-import { esc, sideBadge, statusBadge, badge, fmtDate, fmtRel, toast, confirmDialog, inputDialog, emptyState, spinner, tagsHtml, opt, linesToArr, arrToLines, debounce, ICONS } from './ui.js';
+import { esc, safeHref, sideBadge, statusBadge, badge, fmtDate, fmtRel, toast, confirmDialog, inputDialog, emptyState, spinner, tagsHtml, opt, linesToArr, arrToLines, debounce, ICONS } from './ui.js';
 import { state, can, nav, query, trackView, roleLabel } from './main.js';
 
 const teamUrl = (p) => `/api/teams/${state.teamId}${p}`;
@@ -121,7 +121,9 @@ export function strategyDetailHtml(s) {
     ${s.required_utility ? `<div class="section"><h3>Required utility</h3><p class="small" style="color:var(--text-2)">${esc(s.required_utility)}</p></div>` : ''}
     ${(s.steps || []).length ? `<div class="section"><h3>Step by step</h3><ol class="steps">${s.steps.map(x => `<li><span>${esc(x)}</span></li>`).join('')}</ol></div>` : ''}
     ${(s.attachments || []).length ? `<div class="section"><h3>Attachments</h3><ul class="bullets">${s.attachments.map(a =>
-      `<li>${esc(a.type || 'link')}: <a style="color:var(--blue)" href="${esc(a.url)}" target="_blank" rel="noopener noreferrer">${esc(a.label || a.url)}</a></li>`).join('')}</ul></div>` : ''}`;
+      `<li>${esc(a.type || 'link')}: ${safeHref(a.url)
+        ? `<a style="color:var(--blue)" href="${esc(a.url)}" target="_blank" rel="noopener noreferrer">${esc(a.label || a.url)}</a>`
+        : `<span title="Link removed — not a web URL">${esc(a.label || a.url)}</span>`}</li>`).join('')}</ul></div>` : ''}`;
 }
 
 // ---------- dashboard ----------

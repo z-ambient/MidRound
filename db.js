@@ -3,7 +3,9 @@ const path = require('path');
 const { DatabaseSync } = require('node:sqlite');
 const bcrypt = require('bcryptjs');
 
-const db = new DatabaseSync(path.join(__dirname, 'midround.db'));
+// MIDROUND_DB_PATH lets tests and containers point at their own database file.
+const DB_PATH = process.env.MIDROUND_DB_PATH || path.join(__dirname, 'midround.db');
+const db = new DatabaseSync(DB_PATH);
 db.exec('PRAGMA journal_mode = WAL;');
 db.exec('PRAGMA foreign_keys = ON;');
 
@@ -246,7 +248,30 @@ function backfillTeamPlayers() {
 normalizeAccess();
 backfillTeamPlayers();
 
+// Startup cleanup of session rows that must not linger.
+//
+// Expired rows: normally deleted the next time that session is presented, but
+// a session nobody presents again would otherwise sit in the table forever.
+// Malformed rows: token_hash must be a sha256 hex digest (exactly 64 hex
+// chars). Anything else would be a plaintext token stored by accident — a
+// live credential in a leaked database or backup — so it is deleted outright.
+// Both checks are idempotent and safe to run on every boot.
+function cleanupSessions() {
+  const result = db.prepare(`
+    DELETE FROM sessions
+    WHERE expires_at < ?
+       OR length(token_hash) != 64
+       OR token_hash GLOB '*[^0-9a-f]*'
+  `).run(new Date().toISOString());
+  if (result.changes) console.log(`[midround] purged ${result.changes} stale session rows`);
+  return result.changes;
+}
+
 function seedIfEmpty() {
+  // Never seed the demo org (8 accounts, shared well-known password) into a
+  // production database — the first real user registers their own org
+  // instead. Set SEED_DEMO=1 to override for a staging environment.
+  if (process.env.NODE_ENV === 'production' && process.env.SEED_DEMO !== '1') return;
   const count = db.prepare('SELECT COUNT(*) AS c FROM users').get().c;
   if (count > 0) return;
 
@@ -834,4 +859,4 @@ function seedIfEmpty() {
   console.log('[midround] seeded demo data (org: Northlight Gaming, 8 users, password: demo1234)');
 }
 
-module.exports = { db, seedIfEmpty };
+module.exports = { db, seedIfEmpty, cleanupSessions };

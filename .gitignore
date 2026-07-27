@@ -18,6 +18,7 @@ Thumbs.db
 npm-debug.log*
 *.log
 
-# local env (none used today, but keep future secrets out)
+# local env (keep secrets out — but the example template IS tracked)
 .env
 .env.*
+!.env.example

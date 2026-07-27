@@ -3,17 +3,54 @@ const path = require('path');
 const crypto = require('crypto');
 const express = require('express');
 const bcrypt = require('bcryptjs');
-const { db, seedIfEmpty } = require('./db');
+const { db, seedIfEmpty, cleanupSessions } = require('./db');
 const faceit = require('./faceit');
+const { rateLimit, clientIp, TRUSTED_PROXY_HOPS } = require('./rate-limit');
+const v = require('./validate');
 
 seedIfEmpty();
+cleanupSessions();
 
 const app = express();
 const PORT = process.env.PORT || 4310;
 const SESSION_DAYS = 30;
 
-app.use(express.json({ limit: '1mb' }));
+// Legitimate MidRound payloads (even a fully detailed strategy) are a few KB;
+// 64 KB is generous and stops a client posting megabytes into JSON columns.
+app.use(express.json({ limit: '64kb' }));
 app.disable('x-powered-by');
+
+// Turn body-parser failures into the app's generic JSON error shape. The
+// default Express error page would echo details of the rejected input back;
+// we never do that.
+app.use((err, req, res, next) => {
+  if (err && err.type === 'entity.too.large') {
+    return res.status(413).json({ error: 'Request body too large' });
+  }
+  if (err && (err.type === 'entity.parse.failed' || err.status === 400)) {
+    return res.status(400).json({ error: 'Invalid request' });
+  }
+  next(err);
+});
+
+// ---------- rate limits ----------
+// Per-IP budgets (keyed by the spoof-resistant clientIp in rate-limit.js):
+// - auth actions happen a handful of times per session; 10/minute never
+//   touches a real user but shuts down scripted abuse
+// - /api/me is polled on page load and gets more headroom
+// - writes are bounded so one client can't hammer the database
+// - FACEIT routes spend the team's server-side API key (and its own quota),
+//   so they get the tightest shared budget
+const authLimiter = rateLimit({ max: 10 });
+const meLimiter = rateLimit({ max: 30 });
+const writeLimiter = rateLimit({ max: 120 });
+const faceitLimiter = rateLimit({ max: 10 });
+
+// One write budget across all non-auth API writes (auth has its own limiter).
+app.use('/api', (req, res, next) => {
+  if (req.method === 'GET' || req.path.startsWith('/auth/')) return next();
+  return writeLimiter(req, res, next);
+});
 
 app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -38,16 +75,40 @@ function getCookies(req) {
   return out;
 }
 
-function setSessionCookie(res, token) {
+// Is this request really HTTPS? We never enable Express "trust proxy"
+// globally (that would let any client spoof req.ip and req.secure with one
+// header). Instead: direct TLS counts, an explicit COOKIE_SECURE=1 override
+// counts, and behind a configured trusted proxy we read X-Forwarded-Proto
+// from the trusted (rightmost) end only — same reasoning as clientIp.
+function requestIsSecure(req) {
+  if (process.env.COOKIE_SECURE === '1') return true;
+  if (req.secure) return true;
+  if (TRUSTED_PROXY_HOPS > 0) {
+    const protos = String(req.headers['x-forwarded-proto'] || '')
+      .split(',').map(s => s.trim()).filter(Boolean);
+    if (protos.length) return protos[protos.length - 1] === 'https';
+  }
+  return false;
+}
+
+// Session cookie: HttpOnly (no script access), SameSite=Lax (CSRF cushion),
+// and Secure whenever the request actually arrived over HTTPS so the browser
+// never sends the token in cleartext.
+function sessionCookieFlags(req) {
+  return `HttpOnly; SameSite=Lax; Path=/${requestIsSecure(req) ? '; Secure' : ''}`;
+}
+
+function setSessionCookie(req, res, token) {
   res.setHeader('Set-Cookie',
-    `mr_session=${token}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${SESSION_DAYS * 86400}`);
+    `mr_session=${token}; ${sessionCookieFlags(req)}; Max-Age=${SESSION_DAYS * 86400}`);
 }
 
-function clearSessionCookie(res) {
-  res.setHeader('Set-Cookie', 'mr_session=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0');
+function clearSessionCookie(req, res) {
+  res.setHeader('Set-Cookie', `mr_session=; ${sessionCookieFlags(req)}; Max-Age=0`);
 }
 
-// simple in-memory login rate limit
+// Failed-login tracker (on top of the per-minute authLimiter): 20 wrong
+// passwords per 15 minutes per IP, keyed by the spoof-resistant clientIp.
 const loginAttempts = new Map();
 function loginLimited(ip) {
   const rec = loginAttempts.get(ip) || { n: 0, ts: Date.now() };
@@ -131,11 +192,24 @@ function requireResource(kind, domain) {
 }
 
 // ---------- auth routes ----------
-app.post('/api/auth/register', (req, res) => {
+app.post('/api/auth/register', authLimiter, (req, res) => {
   const { email, password, name, invite, orgName, teamName } = req.body || {};
-  if (!email || !/^\S+@\S+\.\S+$/.test(email)) return res.status(400).json({ error: 'Valid email required' });
-  if (!password || password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters' });
-  if (!name || !name.trim()) return res.status(400).json({ error: 'Name required' });
+  if (typeof email !== 'string' || email.length > 254 || !/^\S+@\S+\.\S+$/.test(email)) {
+    return res.status(400).json({ error: 'Valid email required' });
+  }
+  if (typeof password !== 'string' || password.length < 8) {
+    return res.status(400).json({ error: 'Password must be at least 8 characters' });
+  }
+  // bcrypt only reads the first 72 bytes; reject longer so nothing is silently ignored
+  if (password.length > 72) return res.status(400).json({ error: 'Password must be at most 72 characters' });
+  if (!name || typeof name !== 'string' || !name.trim()) return res.status(400).json({ error: 'Name required' });
+  const lenErr = v.firstError(
+    v.requiredString(name, 'Name', 80),
+    v.optionalString(invite, 'Invite code', 50),
+    v.optionalString(orgName, 'Organization name', 120),
+    v.optionalString(teamName, 'Team name', 80),
+  );
+  if (lenErr) return res.status(400).json({ error: lenErr });
   if (db.prepare('SELECT id FROM users WHERE email = ?').get(email.toLowerCase())) {
     return res.status(409).json({ error: 'An account with that email already exists' });
   }
@@ -168,34 +242,35 @@ app.post('/api/auth/register', (req, res) => {
   const token = crypto.randomBytes(32).toString('hex');
   db.prepare('INSERT INTO sessions (token_hash, user_id, created_at, expires_at) VALUES (?,?,?,?)')
     .run(sha256(token), userId, t, new Date(Date.now() + SESSION_DAYS * 86400000).toISOString());
-  setSessionCookie(res, token);
+  setSessionCookie(req, res, token);
   res.json({ ok: true });
 });
 
-app.post('/api/auth/login', (req, res) => {
-  const ip = req.ip || 'unknown';
+app.post('/api/auth/login', authLimiter, (req, res) => {
+  const ip = clientIp(req);
   if (loginLimited(ip)) return res.status(429).json({ error: 'Too many attempts — try again in a few minutes' });
   const { email, password } = req.body || {};
-  const user = email ? db.prepare('SELECT * FROM users WHERE email = ?').get(String(email).toLowerCase()) : null;
-  if (!user || !bcrypt.compareSync(String(password || ''), user.password_hash)) {
+  const user = (typeof email === 'string' && email.length <= 254)
+    ? db.prepare('SELECT * FROM users WHERE email = ?').get(email.toLowerCase()) : null;
+  if (!user || !bcrypt.compareSync(String(password || '').slice(0, 72), user.password_hash)) {
     noteLoginFail(ip);
     return res.status(401).json({ error: 'Incorrect email or password' });
   }
   const token = crypto.randomBytes(32).toString('hex');
   db.prepare('INSERT INTO sessions (token_hash, user_id, created_at, expires_at) VALUES (?,?,?,?)')
     .run(sha256(token), user.id, now(), new Date(Date.now() + SESSION_DAYS * 86400000).toISOString());
-  setSessionCookie(res, token);
+  setSessionCookie(req, res, token);
   res.json({ ok: true });
 });
 
-app.post('/api/auth/logout', auth, (req, res) => {
+app.post('/api/auth/logout', authLimiter, auth, (req, res) => {
   const token = getCookies(req).mr_session;
   if (token) db.prepare('DELETE FROM sessions WHERE token_hash = ?').run(sha256(token));
-  clearSessionCookie(res);
+  clearSessionCookie(req, res);
   res.json({ ok: true });
 });
 
-app.get('/api/me', auth, (req, res) => {
+app.get('/api/me', meLimiter, auth, (req, res) => {
   const orgs = db.prepare(`
     SELECT o.id, o.name, m.role FROM organizations o
     JOIN org_members m ON m.org_id = o.id WHERE m.user_id = ?`).all(req.user.id);
@@ -215,6 +290,7 @@ app.post('/api/maps', auth, (req, res) => {
   if (!anyEditor) return res.status(403).json({ error: 'Your role cannot add maps' });
   const name = String(req.body?.name || '').trim();
   if (!name) return res.status(400).json({ error: 'Map name required' });
+  if (name.length > 50) return res.status(400).json({ error: 'Map name must be at most 50 characters' });
   try {
     db.prepare('INSERT INTO maps (name, active) VALUES (?,1)').run(name);
   } catch { return res.status(409).json({ error: 'Map already exists' }); }
@@ -223,6 +299,35 @@ app.post('/api/maps', auth, (req, res) => {
 
 // ---------- strategies ----------
 const STRAT_JSON = ['tags', 'steps', 'roles', 'timings', 'midround', 'reactions', 'warnings', 'attachments'];
+
+// Shared checks for creating/updating a strategy. On updates (partial=true)
+// a field is only checked when the client actually sent it.
+function strategyError(b, partial) {
+  const has = (k) => !partial || b[k] !== undefined;
+  return v.firstError(
+    has('name') && v.requiredString(b.name, 'Name', 120),
+    has('map') && v.requiredString(b.map, 'Map', 50),
+    has('side') && v.oneOf(b.side, 'Side', ['T', 'CT']),
+    v.optionalString(b.category, 'Category', 50),
+    v.optionalString(b.buy_type, 'Buy type', 30),
+    v.optionalString(b.site, 'Site', 50),
+    v.optionalString(b.map_area, 'Map area', 120),
+    v.optionalOneOf(b.difficulty, 'Difficulty', ['basic', 'standard', 'advanced']),
+    v.optionalString(b.spawn_dependency, 'Spawn dependency', 2000),
+    v.optionalString(b.required_utility, 'Required utility', 2000),
+    v.optionalString(b.objective, 'Objective', 5000),
+    v.optionalString(b.summary, 'Summary', 5000),
+    v.optionalString(b.backup, 'Backup plan', 5000),
+    v.stringArray(b.tags, 'Tags', { maxItems: 30, maxLen: 60 }),
+    v.stringArray(b.steps, 'Steps'),
+    v.stringArray(b.timings, 'Timings'),
+    v.stringArray(b.midround, 'Mid-round calls'),
+    v.stringArray(b.reactions, 'Reactions'),
+    v.stringArray(b.warnings, 'Warnings'),
+    v.objectArray(b.roles, 'Roles', { maxItems: 20 }),
+    v.attachmentList(b.attachments),
+  );
+}
 function stratOut(row, userId) {
   if (!row) return null;
   const out = { ...row };
@@ -259,6 +364,8 @@ app.post('/api/teams/:teamId/strategies', auth, requireTeam('strategies'), (req,
   if (!b.name || !b.map || !b.side) {
     return res.status(400).json({ error: 'Name, map, and side are required' });
   }
+  const err = strategyError(b, false);
+  if (err) return res.status(400).json({ error: err });
   b.category = b.category || 'General';
   const t = now();
   const id = db.prepare(`INSERT INTO strategies
@@ -282,6 +389,8 @@ app.get('/api/strategies/:id', auth, requireResource('strategy', null), (req, re
 app.put('/api/strategies/:id', auth, requireResource('strategy', 'strategies'), (req, res) => {
   const id = Number(req.params.id);
   const b = req.body || {};
+  const err = strategyError(b, true);
+  if (err) return res.status(400).json({ error: err });
   const cur = db.prepare('SELECT * FROM strategies WHERE id = ?').get(id);
   const val = (k, d) => (b[k] !== undefined ? b[k] : d);
   db.prepare(`UPDATE strategies SET
@@ -354,9 +463,26 @@ app.get('/api/teams/:teamId/opponents', auth, requireTeam(null), (req, res) => {
   })));
 });
 
+// Shared checks for creating/updating an opponent (partial=true on updates).
+function opponentError(b, partial) {
+  const has = (k) => !partial || b[k] !== undefined;
+  return v.firstError(
+    has('name') && v.requiredString(b.name, 'Opponent name', 120),
+    v.optionalString(b.org_name, 'Organization name', 120),
+    v.optionalString(b.playstyle, 'Playstyle', 5000),
+    v.optionalString(b.map_pool, 'Map pool', 1000),
+    v.optionalString(b.preferred_picks, 'Preferred picks', 1000),
+    v.optionalString(b.preferred_bans, 'Preferred bans', 1000),
+    v.optionalString(b.econ_notes, 'Economy notes', 5000),
+    v.optionalString(b.notes, 'Notes', 5000),
+  );
+}
+
 app.post('/api/teams/:teamId/opponents', auth, requireTeam('scouting'), (req, res) => {
   const b = req.body || {};
   if (!b.name) return res.status(400).json({ error: 'Opponent name required' });
+  const err = opponentError(b, false);
+  if (err) return res.status(400).json({ error: err });
   const t = now();
   const id = db.prepare(`INSERT INTO opponents
     (team_id, name, org_name, playstyle, map_pool, preferred_picks, preferred_bans, econ_notes, notes, created_at, updated_at)
@@ -375,6 +501,8 @@ app.put('/api/opponents/:id', auth, requireResource('opponent', 'scouting'), (re
   const id = Number(req.params.id);
   const cur = db.prepare('SELECT * FROM opponents WHERE id = ?').get(id);
   const b = req.body || {};
+  const err = opponentError(b, true);
+  if (err) return res.status(400).json({ error: err });
   const val = (k) => (b[k] !== undefined ? b[k] : cur[k]);
   db.prepare(`UPDATE opponents SET name=?, org_name=?, playstyle=?, map_pool=?, preferred_picks=?,
     preferred_bans=?, econ_notes=?, notes=?, updated_at=? WHERE id=?`).run(
@@ -384,7 +512,7 @@ app.put('/api/opponents/:id', auth, requireResource('opponent', 'scouting'), (re
 });
 
 // pull recent form + per-map win rates for a FACEIT-linked opponent and store them
-app.post('/api/opponents/:id/faceit-intel', auth, requireResource('opponent', 'scouting'), async (req, res) => {
+app.post('/api/opponents/:id/faceit-intel', faceitLimiter, auth, requireResource('opponent', 'scouting'), async (req, res) => {
   const opp = db.prepare('SELECT * FROM opponents WHERE id = ?').get(Number(req.params.id));
   if (!opp.faceit_team_id) return res.status(400).json({ error: 'This opponent is not linked to a FACEIT team' });
   const team = db.prepare('SELECT faceit_api_key FROM teams WHERE id = ?').get(opp.team_id);
@@ -404,9 +532,26 @@ app.delete('/api/opponents/:id', auth, requireResource('opponent', 'scouting'), 
 });
 
 // opponent players
+// Shared checks for creating/updating an opponent player (partial on update).
+function opponentPlayerError(b, partial) {
+  const has = (k) => !partial || b[k] !== undefined;
+  return v.firstError(
+    has('name') && v.requiredString(b.name, 'Player name', 80),
+    v.optionalString(b.role, 'Role', 80),
+    v.optionalString(b.positions, 'Positions', 2000),
+    v.optionalString(b.weapons, 'Weapons', 1000),
+    v.optionalOneOf(b.aggression, 'Aggression', ['passive', 'balanced', 'aggressive']),
+    v.optionalString(b.habits, 'Habits', 2000),
+    v.optionalString(b.weaknesses, 'Weaknesses', 2000),
+    v.optionalString(b.notes, 'Notes', 2000),
+  );
+}
+
 app.post('/api/opponents/:id/players', auth, requireResource('opponent', 'scouting'), (req, res) => {
   const b = req.body || {};
   if (!b.name) return res.status(400).json({ error: 'Player name required' });
+  const err = opponentPlayerError(b, false);
+  if (err) return res.status(400).json({ error: err });
   db.prepare(`INSERT INTO opponent_players (opponent_id, name, role, positions, weapons, aggression, habits, weaknesses, notes)
     VALUES (?,?,?,?,?,?,?,?,?)`).run(Number(req.params.id), b.name, b.role || null, b.positions || null,
     b.weapons || null, b.aggression || null, b.habits || null, b.weaknesses || null, b.notes || null);
@@ -419,6 +564,8 @@ app.put('/api/opponent-players/:pid', auth, (req, res) => {
   req.params.id = p.opponent_id;
   requireResource('opponent', 'scouting')(req, res, () => {
     const b = req.body || {};
+    const err = opponentPlayerError(b, true);
+    if (err) return res.status(400).json({ error: err });
     const val = (k) => (b[k] !== undefined ? b[k] : p[k]);
     db.prepare(`UPDATE opponent_players SET name=?, role=?, positions=?, weapons=?, aggression=?, habits=?, weaknesses=?, notes=? WHERE id=?`)
       .run(val('name'), val('role'), val('positions'), val('weapons'), val('aggression'), val('habits'), val('weaknesses'), val('notes'), p.id);
@@ -440,6 +587,23 @@ app.delete('/api/opponent-players/:pid', auth, (req, res) => {
 app.post('/api/opponents/:id/tendencies', auth, requireResource('opponent', 'scouting'), (req, res) => {
   const b = req.body || {};
   if (!b.text) return res.status(400).json({ error: 'Tendency text required' });
+  const err = v.firstError(
+    v.requiredString(b.text, 'Tendency text', 2000),
+    v.optionalIdNumber(b.opponent_player_id, 'Player'),
+    v.optionalString(b.map, 'Map', 50),
+    v.optionalOneOf(b.side, 'Side', ['T', 'CT']),
+    v.optionalString(b.site, 'Site', 50),
+    v.optionalString(b.round_type, 'Round type', 50),
+    v.optionalString(b.category, 'Category', 50),
+  );
+  if (err) return res.status(400).json({ error: err });
+  if (b.opponent_player_id) {
+    // the linked player must belong to THIS opponent, not someone else's scouting data
+    const op = db.prepare('SELECT opponent_id FROM opponent_players WHERE id = ?').get(Number(b.opponent_player_id));
+    if (!op || op.opponent_id !== Number(req.params.id)) {
+      return res.status(400).json({ error: 'That player is not on this opponent' });
+    }
+  }
   db.prepare(`INSERT INTO tendencies (opponent_id, opponent_player_id, map, side, site, round_type, category, text, severity, created_by, created_at)
     VALUES (?,?,?,?,?,?,?,?,?,?,?)`).run(
     Number(req.params.id), b.opponent_player_id || null, b.map || null, b.side || null, b.site || null,
@@ -491,8 +655,27 @@ app.get('/api/teams/:teamId/matches', auth, requireTeam(null), (req, res) => {
   })));
 });
 
+// Shared checks for creating/updating a match (partial=true on updates).
+function matchError(b, teamId) {
+  return v.firstError(
+    v.optionalIdNumber(b.opponent_id, 'Opponent'),
+    v.optionalString(b.scheduled_at, 'Match time', 40),
+    v.optionalString(b.event, 'Event', 200),
+    v.optionalOneOf(b.format, 'Format', ['BO1', 'BO3', 'BO5']),
+    v.stringArray(b.expected_maps, 'Expected maps', { maxItems: 10, maxLen: 50 }),
+    v.optionalString(b.veto_notes, 'Veto notes', 5000),
+    v.optionalOneOf(b.starting_side, 'Starting side', ['T', 'CT']),
+    v.numberArray(b.roster, 'Roster', { maxItems: 20 }),
+    v.numberArray(b.subs, 'Subs', { maxItems: 20 }),
+    // a linked opponent must belong to this team, not leak another team's scouting
+    b.opponent_id && resourceTeam('opponent', Number(b.opponent_id)) !== teamId && 'Opponent not found',
+  );
+}
+
 app.post('/api/teams/:teamId/matches', auth, requireTeam('matches'), (req, res) => {
   const b = req.body || {};
+  const err = matchError(b, req.access.team.id);
+  if (err) return res.status(400).json({ error: err });
   const id = db.prepare(`INSERT INTO matches
     (team_id, opponent_id, scheduled_at, event, format, expected_maps, veto_notes, starting_side, roster, subs, status, created_by, created_at)
     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(
@@ -511,6 +694,8 @@ app.put('/api/matches/:id', auth, requireResource('match', 'matches'), (req, res
   const id = Number(req.params.id);
   const cur = db.prepare('SELECT * FROM matches WHERE id = ?').get(id);
   const b = req.body || {};
+  const err = matchError(b, req.teamId);
+  if (err) return res.status(400).json({ error: err });
   const val = (k, json) => b[k] !== undefined ? (json ? JSON.stringify(b[k]) : b[k]) : cur[k];
   db.prepare(`UPDATE matches SET opponent_id=?, scheduled_at=?, event=?, format=?, expected_maps=?, veto_notes=?,
     starting_side=?, roster=?, subs=?, status=? WHERE id=?`).run(
@@ -543,6 +728,8 @@ app.delete('/api/matches/:id/pins/:sid', auth, requireResource('match', 'matches
 app.post('/api/matches/:id/notes', auth, requireResource('match', 'matches'), (req, res) => {
   const b = req.body || {};
   if (!b.text || b.kind !== 'reminder') return res.status(400).json({ error: 'Note text and kind required' });
+  const err = v.requiredString(b.text, 'Note text', 2000);
+  if (err) return res.status(400).json({ error: err });
   const max = db.prepare('SELECT COALESCE(MAX(sort),-1) m FROM match_notes WHERE match_id = ? AND kind = ?').get(Number(req.params.id), b.kind).m;
   db.prepare('INSERT INTO match_notes (match_id, kind, text, sort) VALUES (?,?,?,?)').run(Number(req.params.id), b.kind, b.text, max + 1);
   res.json({ ok: true });
@@ -563,7 +750,12 @@ app.post('/api/recents', auth, (req, res) => {
   if (!['strategy', 'opponent', 'match'].includes(item_type) || !Number(item_id)) {
     return res.status(400).json({ error: 'Bad recent item' });
   }
-  if (resourceTeam(item_type, Number(item_id)) == null) return res.status(404).json({ error: 'Not found' });
+  // The item must exist AND belong to a team the signed-in user can access.
+  // Existence alone is not enough: answering differently for other teams'
+  // ids would both confirm private ids and let anyone write recents rows
+  // pointing at data they cannot see. Same 404 either way, on purpose.
+  const teamId = resourceTeam(item_type, Number(item_id));
+  if (teamId == null || !teamAccess(req, teamId)) return res.status(404).json({ error: 'Not found' });
   db.prepare('INSERT OR REPLACE INTO recents (user_id, item_type, item_id, viewed_at) VALUES (?,?,?,?)')
     .run(req.user.id, item_type, Number(item_id), now());
   res.json({ ok: true });
@@ -637,6 +829,8 @@ app.put('/api/teams/:teamId/members/:uid', auth, requireTeam('team'), (req, res)
   const b = req.body || {};
   const target = db.prepare('SELECT role FROM org_members WHERE org_id = ? AND user_id = ?').get(orgId, uid);
   if (!target) return res.status(404).json({ error: 'Not a member' });
+  const gameRoleErr = v.optionalString(b.game_role, 'Game role', 50);
+  if (gameRoleErr) return res.status(400).json({ error: gameRoleErr });
   if (b.role !== undefined) {
     if (!VALID_ROLES.includes(b.role)) return res.status(400).json({ error: 'Invalid role' });
     if (target.role === 'owner' && req.access.role !== 'owner') return res.status(403).json({ error: 'Only the owner can change the owner role' });
@@ -690,6 +884,12 @@ app.get('/api/teams/:teamId/players', auth, requireTeam(null), (req, res) => {
 app.post('/api/teams/:teamId/players', auth, requireTeam('team'), (req, res) => {
   const b = req.body || {};
   if (!b.name || !String(b.name).trim()) return res.status(400).json({ error: 'Player name required' });
+  const err = v.firstError(
+    v.requiredString(b.name, 'Player name', 80),
+    v.optionalString(b.game_role, 'Game role', 50),
+    v.optionalString(b.faceit_nickname, 'FACEIT nickname', 80),
+  );
+  if (err) return res.status(400).json({ error: err });
   const id = db.prepare('INSERT INTO team_players (team_id, name, game_role, is_starter, faceit_nickname) VALUES (?,?,?,?,?)')
     .run(req.access.team.id, String(b.name).trim(), b.game_role || null, b.is_starter === false ? 0 : 1, b.faceit_nickname || null).lastInsertRowid;
   res.json(playerOut(db.prepare('SELECT * FROM team_players WHERE id = ?').get(id)));
@@ -702,6 +902,12 @@ app.get('/api/team-players/:id', auth, requireResource('team_player', null), (re
 app.put('/api/team-players/:id', auth, requireResource('team_player', 'team'), (req, res) => {
   const p = db.prepare('SELECT * FROM team_players WHERE id = ?').get(Number(req.params.id));
   const b = req.body || {};
+  const err = v.firstError(
+    b.name !== undefined && v.requiredString(b.name, 'Player name', 80),
+    v.optionalString(b.game_role, 'Game role', 50),
+    v.optionalString(b.faceit_nickname, 'FACEIT nickname', 80),
+  );
+  if (err) return res.status(400).json({ error: err });
   if (b.user_id !== undefined && b.user_id !== null && b.user_id !== '') {
     // assignee must belong to the org and can only control one slot per team
     const role = orgRole(Number(b.user_id), req.access.team.org_id);
@@ -725,10 +931,12 @@ app.delete('/api/team-players/:id', auth, requireResource('team_player', 'team')
 });
 
 // auto-pull FACEIT stats for a player slot (nickname lookup + ELO/level + last-30 aggregate)
-app.post('/api/team-players/:id/faceit-refresh', auth, requireResource('team_player', null), async (req, res) => {
+app.post('/api/team-players/:id/faceit-refresh', faceitLimiter, auth, requireResource('team_player', null), async (req, res) => {
   const p = db.prepare('SELECT * FROM team_players WHERE id = ?').get(Number(req.params.id));
   const team = db.prepare('SELECT faceit_api_key FROM teams WHERE id = ?').get(p.team_id);
   if (!team.faceit_api_key) return res.status(400).json({ error: 'Connect FACEIT on the Team page first' });
+  const nickErr = v.optionalString(req.body && req.body.nickname, 'Nickname', 80);
+  if (nickErr) return res.status(400).json({ error: nickErr });
   const nickname = String((req.body && req.body.nickname) || p.faceit_nickname || p.name).trim();
   try {
     let pid = p.faceit_player_id;
@@ -747,9 +955,10 @@ app.post('/api/team-players/:id/faceit-refresh', auth, requireResource('team_pla
 });
 
 // look up any FACEIT player by nickname (uses the team's API key)
-app.get('/api/teams/:teamId/faceit-lookup', auth, requireTeam(null), async (req, res) => {
+app.get('/api/teams/:teamId/faceit-lookup', faceitLimiter, auth, requireTeam(null), async (req, res) => {
   const nickname = String(req.query.nickname || '').trim();
   if (!nickname) return res.status(400).json({ error: 'Nickname required' });
+  if (nickname.length > 80) return res.status(400).json({ error: 'Nickname must be at most 80 characters' });
   const t = db.prepare('SELECT faceit_api_key FROM teams WHERE id = ?').get(req.access.team.id);
   if (!t.faceit_api_key) return res.status(400).json({ error: 'Connect FACEIT on the Team page first' });
   try {
@@ -764,11 +973,12 @@ app.get('/api/teams/:teamId/faceit-lookup', auth, requireTeam(null), async (req,
 });
 
 // paged match history for a looked-up player
-app.get('/api/teams/:teamId/faceit-matches', auth, requireTeam(null), async (req, res) => {
+app.get('/api/teams/:teamId/faceit-matches', faceitLimiter, auth, requireTeam(null), async (req, res) => {
   const pid = String(req.query.player_id || '').trim();
   const offset = Math.max(0, Number(req.query.offset) || 0);
   const limit = Math.min(50, Math.max(1, Number(req.query.limit) || 20));
   if (!pid) return res.status(400).json({ error: 'player_id required' });
+  if (pid.length > 80) return res.status(400).json({ error: 'player_id must be at most 80 characters' });
   const t = db.prepare('SELECT faceit_api_key FROM teams WHERE id = ?').get(req.access.team.id);
   if (!t.faceit_api_key) return res.status(400).json({ error: 'Connect FACEIT on the Team page first' });
   try {
@@ -786,7 +996,7 @@ app.get('/api/teams/:teamId/invites', auth, requireTeam('team'), (req, res) => {
 app.post('/api/teams/:teamId/invites/direct', auth, requireTeam('team'), (req, res) => {
   const email = String(req.body?.email || '').trim().toLowerCase();
   const role = req.body?.role;
-  if (!/^\S+@\S+\.\S+$/.test(email)) return res.status(400).json({ error: 'Valid email required' });
+  if (email.length > 254 || !/^\S+@\S+\.\S+$/.test(email)) return res.status(400).json({ error: 'Valid email required' });
   if (!['edit', 'view'].includes(role)) return res.status(400).json({ error: 'Invalid invite role' });
   const user = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
   if (!user) return res.status(404).json({ error: 'No account with that email — generate an invite code for new users instead' });
@@ -862,9 +1072,14 @@ app.get('/api/teams/:teamId/faceit', auth, requireTeam(null), (req, res) => {
   });
 });
 
-app.put('/api/teams/:teamId/faceit', auth, requireTeam('team'), async (req, res) => {
+app.put('/api/teams/:teamId/faceit', faceitLimiter, auth, requireTeam('team'), async (req, res) => {
   const { api_key, team } = req.body || {};
   if (!api_key || !team) return res.status(400).json({ error: 'FACEIT API key and team id (or team URL) are required' });
+  const err = v.firstError(
+    v.requiredString(api_key, 'FACEIT API key', 200),
+    v.requiredString(team, 'FACEIT team', 300),
+  );
+  if (err) return res.status(400).json({ error: err });
   try {
     const info = await faceit.lookupTeam(String(api_key).trim(), String(team));
     db.prepare('UPDATE teams SET faceit_team_id = ?, faceit_team_name = ?, faceit_api_key = ? WHERE id = ?')
@@ -884,7 +1099,7 @@ app.delete('/api/teams/:teamId/faceit', auth, requireTeam('team'), (req, res) =>
   res.json({ ok: true });
 });
 
-app.post('/api/teams/:teamId/faceit/sync', auth, requireTeam('matches'), async (req, res) => {
+app.post('/api/teams/:teamId/faceit/sync', faceitLimiter, auth, requireTeam('matches'), async (req, res) => {
   const team = db.prepare('SELECT * FROM teams WHERE id = ?').get(req.access.team.id);
   if (!team.faceit_team_id || !team.faceit_api_key) {
     return res.status(400).json({ error: 'FACEIT is not connected for this team yet' });
@@ -955,6 +1170,9 @@ app.get('/api/teams/:teamId/dashboard', auth, requireTeam(null), (req, res) => {
   });
 });
 
+// unknown API paths get a JSON 404 (with the security headers), never HTML
+app.use('/api', (req, res) => res.status(404).json({ error: 'Not found' }));
+
 // ---------- static ----------
 app.use(express.static(path.join(__dirname, 'public'), {
   setHeaders(res, filePath) {
@@ -975,4 +1193,10 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Something went wrong on the server' });
 });
 
-app.listen(PORT, () => console.log(`MidRound running on http://localhost:${PORT}`));
+// Export the app so tests can start it on an ephemeral port; only listen when
+// run directly (node server.js).
+if (require.main === module) {
+  app.listen(PORT, () => console.log(`MidRound running on http://localhost:${PORT}`));
+}
+
+module.exports = app;

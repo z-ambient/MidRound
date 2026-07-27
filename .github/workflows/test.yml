@@ -1,0 +1,31 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "26"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # The suite is fully hermetic: each test file runs against its own
+      # throwaway SQLite database (MIDROUND_DB_PATH) and never calls FACEIT.
+      - name: Run tests
+        run: npm test
+
+      # Fails the build if any dependency has a known CVE, so we hear about
+      # it from CI instead of an incident.
+      - name: Audit dependencies for known vulnerabilities
+        run: npm audit

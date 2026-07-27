@@ -1,0 +1,14 @@
+# Opens a PR whenever a dependency has an update or a known vulnerability,
+# so the versions in package-lock.json can't quietly rot.
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
