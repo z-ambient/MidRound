@@ -62,7 +62,10 @@ async function seedIfEmpty() {
   await tm(users.p5, 'AWP', 1);
 
   // Maps are not demo data — db.init() seeds the active-duty pool for every
-  // install, including production, before this runs.
+  // install, including production, before this runs. Cache is the exception:
+  // it is not in the CS2 active-duty pool, so it belongs to the demo rather
+  // than to every install, and the demo playbook covers it.
+  await run(`INSERT INTO maps (name, active) VALUES ('Cache', 1) ON CONFLICT DO NOTHING`);
 
   // ---- Opponents ----
   const insOpp = (...args) => run(`INSERT INTO opponents
@@ -613,6 +616,15 @@ async function seedIfEmpty() {
   ];
   for (let i = 0; i < notes.length; i++) {
     await run('INSERT INTO match_notes (match_id, kind, text, sort) VALUES (?,?,?,?)', matchId, 'reminder', notes[i], i);
+  }
+
+  // The Inferno and Cache playbooks live in seed-data/playbooks.json rather
+  // than inline: they are long, and data of that size is easier to read and
+  // regenerate as data than as source. Authorship alternates between the two
+  // staff accounts so the library does not look written by one person.
+  const playbookAuthors = [users.igl, users.coach];
+  for (const [i, o] of require('./seed-data/playbooks.json').entries()) {
+    await S({ ...o, buy: o.buy_type, area: o.map_area, util: o.required_utility, by: playbookAuthors[i % 2] });
   }
 
   await backfillTeamPlayers();

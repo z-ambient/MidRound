@@ -1,0 +1,1657 @@
+[
+ {
+  "map": "Cache",
+  "name": "A Split — Highway Crack",
+  "side": "T",
+  "category": "Execute",
+  "buy_type": "full",
+  "site": "A",
+  "map_area": "Garage / Mid / Highway / A Main",
+  "tags": [
+   "split",
+   "a-site",
+   "mid-control",
+   "utility-heavy"
+  ],
+  "difficulty": "standard",
+  "objective": "Win mid with two players, then open the back of A off Highway at the same second the A Main and Squeaky entries land.",
+  "summary": "CALL: Vector and Pillar take mid behind the Z smoke by 1:44. On 'MID OK' at 1:38 the Highway pair climbs and smokes the CT Truck side of Elektro; Balcony smoked from inside A Main at 1:32, then the double flash, the Squeaky door and the Quad molotov all ride the same 1:29 count. Plant A Default.",
+  "required_utility": "3 smokes — Z / CT Connector (Vector), Balcony (Quill, from inside the A Main mouth), CT Truck side of Elektro (Pillar). 1 molotov — Quad (Drift, through the Squeaky doorway on the count). 5 flashes — 2 over the A Main exit (Quill), 1 for the top of Highway (Vector), 1 for the Squeaky doorway (Drift), 1 held for the re-peek (Sable).",
+  "steps": [
+   "1:50 — Sable, Quill and Drift leave T Spawn right, past T Truck and down A Long; Vector and Pillar walk into Garage.",
+   "1:47 — Vector smokes Z / CT Connector from inside Garage so the CT mid player cannot contest White Box with support.",
+   "1:44 — Pillar takes the mid floor from the Garage mouth with the AWP while Vector clears Boost and Mid Roof. 'MID OK' is only called when both are clear.",
+   "1:38 — on 'MID OK' the pair climbs Highway; Pillar's smoke lands on the CT Truck side of Elektro so the CT Halls rotation arrives blind.",
+   "1:32 — Quill smokes Balcony from inside the A Main mouth. This is the only piece of utility that goes out before the count, and it makes no noise at the Squeaky door.",
+   "1:29 — the count: Quill's two flashes go over the A Main exit and Sable enters first past Lockers, while Drift opens Squeaky and molotovs Quad on the same beat. The door and the fire happen together or neither happens.",
+   "1:26 — Vector and Pillar swing out of the top of Highway into the back of A beside Elektro; trade every duel, nobody clears alone.",
+   "1:20 — plant A Default. Post-plant: Drift on Quad, Sable and Quill covering A Main, Vector at Elektro, Pillar back toward Highway watching the mid flank."
+  ],
+  "roles": [
+   {
+    "slot": "Player 1",
+    "assignee": "Riley \"Sable\" Fox",
+    "role": "Entry (A Main)",
+    "duty": "First body out of A Main past Lockers on Quill's flashes. Take the site opening, do not stop to clear Forklift alone.",
+    "utility": "1 flash held for the re-peek"
+   },
+   {
+    "slot": "Player 2",
+    "assignee": "Alex \"Quill\" Novak",
+    "role": "Support (A Main)",
+    "duty": "Balcony smoke from inside the A Main mouth at 1:32, both entry flashes on the count, then trade Sable immediately.",
+    "utility": "Balcony smoke, 2 flashes"
+   },
+   {
+    "slot": "Player 3",
+    "assignee": "Morgan \"Vector\" Hale",
+    "role": "IGL / mid pair",
+    "duty": "Z smoke from Garage, clears Boost and Mid Roof, makes the 'MID OK' call, comes up Highway second.",
+    "utility": "Z / CT Connector smoke, 1 flash for the top of Highway"
+   },
+   {
+    "slot": "Player 4",
+    "assignee": "Sam \"Drift\" Aoki",
+    "role": "Squeaky flank",
+    "duty": "Sits silent on the Squeaky door until the 1:29 count, then opens it and molotovs Quad through the doorway on that same beat so NBK and Quad get squeezed from two sides.",
+    "utility": "Quad molotov, 1 flash"
+   },
+   {
+    "slot": "Player 5",
+    "assignee": "Jordan \"Pillar\" Reeve",
+    "role": "AWP / mid pair",
+    "duty": "Wins or stalls the mid duel from the Garage side, then smokes Elektro from the top of Highway and holds the mid flank after the plant.",
+    "utility": "Elektro / CT Truck smoke"
+   }
+  ],
+  "timings": [
+   "1:50 — three into A Long, two into Garage.",
+   "1:47 — Z / CT Connector smoke from Garage.",
+   "1:44 — first mid duel; Boost and Mid Roof cleared.",
+   "1:38 — 'MID OK', Highway pair climbs, Elektro smoke down.",
+   "1:32 — Balcony smoke from inside A Main.",
+   "1:29 — the count: double flash over the A Main exit, Squeaky door opens, Quad burns, Sable and Drift in.",
+   "1:26 — Highway pair arrives at the back of A.",
+   "1:20 — A Default plant down.",
+   "1:00 — post-plant positions locked, no re-peeks."
+  ],
+  "midround": [
+   "Mid falls fast (two dead CTs): skip the A Long timing, Highway pair pushes straight to Elektro and the A Long three walk in behind them — no smokes needed.",
+   "Mid is contested past 1:32: Vector aborts the climb, the pair drops back to Garage and we run it as a four-man A Main crash with Drift still on Squeaky.",
+   "If Squeaky is pre-burned by an incendiary, Drift rotates into A Main and enters third instead — the Quad molotov goes unthrown rather than standing in fire for the timing."
+  ],
+  "reactions": [
+   "The Forklift AWP falls back to Quad or Elektro once Balcony is smoked — Sable should pre-aim Quad, not the empty Forklift.",
+   "CTs who lose mid usually give up Highway entirely and re-anchor at EBox / New Box for the retake; Vector clears that side before the plant.",
+   "Expect a fast Highway counter-push from the CT mid player if we are slow after 'MID OK' — Pillar holds the top of Highway until the plant is confirmed."
+  ],
+  "warnings": [
+   "Do not open Squeaky before the count. The door noise is free information and it hands the anchor the entry timing.",
+   "The Quad molotov rides the same count as the door — there is no way to throw it early without opening the door early.",
+   "The Elektro smoke is not optional — without it the CT Halls rotation shoots the Highway pair in the back as they step onto site.",
+   "Nobody stands on the A Main exit after the flashes fade; the Balcony smoke is the only thing hiding that lane."
+  ],
+  "backup": "Fallback: on 'DROP', mid pair retreats through Garage, the A Long three fall back past T Truck, and we regroup for a late five-man A Main crash at 0:45 with whatever flashes are left. If mid is lost outright, call the Force — A Main Crash shape instead."
+ },
+ {
+  "map": "Cache",
+  "name": "B Split — Vents Drop",
+  "side": "T",
+  "category": "Split",
+  "buy_type": "full",
+  "site": "B",
+  "map_area": "B Halls / B Main / Mid Vents / Checkers",
+  "tags": [
+   "split",
+   "b-site",
+   "vents",
+   "utility-heavy"
+  ],
+  "difficulty": "advanced",
+  "objective": "Take B with a two-man B Main entry that lands in the same second as a two-man Vents drop into Checkers, with Quill throwing the whole B Halls package from Sun Room and arriving fourth, so the Checkers holder never gets to shoot the entry in the back.",
+  "summary": "CALL: Vector and Drift take mid behind the Z smoke and sit at the vent mouth by 1:41; Back Checkers molotov at 1:41, crawl at 1:36. At 1:30 Pillar smokes Rafters from the B Main threshold and Quill double-flashes through the Sun Room Flash Window — pair out of B Main at 1:28 with the pair dropping into Checkers on the same beat, Quill in fourth. Plant B Default.",
+  "required_utility": "2 smokes — Z / CT Connector (Vector), Rafters (Pillar, from the B Main threshold). 2 molotovs — Back Checkers (Drift, from the vent mouth), Headshot (Sable, from the B Main threshold). 4 flashes — 2 through the Sun Room Flash Window (Quill), 1 for the Checkers drop (Vector), 1 for the B Main step-out (Pillar).",
+  "steps": [
+   "1:50 — Sable, Quill and Pillar leave T Spawn left through T Boxes into B Halls; Vector and Drift walk into Garage.",
+   "1:47 — Vector smokes Z / CT Connector from Garage, then the pair climbs Mid Roof to the vent mouth.",
+   "1:41 — Drift molotovs Back Checkers from the mouth before either of them touches the crawl.",
+   "1:36 — pair enters Vents. From this second Sable and Pillar make deliberate noise at the B Main threshold so the crawl is masked; Quill sets up quietly at the Sun Room Flash Window.",
+   "1:30 — Pillar throws the Rafters smoke from the B Main threshold and Sable molotovs Headshot; Quill's two flashes go through the Flash Window without him entering.",
+   "1:28 — synchronised entry: Sable and Pillar step out of B Main and take B Ramp onto the plateau while Drift drops into Checkers and Vector follows on his own flash. Two out of B Main, two into Checkers, same second.",
+   "1:24 — Quill arrives fourth out of B Halls, clears B Main Boxes on the way and covers the plant.",
+   "1:22 — plant B Default behind the front boxes.",
+   "1:05 — post-plant: Drift in Checkers watching Hell and Tree, Pillar holding the long angle from B Main, Sable in B Pit, Quill and Vector in Spray."
+  ],
+  "roles": [
+   {
+    "slot": "Player 1",
+    "assignee": "Riley \"Sable\" Fox",
+    "role": "Entry (B Main)",
+    "duty": "Molotovs Headshot from the threshold, then first out of B Main and up B Ramp onto the plant plateau.",
+    "utility": "Headshot molotov"
+   },
+   {
+    "slot": "Player 2",
+    "assignee": "Alex \"Quill\" Novak",
+    "role": "Support (Sun Room)",
+    "duty": "Both entry flashes out of the Flash Window without entering, then in fourth to clear B Main Boxes and cover the plant. He is never part of the timed entry — say so on comms so nobody waits for him.",
+    "utility": "2 flashes"
+   },
+   {
+    "slot": "Player 3",
+    "assignee": "Morgan \"Vector\" Hale",
+    "role": "IGL / vent pair",
+    "duty": "Z smoke from Garage, counts the crawl, drops into Checkers behind Drift on his own flash and calls the synchronised timing.",
+    "utility": "Z / CT Connector smoke, 1 flash"
+   },
+   {
+    "slot": "Player 4",
+    "assignee": "Sam \"Drift\" Aoki",
+    "role": "Lurk / Vents drop",
+    "duty": "Burns Back Checkers, drops first into Checkers, clears it and holds it as the anchor for the whole post-plant.",
+    "utility": "Back Checkers molotov"
+   },
+   {
+    "slot": "Player 5",
+    "assignee": "Jordan \"Pillar\" Reeve",
+    "role": "AWP (B Main)",
+    "duty": "Holds the B Main threshold against the Sun Room-side long angle while the group stages, throws the Rafters smoke from there, enters second, then re-takes that angle after the plant.",
+    "utility": "Rafters smoke, 1 flash"
+   }
+  ],
+  "timings": [
+   "1:50 — trio into B Halls, pair into Garage.",
+   "1:47 — Z / CT Connector smoke.",
+   "1:41 — vent mouth reached, Back Checkers molotov out.",
+   "1:36 — crawl starts; Sable and Pillar make cover noise at B Main.",
+   "1:30 — Rafters smoke from the B Main threshold, Headshot molotov, two flashes through the Flash Window.",
+   "1:28 — synchronised entry: two out of B Main, two into Checkers.",
+   "1:24 — Quill in fourth through B Main.",
+   "1:22 — B Default plant down.",
+   "1:05 — post-plant crossfires set."
+  ],
+  "midround": [
+   "Vent pair is heard early (shots into the vent): they hold at the mouth, Sable and Pillar hit B Main straight off Quill's Flash Window utility and the pair drops as the trade wave instead.",
+   "Checkers is confirmed empty from the drop: Drift pushes to Back Checkers and Vector cuts toward Blue instead, turning the split into a squeeze on Hell.",
+   "If both CTs on B die to the split, plant B Default fast and send Pillar back to B Main — the retake comes from Hell and Rafters, not from where we came in."
+  ],
+  "reactions": [
+   "CT B pairs give Checkers priority; the Back Checkers molotov is what breaks that habit before the crawl is audible.",
+   "A Rafters player who cannot see through the smoke normally drops to Blue or Close Left — Sable clears Close Left on the way to B Ramp.",
+   "Expect the mid CT to rotate to Z the moment the Z smoke lands; that is why the vent pair has a window at all."
+  ],
+  "warnings": [
+   "The Vents crawl is loud. If B Main is silent during the crawl, the drop dies 1v2 in Checkers.",
+   "This is a 2-and-2 entry, not a 3-and-2. If Sable or Pillar waits for Quill at 1:28 the whole call is dead — Quill's job is the window, then fourth man.",
+   "The two halves must land within three seconds of each other or the B Main pair gets shot in the back from Checkers — that is the whole reason for this call.",
+   "Do not throw the Rafters smoke before the pair is inside Vents; it starts the CT clock early."
+  ],
+  "backup": "Fallback: on 'HOLD' the pair sits at the vent mouth and the B Halls three back off; re-set and run it once more at 0:55 with the leftover flashes. If the pair is dead, do not hit B three-man — send them to A Long and play a late A Main crash instead."
+ },
+ {
+  "map": "Cache",
+  "name": "Force — A Main Crash",
+  "side": "T",
+  "category": "Force buy",
+  "buy_type": "semi",
+  "site": "A",
+  "map_area": "A Long / A Main / Squeaky",
+  "tags": [
+   "force",
+   "a-site",
+   "rush",
+   "close-range"
+  ],
+  "difficulty": "basic",
+  "objective": "Beat the CT setup with speed and close range on a half buy — four bodies through A Main, one through Squeaky, no smokes, no mid presence at all.",
+  "summary": "CALL: five right down A Long, no mid, no smokes. Vector burns Forklift at 1:43 to move the AWP, double flash over the A Main exit at 1:42, crash at 1:39 with Pillar opening Squeaky. Plant A Default and hold close.",
+  "required_utility": "1 molotov — Forklift (Vector, from inside the A Main mouth). 4 flashes — 2 over the A Main exit (Quill), 2 held for the second wave and the re-peek (Sable). No smokes at all on this buy: the money goes into armour and guns, and the timing replaces the utility.",
+  "steps": [
+   "1:50 — all five out of T Spawn to the right, past T Truck and down A Long. Nobody goes near Garage; we want the CT mid player looking the wrong way.",
+   "1:46 — stack at the A Main mouth: Sable, Quill, Vector, Drift. Pillar peels to the Squeaky door and waits on the count.",
+   "1:43 — Vector's molotov lands on Forklift from inside the A Main mouth. We are not smoking anything this round; we are burning the AWP off the one angle that beats a half buy.",
+   "1:42 — Quill's two flashes go over the A Main exit past Lockers.",
+   "1:39 — crash. Sable first, Quill trades, Vector and Drift spread wide; Pillar opens Squeaky on the same count and takes NBK and the Shroud corner from behind.",
+   "1:33 — clear Forklift and the foot of the Balcony ladder before anyone stands still on site.",
+   "1:31 — plant A Default; Drift swings to the top of Highway to cut the mid flank.",
+   "1:15 — post-plant: Sable and Quill on the A Main side, Pillar on Quad, Vector at Elektro, Drift at the top of Highway. Fight at close range, that is the whole point of the buy."
+  ],
+  "roles": [
+   {
+    "slot": "Player 1",
+    "assignee": "Riley \"Sable\" Fox",
+    "role": "Entry",
+    "duty": "First through A Main on Quill's flashes. Take the fight, do not wait for a perfect angle. Keeps two flashes for the second wave and the post-plant re-peek.",
+    "utility": "2 flashes"
+   },
+   {
+    "slot": "Player 2",
+    "assignee": "Alex \"Quill\" Novak",
+    "role": "Support / flashes",
+    "duty": "Both entry flashes from inside A Main, then trade Sable within a second.",
+    "utility": "2 flashes"
+   },
+   {
+    "slot": "Player 3",
+    "assignee": "Morgan \"Vector\" Hale",
+    "role": "IGL",
+    "duty": "Forklift molotov, sets the crash count out loud, clears the Balcony ladder side after entry.",
+    "utility": "Forklift molotov"
+   },
+   {
+    "slot": "Player 4",
+    "assignee": "Sam \"Drift\" Aoki",
+    "role": "Trailer / flank watch",
+    "duty": "Fourth through A Main, then straight to the top of Highway to stop the mid rotation landing behind us.",
+    "utility": "—"
+   },
+   {
+    "slot": "Player 5",
+    "assignee": "Jordan \"Pillar\" Reeve",
+    "role": "Squeaky squeeze",
+    "duty": "No AWP on this buy — he opens the Squeaky door on the count only and cleans up NBK and the Shroud corner at SMG range, then anchors Quad after the plant.",
+    "utility": "—"
+   }
+  ],
+  "timings": [
+   "1:50 — five out of T Spawn into A Long.",
+   "1:46 — stack set at A Main, Pillar on Squeaky.",
+   "1:43 — Forklift molotov from inside the A Main mouth.",
+   "1:42 — double flash over the A Main exit.",
+   "1:39 — crash and Squeaky door together.",
+   "1:33 — Forklift and Balcony ladder cleared.",
+   "1:31 — A Default plant.",
+   "1:15 — close post-plant positions set."
+  ],
+  "midround": [
+   "Squeaky is burning when Pillar arrives: he trails A Main as the fifth body instead — do not wait out an incendiary on a force.",
+   "Two picks in A Main before the crash: abort, fall back into A Long and save the guns; a half-buy 3v5 on site is not a round.",
+   "If the CT AWP is confirmed on Balcony rather than Forklift, Vector holds the molotov and Quill's flashes go high and short so nobody eats it on the way out of Lockers."
+  ],
+  "reactions": [
+   "Anchors on a half-buy round often play Balcony instead of Quad expecting a slow take; check above Forklift before the plant.",
+   "The CT mid player usually pushes Garage when they hear nothing there — Drift on Highway catches that rotation from behind.",
+   "Expect the retake to come off CT Halls through Elektro and past EBox / New Box. With no smoke this round, the answer to it is bodies on site before they arrive, not cover."
+  ],
+  "warnings": [
+   "No mid presence at all — one footstep in Garage and the CT mid player calls the whole stack.",
+   "There is no Elektro smoke on this buy. If we are not planted by 1:31 the retake arrives with full vision and we lose the round to it.",
+   "Do not slow down inside A Main. This buy loses every long-range trade; the value is the timing.",
+   "Nobody hunts the Balcony ladder alone after the plant."
+  ],
+  "backup": "Fallback: if the crash stalls at the A Main mouth, Vector calls 'BACK' — the four pull into A Long, Pillar holds the Squeaky door as the delay, and we save whatever is alive rather than feeding the CT economy."
+ },
+ {
+  "map": "Cache",
+  "name": "T Pistol — B Main Squeeze",
+  "side": "T",
+  "category": "Pistol",
+  "buy_type": "pistol",
+  "site": "B",
+  "map_area": "B Halls / B Main / Mid",
+  "tags": [
+   "pistol",
+   "b-site",
+   "lurk"
+  ],
+  "difficulty": "basic",
+  "objective": "Win the pistol by burning Checkers before anyone steps out of B Main, while a lone mid player takes the CT mid pistol and threatens A off Highway.",
+  "summary": "CALL: four through T Boxes into B Halls, Drift alone into Garage. Checkers molotov at 1:45, Rafters smoke at 1:44, double flash at 1:42, in at 1:39. Plant B Default; Drift pulls a rotation by taking Highway.",
+  "required_utility": "Quill buys 2 flashes + the Rafters smoke ($700, NO armour). Pillar buys 2 flashes + the Checkers molotov ($800, NO armour). Sable, Vector and Drift each buy Kevlar ($650) and carry no grenades at all.",
+  "steps": [
+   "1:50 — Sable, Quill, Vector and Pillar leave T Spawn left through T Boxes into B Halls; Drift walks alone into Garage.",
+   "1:47 — the four stage at B Main with Sun Room behind them; Drift holds the Garage mouth for the CT mid pistol.",
+   "1:45 — Pillar molotovs Checkers from B Main. Nobody steps out until it is burning — Checkers is the position that kills this round.",
+   "1:44 — Quill smokes Rafters so the Heaven-side player cannot hold the plateau.",
+   "1:42 — Quill's two flashes over the site; Pillar's two are held for the plateau and the retake.",
+   "1:39 — Sable in first, Vector trades, Quill third, Pillar last. Clear B Pit, then B Ramp onto the plateau.",
+   "1:31 — plant B Default; Drift does not rotate in, he takes Highway to show himself at the back of A and pull a CT off B.",
+   "1:15 — post-plant: Sable in Spray, Vector in Checkers, Quill on B Ramp, Pillar covering B Main."
+  ],
+  "roles": [
+   {
+    "slot": "Player 1",
+    "assignee": "Riley \"Sable\" Fox",
+    "role": "Entry",
+    "duty": "First out of B Main on the flash, straight at B Pit. Buys Kevlar, carries nothing.",
+    "utility": "— (Kevlar $650)"
+   },
+   {
+    "slot": "Player 2",
+    "assignee": "Alex \"Quill\" Novak",
+    "role": "Utility carrier",
+    "duty": "Rafters smoke and both entry flashes from the B Main threshold, then in third. No armour — stay behind the entry.",
+    "utility": "Rafters smoke, 2 flashes ($700, no armour)"
+   },
+   {
+    "slot": "Player 3",
+    "assignee": "Morgan \"Vector\" Hale",
+    "role": "IGL / trade",
+    "duty": "Trades Sable inside one second, then takes Checkers for the post-plant. Buys Kevlar, carries nothing.",
+    "utility": "— (Kevlar $650)"
+   },
+   {
+    "slot": "Player 4",
+    "assignee": "Sam \"Drift\" Aoki",
+    "role": "Mid lurk",
+    "duty": "Duels the CT mid pistol from the Garage side, then climbs Highway to threaten the back of A and drag a rotation. Buys Kevlar.",
+    "utility": "— (Kevlar $650)"
+   },
+   {
+    "slot": "Player 5",
+    "assignee": "Jordan \"Pillar\" Reeve",
+    "role": "Utility carrier / last in",
+    "duty": "Checkers molotov, keeps both flashes for the plateau clear and the retake. No armour — never entry with this loadout.",
+    "utility": "Checkers molotov, 2 flashes ($800, no armour)"
+   }
+  ],
+  "timings": [
+   "1:50 — four into B Halls, Drift into Garage.",
+   "1:47 — stack set at B Main.",
+   "1:45 — Checkers molotov.",
+   "1:44 — Rafters smoke.",
+   "1:42 — double flash over the site.",
+   "1:39 — four bodies in.",
+   "1:31 — B Default plant down.",
+   "1:15 — post-plant crossfires set, Drift live on Highway."
+  ],
+  "midround": [
+   "Two CT pistols heard on B before 1:45: hold at B Main, let Pillar's molotov burn out and re-flash — a stalled pistol entry is still winnable, a fed one is not.",
+   "Drift wins mid clean: he calls it and we plant fast, because that CT is not coming back to B.",
+   "If the site is empty on entry, do not chase toward Hell — plant and set the crossfire; the retake comes to us."
+  ],
+  "reactions": [
+   "Almost every CT pistol setup sends someone to Checkers first — the molotov is aimed at that habit, not at the site.",
+   "Losing B on pistol usually means an armoured rotation off CT Halls through Hell about ten seconds after our first shot; the Rafters smoke buys that time.",
+   "Expect their round-two force. Plan the next round as anti-force, not anti-eco."
+  ],
+  "warnings": [
+   "Quill and Pillar have no armour. If either takes the entry, we lose the utility and the round with it.",
+   "No one buys armour and a grenade — $800 does not cover both, and a half-bought player helps nobody.",
+   "Drift must not die cheaply in mid; his job is a duel he chooses, then Highway pressure."
+  ],
+  "backup": "Fallback: if the B Main stage is broken up before 1:45, the four pull back through B Halls to Sun Room, use the Flash Window for a late hit at 0:50, and Drift comes back through Dumpster to join instead of taking Highway."
+ },
+ {
+  "map": "Cache",
+  "name": "Emergency — Full Save",
+  "side": "T",
+  "category": "Emergency call",
+  "buy_type": "save",
+  "map_area": "T Spawn / A Long / Garage / B Halls",
+  "tags": [
+   "save",
+   "emergency",
+   "economy"
+  ],
+  "difficulty": "basic",
+  "objective": "Keep rifles and the AWP alive when the round is already lost, so the next round is a real buy instead of another force.",
+  "summary": "CALL: 'SAVE SAVE SAVE' — break contact immediately, spread to T-side corners, no trades, no hero peeks. Pillar's AWP leaves first and never fights.",
+  "required_utility": "None. Do not throw remaining grenades — they carry to next round only if the player lives, so live.",
+  "steps": [
+   "On the call, break contact instantly. Do not trade into a lost fight and do not go back for a teammate's gun.",
+   "Split directions on purpose: A-side survivors back down A Long past T Truck, mid survivors into Garage and behind T Red, B-side survivors through B Halls to Sun Room or Toxic.",
+   "Pillar exits first and takes the longest, quietest route available — the AWP is the whole point of the round.",
+   "If we still have the bomb when the save is called, the carrier drops it immediately in the open where he stands and nobody picks it back up — a save with someone dying to retrieve the bomb is not a save.",
+   "If the bomb is already planted, the save still stands but Vector counts the timer out loud: with three or more alive and the plant down this is a post-plant hold, not a save, and he re-calls it.",
+   "If CTs push the save, keep spreading; two guns saved beats one hero kill every time.",
+   "Report the save on comms: who is alive, what gun, what armour. Vector buys next round off those numbers, not off a guess."
+  ],
+  "roles": [
+   {
+    "slot": "Player 1",
+    "assignee": "Riley \"Sable\" Fox",
+    "role": "Save",
+    "duty": "Break toward A Long, corner up past T Truck. No peeks.",
+    "utility": "—"
+   },
+   {
+    "slot": "Player 2",
+    "assignee": "Alex \"Quill\" Novak",
+    "role": "Save",
+    "duty": "Back through B Halls to Sun Room; do not linger in B Main.",
+    "utility": "—"
+   },
+   {
+    "slot": "Player 3",
+    "assignee": "Morgan \"Vector\" Hale",
+    "role": "IGL / save",
+    "duty": "Makes the call once, loudly, then saves like everyone else. Counts the surviving guns for the next buy and re-reads the bomb timer if a plant is down.",
+    "utility": "—"
+   },
+   {
+    "slot": "Player 4",
+    "assignee": "Sam \"Drift\" Aoki",
+    "role": "Save",
+    "duty": "Uses Dumpster to move between the B and mid lanes without crossing open ground.",
+    "utility": "—"
+   },
+   {
+    "slot": "Player 5",
+    "assignee": "Jordan \"Pillar\" Reeve",
+    "role": "AWP save (priority)",
+    "duty": "Leaves first, deepest corner, zero contact. A saved AWP is next round's opening pick.",
+    "utility": "—"
+   }
+  ],
+  "timings": [
+   "0:50 — latest sensible moment to call the save; after this the CTs are already hunting.",
+   "0:35 — everyone should be disengaged and moving away, not still trading.",
+   "0:10 — hold the corner and stay silent; do not peek the timer out."
+  ],
+  "midround": [
+   "If a CT over-chases alone into a saving player's corner, take that fight — one free kill and the gun still lives.",
+   "If three or more are alive with a plant already down, this is not a save; Vector re-calls it as a post-plant hold before anyone breaks for spawn."
+  ],
+  "reactions": [
+   "Teams that hunt saves send two through mid and one down A Long — the spread directions are what beat that.",
+   "If they consistently rotate five to hunt, next round's call is a fast opposite-site hit off the guns we kept."
+  ],
+  "warnings": [
+   "The single worst outcome is dying with a rifle at 0:05 for nothing.",
+   "Nobody carries the bomb around during a save and nobody walks back for it once it is dropped.",
+   "Do not bunch up. One HE or incendiary into a stacked corner costs three guns."
+  ],
+  "backup": "If the save turns into a 3v2 by accident, Vector re-calls 'PLAY' once and only once — otherwise the save stands."
+ },
+ {
+  "map": "Cache",
+  "name": "CT Default — 2-1-2 Checkers Priority",
+  "side": "CT",
+  "category": "Default",
+  "buy_type": "full",
+  "map_area": "A site / Mid / B site",
+  "tags": [
+   "ct",
+   "default",
+   "setup"
+  ],
+  "difficulty": "standard",
+  "objective": "Standard 2-1-2 with Checkers taken early, an AWP on A Main and enough held utility that any lost site is retakeable.",
+  "summary": "CALL: 2A — Pillar on Forklift, Drift on Quad with the Squeaky incendiary, both set by 1:44. Vector mid behind Sand Bags, mid floor smoke at 1:43. 2B — Quill into Checkers at 1:44, Sable on B site at Headshot. Rotate on confirmed info only.",
+  "required_utility": "2 incendiaries — Squeaky (Drift), B Main (Quill). 3 smokes — mid floor from Sand Bags (Vector), A site retake smoke (Pillar), B Main retake smoke (Sable). 5 flashes, one per player, all held for retakes.",
+  "steps": [
+   "1:50 — everyone out of CT Spawn: Pillar and Drift toward CT Truck, Vector into Z, Quill and Sable down CT Halls into Hell.",
+   "1:45 — Vector settles behind Sand Bags in mid; Sable sets on B site at Headshot. These two are the closest positions to spawn and they are the first ones live.",
+   "1:44 — the far positions land together: Pillar on Forklift with the A Main angle, Drift on Quad covering the Squeaky door and NBK, Quill into Checkers. Checkers is the priority position on this map and it is worth walking straight to it.",
+   "1:43 — Vector's smoke lands across the mid floor from behind Sand Bags, killing the Boost climb and the Garage duel. This is the only smoke that gets thrown on the hold.",
+   "1:40 — Drift drops the Squeaky incendiary only on a confirmed A Long sound, not on a guess.",
+   "1:35 — Quill's B Main incendiary goes only on confirmed B Halls noise; otherwise it is kept for the retake.",
+   "1:25 — Vector rotates a body on confirmed information only. First noise is not information.",
+   "On any site loss: fall back rather than trade into the entry, group with the two held smokes and the five flashes, and retake as a unit."
+  ],
+  "roles": [
+   {
+    "slot": "Player 1",
+    "assignee": "Riley \"Sable\" Fox",
+    "role": "B site anchor",
+    "duty": "Headshot angle over the lip toward B Main and Checkers, falls back to Spray or Blue on a heavy hit. Keeps the smoke for the retake.",
+    "utility": "B Main retake smoke, 1 flash"
+   },
+   {
+    "slot": "Player 2",
+    "assignee": "Alex \"Quill\" Novak",
+    "role": "Checkers",
+    "duty": "Owns Checkers and the Vents mouth noise. Shoots B Main entries in the back, then falls to Hell rather than dying on site.",
+    "utility": "B Main incendiary, 1 flash"
+   },
+   {
+    "slot": "Player 3",
+    "assignee": "Morgan \"Vector\" Hale",
+    "role": "IGL / mid",
+    "duty": "Holds mid from behind Sand Bags and White Box, denies Boost, and makes every rotation call.",
+    "utility": "Mid floor smoke, 1 flash"
+   },
+   {
+    "slot": "Player 4",
+    "assignee": "Sam \"Drift\" Aoki",
+    "role": "A anchor (Quad)",
+    "duty": "Quad and NBK, watches the Squeaky door, burns it on sound. Last man to give up A site.",
+    "utility": "Squeaky incendiary, 1 flash"
+   },
+   {
+    "slot": "Player 5",
+    "assignee": "Jordan \"Pillar\" Reeve",
+    "role": "AWP (A)",
+    "duty": "Forklift angle onto A Main, repositions to Elektro or the top of Highway after the first shot. Never re-peeks the same angle twice.",
+    "utility": "A site retake smoke, 1 flash"
+   }
+  ],
+  "timings": [
+   "1:50 — out of CT Spawn to assigned lanes.",
+   "1:45 — Vector behind Sand Bags, Sable on Headshot.",
+   "1:44 — Forklift, Quad and Checkers all set.",
+   "1:43 — mid floor smoke from Sand Bags.",
+   "1:40 — Squeaky incendiary on confirmed A Long sound.",
+   "1:35 — B Main incendiary on confirmed B Halls noise.",
+   "1:25 — first rotation call on confirmed info."
+  ],
+  "midround": [
+   "Mid lost: Vector falls back through Z into CT Halls and becomes the first retake body for whichever site opens — he does not re-peek mid alone.",
+   "A Long stacked (three or more): Vector shifts to Elektro, Quill holds B alone from Checkers with the incendiary, Sable stays back for the retake.",
+   "Vents noise heard: Quill backs off Checkers toward Hell immediately and calls it — fighting a drop from underneath is a coin flip we do not need."
+  ],
+  "reactions": [
+   "Ts who lose mid early nearly always convert to a direct A Main or B Main crash within twenty seconds — expect the second hit, not a repeat of the first.",
+   "A Squeaky door opening with no A Main pressure is usually bait; Drift holds Quad and does not swing toward NBK for it.",
+   "Highway pressure after a mid loss means the back of A is the target, not A Main — Pillar repositions off Forklift before that lands."
+  ],
+  "warnings": [
+   "Two of the three smokes — Pillar's A site smoke and Sable's B Main smoke — plus all five flashes are retake stock and nothing else. The only smoke thrown on the hold is Vector's mid floor smoke.",
+   "Pillar must not hold Forklift after the first shot; that is where the entry flash is aimed.",
+   "Rotating on first noise is how both sites end up empty. Confirmed info only."
+  ],
+  "backup": "If the setup gets read two rounds running, swap to the CT Force — A Close Trap shape for one round to break the pattern, then come back to 2-1-2 with Quill and Drift's positions swapped."
+ },
+ {
+  "map": "Cache",
+  "name": "CT Pistol — Mid Grab and B Main Trap",
+  "side": "CT",
+  "category": "Pistol",
+  "buy_type": "pistol",
+  "site": "B",
+  "map_area": "Mid / B site / A site",
+  "tags": [
+   "pistol",
+   "ct",
+   "mid-control",
+   "off-angle"
+  ],
+  "difficulty": "standard",
+  "objective": "Win the CT pistol with the opposite shape to our default: steal the mid floor early with two armoured bodies behind a Garage-mouth smoke, trap the B entry from behind out of the B Main Boxes, and give A a single deep delay. Nobody sits in Checkers this round.",
+  "summary": "CALL: Vector smokes the Garage mouth from Z at 1:46 and Quill takes the mid floor at 1:44 with Vector trading. Drift hides in the B Main Boxes and lets the entry walk past him, Pillar plays Headshot with the Checkers incendiary, Sable delays A alone from Elektro. No Checkers lock, no mid floor smoke.",
+  "required_utility": "Vector buys the Garage-mouth smoke + 2 flashes ($700, NO armour). Pillar buys the Checkers incendiary + 1 flash ($800, NO armour). Sable, Quill and Drift each buy Kevlar ($650) and carry no grenades at all.",
+  "steps": [
+   "1:50 — out of CT Spawn: Vector and Quill into Z, Sable down CT Halls past CT Truck toward Elektro, Drift and Pillar down CT Halls into Hell.",
+   "1:46 — Vector's smoke lands across the Garage mouth from inside Z. Nothing walks out of Garage with a sightline, and the T boost never gets built.",
+   "1:45 — Sable sets deep at Elektro; Pillar drops into Headshot on B site.",
+   "1:44 — Quill steps onto the mid floor and takes White Box — armoured, and first, because he is the one who can survive a pistol trade. Vector holds behind him at Sand Bags with both flashes to trade, not to duel.",
+   "1:43 — Drift settles silently into the B Main Boxes off-angle and stops moving. He is behind their entry, not in front of it.",
+   "1:38 — Vector's verdict on mid: hold White Box and Mid Roof, or give it up through Z and reinforce. One duel, then a decision — we do not feed the mid pistol.",
+   "1:30 — Pillar's incendiary goes into Checkers only on confirmed Vents or Checkers noise; otherwise it is kept for the retake.",
+   "On a committed B hit: Drift shoots the entry in the back from B Main Boxes, Pillar takes the close angle from Headshot, and mid disengages through Z and CT Halls immediately so the numbers land on B."
+  ],
+  "roles": [
+   {
+    "slot": "Player 1",
+    "assignee": "Riley \"Sable\" Fox",
+    "role": "A solo delay (Elektro)",
+    "duty": "Alone on A from Elektro, off the site itself. One shot at whatever commits out of A Main or Squeaky, then back toward CT Halls. He is a timer and a caller, not an anchor. Armoured, carries nothing.",
+    "utility": "— (Kevlar $650)"
+   },
+   {
+    "slot": "Player 2",
+    "assignee": "Alex \"Quill\" Novak",
+    "role": "Mid take",
+    "duty": "Takes the mid floor and White Box behind Vector's smoke, wins or stalls the mid pistol, then holds Mid Roof for the elevated angle. Armoured, carries nothing.",
+    "utility": "— (Kevlar $650)"
+   },
+   {
+    "slot": "Player 3",
+    "assignee": "Morgan \"Vector\" Hale",
+    "role": "IGL / mid support",
+    "duty": "Garage-mouth smoke from Z, trades Quill, keeps both flashes for the retake and calls the disengage. No armour — no duel he did not choose.",
+    "utility": "Garage-mouth smoke, 2 flashes ($700, no armour)"
+   },
+   {
+    "slot": "Player 4",
+    "assignee": "Sam \"Drift\" Aoki",
+    "role": "B Main trap",
+    "duty": "Sits in the B Main Boxes off-angle at the site end of B Main and lets the entry pass him before firing. Armoured, carries nothing.",
+    "utility": "— (Kevlar $650)"
+   },
+   {
+    "slot": "Player 5",
+    "assignee": "Jordan \"Pillar\" Reeve",
+    "role": "B site",
+    "duty": "Headshot angle over the lip, Checkers incendiary on Vents noise, falls to Blue and Hell rather than dying on the plateau. No armour — never the first duel.",
+    "utility": "Checkers incendiary, 1 flash ($800, no armour)"
+   }
+  ],
+  "timings": [
+   "1:50 — out of CT Spawn to lanes.",
+   "1:46 — Garage-mouth smoke from Z.",
+   "1:45 — Sable deep at Elektro, Pillar into Headshot.",
+   "1:44 — Quill onto the mid floor and White Box, Vector trading from Sand Bags.",
+   "1:43 — Drift set and silent in the B Main Boxes.",
+   "1:38 — Vector's mid verdict: hold or give it up through Z.",
+   "1:30 — Checkers incendiary on confirmed Vents or Checkers noise."
+  ],
+  "midround": [
+   "Four or more into B Main: Drift holds the trap until they are past him, Pillar burns Checkers to kill the vent support, and mid leaves through Z the second it is confirmed — nobody finishes a mid duel while B is being taken.",
+   "Mid is empty at 1:44: Quill takes Mid Roof for the elevated angle and Vector shifts one body back toward Z so the rotation is short. Do not push into Garage through our own smoke.",
+   "A Main crash confirmed: Sable gives ground toward CT Halls immediately, Quill and Vector come back through Z, and we retake A three-man behind Vector's two flashes."
+  ],
+  "reactions": [
+   "T pistols on this map either smoke off Garage or ignore mid and stack B Main. Taking the mid floor early removes the Boost perch before anyone is standing on it, which is the pick that usually decides a Cache pistol.",
+   "Ts who get shot from the B Main Boxes once will clear those boxes every round afterwards — move Drift to Back Checkers or Blue next pistol rather than repeating the trap.",
+   "If they answer the mid grab with a fast Highway climb into the back of A, the next round goes back to the 2-1-2 default with Checkers taken normally."
+  ],
+  "warnings": [
+   "Vector and Pillar are deliberately unarmoured; neither takes a first duel, and neither buys armour and a grenade — $800 does not cover both.",
+   "Drift must be silent in the B Main Boxes. If B Main is already loud when he gets there he does not force the position — he backs onto the plateau with Pillar and they play the close double-up instead.",
+   "Sable cannot stop a five-man A crash alone. His job is one shot, a number and a fall-back, not the site.",
+   "Giving up mid is fine. Dying in mid on a pistol with no armour is not."
+  ],
+  "backup": "Lost pistol: full save on round two — Sable and Vector out through CT Halls, Drift and Pillar out through Hell — and buy round three off the surviving pistols and kit money. If the mid grab gets punished twice, drop it and run the 2-1-2 shape on the next pistol."
+ },
+ {
+  "map": "Cache",
+  "name": "CT Force — A Close Trap",
+  "side": "CT",
+  "category": "Force buy",
+  "buy_type": "semi",
+  "site": "A",
+  "map_area": "A site / Mid / B site",
+  "tags": [
+   "force",
+   "ct",
+   "stack",
+   "close-range"
+  ],
+  "difficulty": "standard",
+  "objective": "Stack three close angles on A against the direct A Main pattern, hold mid with fire instead of smoke, and leave one elevated delay body on B.",
+  "summary": "CALL: 3A close — Sable NBK, Vector behind Quad, Quill on Balcony with the A Main incendiary, all set by 1:44. Drift holds mid from White Box and burns the mid floor under Boost instead of smoking it. Pillar delays B from Rafters. Fight close, trade instantly.",
+  "required_utility": "2 incendiaries — the A Main exit thrown from Balcony (Quill), the mid floor under Boost (Drift). No smokes at all — this buy spends its money on armour, guns and two fires. 3 flashes — 1 each for Sable, Vector and Pillar, all held for the trade or the fall-back.",
+  "steps": [
+   "1:50 — out of CT Spawn: Sable, Quill and Vector toward CT Truck and A, Drift into Z, Pillar down CT Halls to the Heaven ramp.",
+   "1:45 — Drift walks through Z onto White Box; Pillar climbs Heaven onto Rafters over B site.",
+   "1:44 — the A trio lands together: Sable into the NBK pocket, Vector behind Quad, Quill up the Balcony ladder at the Highway end of A. Nobody is set before this — the far corners of A take the walk they take.",
+   "1:40 — on the first A Long or Squeaky sound, Quill drops the incendiary into the A Main exit from Balcony.",
+   "1:36 — Drift burns the mid floor under Boost on confirmed Garage noise. No mid smoke this round: we are denying the boost and the climb outright, then leaving.",
+   "1:34 — the A trio holds close angles only. No wide swings toward Lockers, no dry peeks at Forklift.",
+   "1:30 — if A is confirmed empty, Vector pulls Drift back through Z into CT Halls and Pillar drops off Rafters onto B site; the A trio stays put until the bomb is committed.",
+   "On contact, everyone on A shoots and moves together — this buy only wins traded close fights."
+  ],
+  "roles": [
+   {
+    "slot": "Player 1",
+    "assignee": "Riley \"Sable\" Fox",
+    "role": "A close (NBK)",
+    "duty": "Off-angle in the NBK pocket covering the Squeaky exit and the Shroud corner. First contact, first trade.",
+    "utility": "1 flash"
+   },
+   {
+    "slot": "Player 2",
+    "assignee": "Alex \"Quill\" Novak",
+    "role": "Balcony",
+    "duty": "Holds the elevated angle over Forklift and the A Main exit, drops the incendiary on the entry timing, then falls to site rather than getting isolated up top.",
+    "utility": "A Main exit incendiary"
+   },
+   {
+    "slot": "Player 3",
+    "assignee": "Morgan \"Vector\" Hale",
+    "role": "IGL / A anchor",
+    "duty": "Behind Quad, trades Sable, holds the last body on site and calls the collapse.",
+    "utility": "1 flash"
+   },
+   {
+    "slot": "Player 4",
+    "assignee": "Sam \"Drift\" Aoki",
+    "role": "Mid delay",
+    "duty": "Holds mid from White Box with no smoke to hide behind. Burns the mid floor under Boost, takes one cheap angle, then falls back through Z. Survive to be the fourth body on A.",
+    "utility": "Mid floor incendiary"
+   },
+   {
+    "slot": "Player 5",
+    "assignee": "Jordan \"Pillar\" Reeve",
+    "role": "B delay (Rafters)",
+    "duty": "Alone above B on Rafters for information and one cheap shot at the B Main or Checkers exit, then drops to Hell and calls the numbers. Do not die on B.",
+    "utility": "1 flash"
+   }
+  ],
+  "timings": [
+   "1:50 — out of CT Spawn to lanes.",
+   "1:45 — Drift onto White Box, Pillar onto Rafters.",
+   "1:44 — three close angles set on A.",
+   "1:40 — A Main exit incendiary from Balcony on the first A Long or Squeaky sound.",
+   "1:36 — mid floor incendiary under Boost on confirmed Garage noise.",
+   "1:34 — close hold, no swings.",
+   "1:30 — collapse or reset decision from Vector."
+  ],
+  "midround": [
+   "B hit instead: Pillar takes his shot from Rafters, drops to Hell and delays; Drift comes through Z and CT Halls; the A trio releases Quill and Vector while Sable holds A alone.",
+   "Mid taken hard: Drift does not trade from White Box with no smoke to fall behind — he burns and leaves. Highway pressure into the back of A is exactly what the trio is set up to catch.",
+   "If they run a slow default with no commitment, Vector can push Sable and Quill into A Main behind the incendiary for one aggressive round; do not make it a habit."
+  ],
+  "reactions": [
+   "Teams that keep crashing A Main on our low buys expect a Forklift AWP and a Quad anchor — the NBK off-angle and the Balcony incendiary are the two things they are not aimed at.",
+   "Entry flashes are thrown over the A Main exit, not up at Balcony; Quill usually survives the first flash.",
+   "Ts who have been burned off the Boost climb twice will start taking mid wide toward Highway instead — that read is the reason Drift's fire goes down on Garage noise rather than on sight."
+  ],
+  "warnings": [
+   "This is a read on their A pattern. If they have gone B twice already, run the 2-1-2 default instead.",
+   "Drift has no smoke this round. He is not holding mid, he is charging them for it — one angle, one fire, then Z.",
+   "Quill cannot stay on Balcony once the site is entered — isolated and elevated on a half buy is a free kill for them.",
+   "Nobody on this buy takes a long-range duel. If the fight is not close, back off and reset."
+  ],
+  "backup": "If the round is lost early, everyone saves the upgraded guns: A trio out through Elektro toward CT Halls, Drift back through Z, Pillar out through Hell. Do not contest a plant with two."
+ },
+ {
+  "map": "Cache",
+  "name": "B Retake — Heaven and Hell Pincer",
+  "side": "CT",
+  "category": "Retake",
+  "buy_type": "full",
+  "site": "B",
+  "map_area": "CT Halls / Heaven / Rafters / Hell / Tree",
+  "tags": [
+   "retake",
+   "b-site",
+   "pincer"
+  ],
+  "difficulty": "standard",
+  "objective": "Retake B as one coordinated pincer — elevated from Heaven onto Rafters and ground level from Hell past Tree — with the B Main resupply smoked off.",
+  "summary": "CALL: 'GROUP' goes out the moment B is committed, not after the plant — everyone collapses to CT Halls while the site is being taken. Quill and Vector up Heaven to Rafters, Sable and Drift through Hell past Tree, Pillar cutting the Checkers exit from Blue. Smoke B Main, double flash off Rafters, swing together at 0:28, incendiary onto B Default only once the plant spot is confirmed.",
+  "required_utility": "1 smoke — B Main (Vector, thrown from Rafters). 1 incendiary — B Default (Drift, only on a confirmed plant spot with 20+ seconds left). 3 flashes — 2 off Rafters over the site (Quill), 1 from the Hell side (Sable).",
+  "steps": [
+   "Before the plant — the second B is confirmed committed, whoever is alive breaks contact and collapses to CT Halls. The regroup is pre-plant movement; a 1-by-1 retake is a giveaway and nobody swings alone.",
+   "0:40 on the bomb — the plant lands. The group is already forming in CT Halls; this is the departure beat, not the moment we start walking. If a body is still crossing from A, Vector says so out loud and the swing count moves.",
+   "0:36 — Quill and Vector climb Heaven onto Rafters; Sable and Drift move into Hell past Tree; Pillar sets at Blue covering the Checkers exit and the flank.",
+   "0:33 — Vector smokes B Main from Rafters to cut the resupply and the long angle back toward the T threshold.",
+   "0:30 — Quill's two flashes go off Rafters over the site; Sable adds one from the Hell side on the same count.",
+   "0:28 — both halves swing together. Sable and Drift clear Close Left first, Quill and Vector take the plateau, B Ramp and B Pit from above.",
+   "0:24 — Drift's incendiary goes onto B Default only if the plant is confirmed there and the numbers are even or better; otherwise it is not thrown at all.",
+   "0:18 — clear Spray and the back of the site before anyone touches the bomb.",
+   "0:12 — start the defuse behind the last flash with two players covering B Main and Checkers. Count the defuse out loud — kit or no kit — and below 0:10 with no kit take the fight instead."
+  ],
+  "roles": [
+   {
+    "slot": "Player 1",
+    "assignee": "Riley \"Sable\" Fox",
+    "role": "Ground pair (Hell)",
+    "duty": "First through Tree onto site, clears Close Left, takes the opening duel and gets traded.",
+    "utility": "1 flash"
+   },
+   {
+    "slot": "Player 2",
+    "assignee": "Alex \"Quill\" Novak",
+    "role": "Elevated pair (Rafters)",
+    "duty": "Both flashes off Rafters timed to the ground pair's swing, then clears the plateau from above.",
+    "utility": "2 flashes"
+   },
+   {
+    "slot": "Player 3",
+    "assignee": "Morgan \"Vector\" Hale",
+    "role": "IGL / elevated pair",
+    "duty": "B Main smoke from Rafters, counts the swing out loud so both halves move on the same number, trades Quill.",
+    "utility": "B Main smoke"
+   },
+   {
+    "slot": "Player 4",
+    "assignee": "Sam \"Drift\" Aoki",
+    "role": "Ground pair / defuser",
+    "duty": "Trades Sable, carries the incendiary for a confirmed B Default plant, sticks the defuse.",
+    "utility": "B Default incendiary (conditional)"
+   },
+   {
+    "slot": "Player 5",
+    "assignee": "Jordan \"Pillar\" Reeve",
+    "role": "AWP / flank cut",
+    "duty": "Holds Blue covering the Checkers exit and anyone coming back through B Main. Does not enter the site until the fight is resolved.",
+    "utility": "—"
+   }
+  ],
+  "timings": [
+   "Pre-plant — 'GROUP' called on the B commit; everyone alive is already moving to CT Halls.",
+   "0:40 on the bomb — plant down, group formed, departure beat.",
+   "0:36 — Heaven pair climbing, ground pair into Hell, Pillar to Blue.",
+   "0:33 — B Main smoke down from Rafters.",
+   "0:30 — flashes off Rafters and from Hell.",
+   "0:28 — synchronised swing.",
+   "0:24 — conditional incendiary onto B Default.",
+   "0:18 — Spray and back site cleared.",
+   "0:12 — defuse started under cover."
+  ],
+  "midround": [
+   "Only three alive: drop the incendiary plan entirely, keep the smoke and both flashes, and swing the same angle in a stack rather than pincering.",
+   "Bomb is at B Pit rather than B Default: the ground pair takes the plateau first and the Rafters pair covers Checkers instead — do not burn a plant spot you have not seen.",
+   "If Checkers is already held by a T, Pillar calls it and the Rafters pair clears Checkers from above before anyone drops onto site."
+  ],
+  "reactions": [
+   "Post-plant Ts on B favour Checkers, Spray and the B Main long angle — that is exactly what the smoke and the pincer split.",
+   "A T holding Blue under us will shoot the Heaven pair off the ramp; Sable's flash from Hell is aimed at that.",
+   "Teams that hit B through Vents usually leave one player in Checkers for the whole post-plant. Assume he is there until proven otherwise."
+  ],
+  "warnings": [
+   "The regroup happens while they are taking the site, not after the plant. If we are still walking to CT Halls at 0:36 the retake is already too slow.",
+   "Never burn the plant area before the bomb location is confirmed — you can torch your own defuse window.",
+   "Two halves swinging three seconds apart is not a pincer, it is two 2v4s. Vector's count is mandatory.",
+   "Arriving under 20 seconds with no kit and no smoke means save, not retake."
+  ],
+  "backup": "If the group is not formed by 0:34, take the ground route only — four through Hell past Tree behind the B Main smoke and one flash, accept the coin flip. If the numbers are 2v4 or worse, save and take the next round with full utility."
+ },
+ {
+  "map": "Inferno",
+  "name": "A Split — Short and A Balcony",
+  "side": "T",
+  "category": "Split",
+  "buy_type": "full",
+  "site": "A",
+  "map_area": "Mid / A Short / Second Mid / CT Apartments",
+  "tags": [
+   "split",
+   "a-site",
+   "utility-heavy",
+   "ct-apartments"
+  ],
+  "difficulty": "advanced",
+  "objective": "Take Top Mid and CT Apartments at the same time, then hit A from A Short and off the A Balcony drop so the Pit anchor has no safe angle.",
+  "summary": "CALL: three to Top Mid and A Short, two through Second Mid onto the Second Mid Stairs. Window smoke 1:43, CT Apartments clear by 1:33, execute 1:29 with the Library smoke and Pit molotov, A Balcony drop on Sable's flash, plant Default.",
+  "required_utility": "2 smokes (CT Apartments Window — Rook; Library exit — Quill), 2 molotovs (Pit — Vector; Close Apartments — Drift), 5 flashes (Sable 2, Quill 1, Vector 1, Drift 1).",
+  "steps": [
+   "Sable, Quill and Vector leave spawn to T Ramp and Bottom Mid; Drift and Rook take the stairs beside spawn to Living Room, over Bridge and out the Second Mid Door — that walk is eleven to thirteen seconds, do not rush it and do not throw early.",
+   "Rook smokes the CT Apartments Window from inside Second Mid at 1:43 so the Second Mid Stairs can be climbed; Drift flashes up at 1:40 and Rook trails him into CT Apartments.",
+   "The mid trio settles on the A Short side of Top Mid while that happens, checks Patio, and commits nothing past the Boiler doorway until Drift calls CT Apartments clear.",
+   "Drift molotovs Close Apartments behind him once he and Rook are on A Balcony, sealing that hallway against a CT re-entry from the Boiler doorway.",
+   "On the execute call at 1:29 Quill smokes the Library exit from A Short and Vector molotovs Pit.",
+   "Sable flashes over the A Short truck and enters the site; Drift drops off A Balcony on the same flash so the Pit player is caught between them.",
+   "Quill and Vector follow through A Short and clear Close Left and Moto; Rook holds A Balcony for the Library and Arch rotations.",
+   "Plant Default and set post-plant: two Back Site, Sable on A Short, Rook covering the A Balcony drop."
+  ],
+  "roles": [
+   {
+    "slot": "Player 1",
+    "assignee": "Riley \"Sable\" Fox",
+    "role": "Entry (A Short)",
+    "duty": "First body through the A Short truck gap on the execute; opens Close Left.",
+    "utility": "2 flashes (one over the A Short truck for entry, one held for Close Left)"
+   },
+   {
+    "slot": "Player 2",
+    "assignee": "Alex \"Quill\" Novak",
+    "role": "Support (A Short)",
+    "duty": "Smokes the Library exit on the call, trades Sable into the site, clears Moto.",
+    "utility": "Library exit smoke, 1 flash"
+   },
+   {
+    "slot": "Player 3",
+    "assignee": "Morgan \"Vector\" Hale",
+    "role": "IGL / rifler (Top Mid)",
+    "duty": "Holds the mid trio on the A Short side of Top Mid, times the execute off Drift's CT Apartments call, molotovs Pit.",
+    "utility": "Pit molotov, 1 flash"
+   },
+   {
+    "slot": "Player 4",
+    "assignee": "Sam \"Drift\" Aoki",
+    "role": "CT Apartments lead",
+    "duty": "Climbs the Second Mid Stairs behind the Window smoke, clears CT Apartments through to Close Apartments, drops off A Balcony on Sable's flash.",
+    "utility": "Close Apartments molotov, 1 flash"
+   },
+   {
+    "slot": "Player 5",
+    "assignee": "Jordan \"Rook\" Reeve",
+    "role": "AWP (Second Mid / A Balcony)",
+    "duty": "Smokes the CT Apartments Window, covers the Second Mid lane while Drift climbs, then holds A Balcony over the site for rotations.",
+    "utility": "CT Apartments Window smoke"
+   }
+  ],
+  "timings": [
+   "1:52 — break spawn: three to T Ramp and Bottom Mid, two up the stairs beside spawn to Living Room.",
+   "1:43 — Rook smokes the CT Apartments Window from Second Mid.",
+   "1:41 — mid trio settled on the A Short side of Top Mid, Patio checked, nothing past the Boiler doorway.",
+   "1:40 — Drift flashes and climbs the Second Mid Stairs, Rook trails.",
+   "1:33 — Drift calls CT Apartments clear and molotovs Close Apartments behind him.",
+   "1:29 — execute: Library smoke from Quill, Pit molotov from Vector.",
+   "1:27 — Sable flashes over the A Short truck and enters; Drift drops off A Balcony on the same flash.",
+   "1:19 — plant Default.",
+   "1:12 — post-plant positions set."
+  ],
+  "midround": [
+   "If the Window smoke is beaten and Drift dies on the Second Mid Stairs, abandon the CT Apartments half: Rook falls back into Second Mid, the trio plays a slow A Short take with the Library smoke and Pit molotov only.",
+   "If a CT already holds A Balcony when Drift arrives, do not trade into it — hold Close Apartments, let the trio hit A Short first and take A Balcony from behind.",
+   "If Vector reads three or more on B from the Banana noise, keep the same utility and walk the hit in slowly at 1:18 instead of hitting on the flash."
+  ],
+  "reactions": [
+   "The A-side CT usually swaps through the Boiler doorway when Top Mid gets loud — that is the moment the CT Apartments half is uncontested.",
+   "Expect a Library player to hold the smoke edge for a few seconds after it lands; Quill clears Moto before anyone crosses to Back Site.",
+   "Once the plant is down, the first rotation comes through Arch onto A Long — one player watches Long Corner from the site the whole post-plant."
+  ],
+  "warnings": [
+   "Never drop off A Balcony without a flash — the Pit and Library crossfire eats a dry drop.",
+   "Do not treat Pit as high ground; you are shooting down into it from the site and down from A Balcony.",
+   "Do not write anyone into the Graveyard patch behind A — it has been barred since the March 2026 update.",
+   "Say 'A Balcony' and 'CT Apartments' in full on comms; this strat routes two players past T Balcony and T Apartments and half-called names get people shot.",
+   "If the mid trio commits to A Short before the CT Apartments call, the split becomes two separate one-way fights."
+  ],
+  "backup": "On \"RESET SHORT\": Drift and Rook pull back down the Second Mid Stairs, the whole team regroups at Top Mid and runs a five-man A Short hit at 0:50 with whatever utility is left."
+ },
+ {
+  "map": "Inferno",
+  "name": "B Execute — Banana Overload",
+  "side": "T",
+  "category": "Execute",
+  "buy_type": "full",
+  "site": "B",
+  "map_area": "Banana / B Site",
+  "tags": [
+   "execute",
+   "b-site",
+   "banana",
+   "full-buy"
+  ],
+  "difficulty": "standard",
+  "objective": "Own Banana with early fire, then execute B behind three smokes so no CT can hold or rotate into the site without walking through utility.",
+  "summary": "CALL: five up Banana, Car molotov at 1:45, Half Wall claimed by 1:38, then CT lane, Coffin and Construction smokes together at 1:33 — Sable double-flashes in, plant at New Box.",
+  "required_utility": "3 smokes (CT lane — Vector; Coffin — Quill; Construction/Church — Drift), 2 molotovs (Car — Vector; 2nd — Quill), 4 flashes (Sable 2, Drift 1, Rook 1).",
+  "steps": [
+   "All five leave spawn to T Ramp and take the Banana fork at a walk — nobody shows past Logs before Vector's fire is on Car.",
+   "Vector molotovs Car at 1:45 so the CTs cannot claim the top of Banana first.",
+   "Sable and Quill take Logs and move up to Sandbags (Banana) behind the burning Car — the fire is cover to walk behind, not a stop sign.",
+   "Rook holds the top of Banana from the Sandbags side while Vector and Drift close up to the Half Wall.",
+   "At 1:33 the three smokes go together: Vector CT lane, Quill Coffin, Drift Construction/Church.",
+   "Sable double-flashes over the Half Wall and enters; Quill molotovs 2nd behind him so nobody re-peeks the Oranges cubbies.",
+   "Drift and Vector clear Fountain and Dark; Rook enters last and re-checks the Banana exit for a Construction flank.",
+   "Plant at New Box and set post-plant: one Dark, one 1st, one behind Fountain, Rook covering the Half Wall."
+  ],
+  "roles": [
+   {
+    "slot": "Player 1",
+    "assignee": "Riley \"Sable\" Fox",
+    "role": "Entry",
+    "duty": "First out of the Half Wall on his own flashes, takes the Banana-side half of the site.",
+    "utility": "2 flashes"
+   },
+   {
+    "slot": "Player 2",
+    "assignee": "Alex \"Quill\" Novak",
+    "role": "Support",
+    "duty": "Coffin smoke on the call, trades Sable in, burns 2nd so the Oranges cubbies stay empty.",
+    "utility": "Coffin smoke, 2nd molotov"
+   },
+   {
+    "slot": "Player 3",
+    "assignee": "Morgan \"Vector\" Hale",
+    "role": "IGL / rifler",
+    "duty": "Opens with the Car molotov, calls the smoke count, throws the CT lane smoke, clears Fountain.",
+    "utility": "CT lane smoke, Car molotov"
+   },
+   {
+    "slot": "Player 4",
+    "assignee": "Sam \"Drift\" Aoki",
+    "role": "Utility support",
+    "duty": "Construction/Church smoke on the call, clears Dark with Vector, holds the Garden side after the plant.",
+    "utility": "Construction smoke, 1 flash"
+   },
+   {
+    "slot": "Player 5",
+    "assignee": "Jordan \"Rook\" Reeve",
+    "role": "AWP",
+    "duty": "Holds the top of Banana during the setup, enters last, covers the Banana exit and Half Wall post-plant.",
+    "utility": "1 flash"
+   }
+  ],
+  "timings": [
+   "1:52 — five out of spawn to T Ramp, take the Banana fork.",
+   "1:45 — Vector molotovs Car.",
+   "1:43 — Sable and Quill take Logs and move up behind the fire.",
+   "1:38 — Sandbags (Banana) and the Half Wall claimed; Rook sets his angle.",
+   "1:33 — smokes together: CT lane, Coffin, Construction.",
+   "1:30 — Sable double flash and entry; Quill molotovs 2nd.",
+   "1:24 — plant at New Box.",
+   "1:18 — post-plant crossfires set."
+  ],
+  "midround": [
+   "If a CT incendiary lands on Car first, hold at Logs, let it burn and push at 1:38 — the smokes go five seconds later, do not throw them into empty space.",
+   "If Rook wins an early AWP duel at the top of Banana, skip the Coffin smoke and take the site immediately with a four-man rush while the CT is down a body.",
+   "If the Construction smoke is missed, Drift plays back at the Half Wall instead of entering and watches the Garden angle for the retake."
+  ],
+  "reactions": [
+   "Most B anchors hold Coffin or Dark on a full buy; the Coffin smoke turns the first duel into Sable's fight and nothing else.",
+   "The CT lane smoke is what stops the fast rotate out of CT spawn — expect that player to appear at the smoke edge around eight seconds after it lands.",
+   "Teams that lose Banana early often send a Construction/Garden re-entry rather than a straight retake; Drift's post-plant angle is aimed at that door."
+  ],
+  "warnings": [
+   "Do not throw all three smokes early — thrown before 1:35 they fade during the retake window.",
+   "Nothing goes on Car before 1:45; anything thrown earlier lands in an empty lane while the CTs are still walking to Banana.",
+   "Do not walk into 1st and 2nd before Quill's molotov burns; those cubbies are the standard eco and full-buy hide.",
+   "Nobody carries two smokes: if Quill dies before the call, Vector switches his to Coffin and the CT lane goes unsmoked — say it on comms."
+  ],
+  "backup": "On \"HOLD BANANA\": stop at Sandbags (Banana), hold the Half Wall line with Rook's angle and re-hit at 0:45 with the remaining smokes once the CTs commit a rotation to A."
+ },
+ {
+  "map": "Inferno",
+  "name": "T Pistol — Short and Long Pinch",
+  "side": "T",
+  "category": "Pistol",
+  "buy_type": "pistol",
+  "site": "A",
+  "map_area": "Mid / A Short / A Long",
+  "tags": [
+   "pistol",
+   "a-site",
+   "pinch"
+  ],
+  "difficulty": "basic",
+  "objective": "Pinch A from A Short and A Long at once on the pistol so the two A defenders cannot hold both entrances, and win the round before CT utility exists.",
+  "summary": "CALL: three A Short, two A Long. Library smoke from Top Mid at 1:39, Pit molotov at 1:36, flash over the A Short truck at 1:34 and both mouths enter together — plant Default.",
+  "required_utility": "Pistol money is $800 each. Sable: Kevlar ($650), no nade. Drift: Kevlar ($650), no nade. Rook: Kevlar ($650), no nade. Quill: molotov ($400) + 2 flashbangs ($400) = $800, no armour. Vector: P250 ($300) + smoke ($300) + flashbang ($200) = $800, no armour. Total team utility: 1 smoke (Library exit), 1 molotov (Pit), 3 flashes.",
+  "steps": [
+   "All five leave spawn to T Ramp and Bottom Mid together — one loose group, no early split, walking pace because three of you have armour and nothing else.",
+   "Sable, Quill and Vector take the A Short side of Top Mid past Patio; Drift and Rook break wide onto A Long past Long Corner.",
+   "Vector smokes the Library exit from Top Mid at 1:39 so the Library crossfire cannot see either entrance.",
+   "Quill molotovs Pit at 1:36 from A Short to push the anchor off his angle.",
+   "Vector flashes over the A Short truck at 1:34; Sable enters first and Quill trades him.",
+   "Drift and Rook time their A Long entry to the same flash and clear Moto and the Library side.",
+   "Plant Default and set post-plant: Sable on Close Left, Vector Back Site, Drift and Rook holding A Long, Quill watching the A Balcony drop."
+  ],
+  "roles": [
+   {
+    "slot": "Player 1",
+    "assignee": "Riley \"Sable\" Fox",
+    "role": "Entry (A Short)",
+    "duty": "First past the A Short truck on Vector's flash; takes the armour so he can survive the opening trade.",
+    "utility": "None — Kevlar ($650)"
+   },
+   {
+    "slot": "Player 2",
+    "assignee": "Alex \"Quill\" Novak",
+    "role": "Utility support (A Short)",
+    "duty": "Burns Pit, keeps one flash for the re-peek and one for the plant; plays behind Sable, not beside him.",
+    "utility": "Molotov + 2 flashbangs ($800), no armour"
+   },
+   {
+    "slot": "Player 3",
+    "assignee": "Morgan \"Vector\" Hale",
+    "role": "IGL (Top Mid)",
+    "duty": "Throws the Library smoke and the entry flash, calls the pinch timing, enters third.",
+    "utility": "P250 + smoke + flashbang ($800), no armour"
+   },
+   {
+    "slot": "Player 4",
+    "assignee": "Sam \"Drift\" Aoki",
+    "role": "Long entry",
+    "duty": "Breaks A Long from Long Corner on the flash, clears Moto.",
+    "utility": "None — Kevlar ($650)"
+   },
+   {
+    "slot": "Player 5",
+    "assignee": "Jordan \"Rook\" Reeve",
+    "role": "Long trade",
+    "duty": "Trades Drift on A Long, then holds Long Corner post-plant against the Arch rotation.",
+    "utility": "None — Kevlar ($650)"
+   }
+  ],
+  "timings": [
+   "1:52 — five out of spawn toward T Ramp and Bottom Mid.",
+   "1:46 — group reaches the Bottom Mid line; Rook checks up Mid for an early CT peek.",
+   "1:41 — the Short three are past Patio on the A Short side of Top Mid; Drift and Rook break onto A Long past Long Corner.",
+   "1:39 — Vector smokes the Library exit from Top Mid.",
+   "1:36 — Quill molotovs Pit from A Short.",
+   "1:34 — Vector flashes over the A Short truck.",
+   "1:33 — both mouths enter together.",
+   "1:26 — plant Default.",
+   "1:18 — post-plant positions set."
+  ],
+  "midround": [
+   "If a CT is holding Top Mid early, Rook and Drift take the duel from the Long side while the Short three hold — do not cross open mid into an unknown angle.",
+   "If the Pit molotov gets no reaction and Library is quiet, expect a stack on B — plant Default fast and play the post-plant wide.",
+   "If the smoke is short and Library still sees the site, shift the entry entirely to A Long and use Quill's second flash from Moto."
+  ],
+  "reactions": [
+   "Pistol CTs on A almost always sit Pit plus Library; the molotov and the smoke each remove one of them from the opening fight.",
+   "A pistol CT who loses Pit often re-peeks from Back Site rather than saving — clear it before planting.",
+   "Expect the B-side CT rotation through Library within ten seconds of the first shots; Drift's Long angle covers that arrival."
+  ],
+  "warnings": [
+   "No armoured player carries a nade this round and no unarmoured player leads the entry — keep it that way.",
+   "Do not push A Balcony or Close Apartments on a pistol; you have no utility for that hallway.",
+   "Do not bunch three players at the A Short truck — one CT with a pistol still wins that with a single spray."
+  ],
+  "backup": "If the Short entry fails on the flash, survivors fall back to Long Corner, regroup with the Long pair and take the site late off Quill's second flash; with three or more alive and no plant by 0:40, save the pistols for the round-two force."
+ },
+ {
+  "map": "Inferno",
+  "name": "Force — Long Crash",
+  "side": "T",
+  "category": "Force buy",
+  "buy_type": "semi",
+  "site": "A",
+  "map_area": "A Long / Top Mid",
+  "tags": [
+   "force",
+   "a-site",
+   "fast",
+   "a-long"
+  ],
+  "difficulty": "basic",
+  "objective": "Crash four bodies down A Long before the CTs have their full-buy positions set, cutting the Arch reinforcement with a smoke and burning the Library doorway so the crash only fights what is already on site.",
+  "summary": "CALL: four stack Long Corner by 1:39, Drift alone on the Ledge for Top Mid. Arch Side smoke 1:37, Library doorway molotov 1:35, Sable double flash over Moto and all four crash at 1:33 — plant Default at 1:27.",
+  "required_utility": "1 smoke (Arch Side — Quill), 1 molotov (the Library exit doorway — Vector), 4 flashes (Sable 2, Drift 1, Rook 1). Buy is roughly $2,300 a man: MAC-10 ($1,050) or Galil ($1,800) with Kevlar ($650), then Sable's two flashes ($400), Quill's smoke ($300), Vector's molotov ($400), one flash each ($200) for Drift and Rook. Nobody carries two smokes and nobody carries two fires.",
+  "steps": [
+   "Four leave spawn to T Ramp and Bottom Mid; Drift trails and sets on the Ledge to watch up Mid.",
+   "Drift calls the Top Mid picture by 1:46 — if an AWP is watching, the four cross behind his flash instead of running it.",
+   "Sable, Quill, Vector and Rook stack Long Corner by 1:39 and hold there for the utility count; the walk from spawn through Mid to Long takes that long, do not throw early to fill the silence.",
+   "Quill smokes Arch Side at 1:37 so the Arch and Library reinforcement cannot step onto Long; Drift leaves the Ledge on that smoke and starts walking Mid behind the crash.",
+   "Vector molotovs the Library exit doorway at 1:35 so the Library player cannot hold the Long mouth through the crash.",
+   "Sable double-flashes over Moto at 1:33 and all four crash together, clearing Close Left, Default and Back Site as they arrive.",
+   "Plant Default at 1:27; Drift reaches the Boiler doorway around 1:24 and holds it — that denies the CT Apartments-to-A Short swap only, so Arch, Library and Speedway still need watching from the site.",
+   "Post-plant plays from Moto, Back Site and A Long, with Rook on Arch Side."
+  ],
+  "roles": [
+   {
+    "slot": "Player 1",
+    "assignee": "Riley \"Sable\" Fox",
+    "role": "Entry",
+    "duty": "Throws both flashes over Moto and crashes first; takes the Library side of the site.",
+    "utility": "2 flashes"
+   },
+   {
+    "slot": "Player 2",
+    "assignee": "Alex \"Quill\" Novak",
+    "role": "Support",
+    "duty": "Arch Side smoke to cut the reinforcement, trades Sable, clears Close Left.",
+    "utility": "Arch Side smoke"
+   },
+   {
+    "slot": "Player 3",
+    "assignee": "Morgan \"Vector\" Hale",
+    "role": "IGL / rifler",
+    "duty": "Counts the crash, molotovs the Library exit doorway, clears Back Site.",
+    "utility": "Library doorway molotov"
+   },
+   {
+    "slot": "Player 4",
+    "assignee": "Sam \"Drift\" Aoki",
+    "role": "Mid cut",
+    "duty": "Holds the Ledge angle up Mid, then walks the length of Mid behind the crash to sit on the Boiler doorway and deny the CT Apartments-to-A Short swap. He is not part of the entry — he arrives after the plant by design.",
+    "utility": "1 flash"
+   },
+   {
+    "slot": "Player 5",
+    "assignee": "Jordan \"Rook\" Reeve",
+    "role": "Trailer",
+    "duty": "Last through Long, watches Long Corner and Arch Side behind the crash, plants if Vector is down.",
+    "utility": "1 flash"
+   }
+  ],
+  "timings": [
+   "1:52 — break: four to T Ramp and Bottom Mid, Drift to the Ledge.",
+   "1:46 — Drift calls the Top Mid picture.",
+   "1:39 — four stacked at Long Corner.",
+   "1:37 — Quill smokes Arch Side; Drift leaves the Ledge and walks Mid.",
+   "1:35 — Vector molotovs the Library exit doorway.",
+   "1:33 — Sable double flash over Moto, four crash together.",
+   "1:27 — plant Default.",
+   "1:24 — Drift set at the Boiler doorway.",
+   "1:16 — post-plant set."
+  ],
+  "midround": [
+   "If an AWP holds Top Mid and kills someone crossing, do not force it again — the remaining bodies wait for Drift's flash and cross on it.",
+   "If A Long is already burning, hold Long Corner until it dies, then hit at 1:22; on a force the fire costs you more than the tempo does.",
+   "If two CTs are heard on A Long early, Vector switches the molotov onto the Long mouth itself and the crash goes straight past Moto instead of clearing wide."
+  ],
+  "reactions": [
+   "Full-buy CTs expect a force to run Banana; A Long on a force is off-script and usually finds Library holding an anti-Short angle instead.",
+   "The Arch rotation is the punish — Quill's smoke buys about the length of the crash, no more, and then Rook owns that doorway.",
+   "If they saved their incendiary for Banana, nothing will burn you on Long — Vector should hear that in the first fifteen seconds."
+  ],
+  "warnings": [
+   "Do not run this into a known Long AWP without spending Drift's flash first.",
+   "Do not crash before the Library doorway is burning — that player looks straight into the Long mouth.",
+   "Do not send Drift onto the site; his whole value is the Boiler doorway after the plant, and he cannot be there before roughly 1:24 however fast he leaves the Ledge.",
+   "This is not the pistol pinch at a higher price: no Library smoke, no Pit molotov, one lane, four bodies. If Vector calls the pistol shape here, call it off."
+  ],
+  "backup": "On \"OFF LONG\": pull back into Long Corner, regroup with Drift at Top Mid and take A Short late with the leftover flashes, or run the clock and save the buy if two go down early."
+ },
+ {
+  "map": "Inferno",
+  "name": "Emergency — Full Save",
+  "side": "T",
+  "category": "Emergency call",
+  "buy_type": "save",
+  "map_area": "Bottom Mid / Logs / T Ramp",
+  "tags": [
+   "save",
+   "eco",
+   "economy",
+   "discipline"
+  ],
+  "difficulty": "basic",
+  "objective": "Bank the round: keep every weapon and every carried grenade, deny the CTs free kills, and reset the buy for the next two rounds.",
+  "summary": "CALL: full save. Nobody crosses into Top Mid or past Logs. Hold cover angles until 1:00, drift back to T Ramp, all five inside spawn by 0:40 — no purchases, no duels without cover behind you.",
+  "required_utility": "No purchases this round. Carried-over grenades only — do not spend money on nades, armour or drops.",
+  "steps": [
+   "Leave spawn slowly and spread: Sable and Quill toward Bottom Mid, Vector and Drift toward Logs, Rook onto the Ledge.",
+   "Hold cover angles only — nobody crosses into Top Mid, nobody walks past Logs up Banana.",
+   "Vector confirms the save at 1:30 and names who, if anyone, is allowed a single free-angle duel with an escape behind them.",
+   "If a CT pushes into Bottom Mid or down Banana, take the trade only where two of you can see the same doorway, then leave immediately.",
+   "From 1:00 everyone drifts back toward the T Ramp junction, never in a line and never two through the same gap.",
+   "All five sit inside the T spawn area by 0:40, spread wide, holding the two entrances rather than hunting.",
+   "Run the clock out — do not peek to bait, do not chase a wounded CT."
+  ],
+  "roles": [
+   {
+    "slot": "Player 1",
+    "assignee": "Riley \"Sable\" Fox",
+    "role": "Bottom Mid watch",
+    "duty": "Holds the Bottom Mid cover line for CT aggression, falls back on first contact.",
+    "utility": "Carried only"
+   },
+   {
+    "slot": "Player 2",
+    "assignee": "Alex \"Quill\" Novak",
+    "role": "Bottom Mid trade",
+    "duty": "Stays behind Sable so any duel is a two-on-one; leaves with him.",
+    "utility": "Carried only"
+   },
+   {
+    "slot": "Player 3",
+    "assignee": "Morgan \"Vector\" Hale",
+    "role": "IGL",
+    "duty": "Confirms the save, calls the pull-back times, forbids hero peeks.",
+    "utility": "Carried only"
+   },
+   {
+    "slot": "Player 4",
+    "assignee": "Sam \"Drift\" Aoki",
+    "role": "Logs watch",
+    "duty": "Holds Logs for a CT push down Banana, backs out to T Ramp on contact.",
+    "utility": "Carried only"
+   },
+   {
+    "slot": "Player 5",
+    "assignee": "Jordan \"Rook\" Reeve",
+    "role": "AWP / long angle",
+    "duty": "Holds the Ledge angle up Mid — the one player allowed a free long-range shot, and only with a clean exit.",
+    "utility": "Carried only"
+   }
+  ],
+  "timings": [
+   "1:52 — break slow and spread; nobody past Logs or into Top Mid.",
+   "1:45 — cover angles set: two Bottom Mid, two Logs, Rook on the Ledge.",
+   "1:30 — Vector confirms the save on comms.",
+   "1:00 — everyone drifts back toward the T Ramp junction.",
+   "0:40 — all five inside the T spawn area, spread.",
+   "0:20 — no peeks, no trades, run the clock."
+  ],
+  "midround": [
+   "If the CTs push five into Banana, do not stand and fight — Drift gives ground and the team funnels them into the two-on-one at T Ramp only if it is free.",
+   "If a CT overextends alone into Bottom Mid, take the kill with two players and immediately reset back — one free rifle changes next round's buy.",
+   "If we are up bodies from a previous exchange and the bomb is still in hand, Vector can convert to a late A Short hit — but only with four alive and only before 0:50."
+  ],
+  "reactions": [
+   "CTs on their own eco or light buy push mid and Banana hard for a free frag — that is exactly the duel to decline.",
+   "Aggressive AWPers hold Top Mid early looking for the save-round cross; Rook's Ledge angle is the counter, not a cross.",
+   "Expect a late five-man sweep from CTs who are winning the economy — spacing inside spawn is what beats it."
+  ],
+  "warnings": [
+   "Buying armour or a nade on a save round is what turns a two-round reset into a four-round one.",
+   "Do not group in T Ramp — one HE or incendiary takes three health bars.",
+   "Do not chase a kill you cannot walk away from; the guns are the point of the round."
+  ],
+  "backup": "On \"CONVERT\": with four or more alive at 0:50 and the CTs confirmed off A, take a quiet A Short hit and plant Default — otherwise the call stands and we save."
+ },
+ {
+  "map": "Inferno",
+  "name": "CT Default — CT Apartments Lock",
+  "side": "CT",
+  "category": "Default",
+  "buy_type": "full",
+  "map_area": "CT Apartments / A Site / A Long / B Site",
+  "tags": [
+   "default",
+   "full-buy",
+   "apartments-control",
+   "a-weight"
+  ],
+  "difficulty": "standard",
+  "objective": "Buy the A half of the map — Second Mid, A Long and the A Balcony side — with four players and information, and deliberately trade B for time with one deep anchor instead of contesting Banana.",
+  "summary": "CALL: one deep on B, four across the A half. Sable on Window over Second Mid, Rook on Arch Side over Long, Drift forward at the A Short truck, Vector in Library making the calls. Nobody duels at the Half Wall this round — Quill delays from Dark and we buy the B retake.",
+  "required_utility": "2 incendiaries (Second Mid Stairs — Sable; the Banana exit at the Half Wall — Quill), 2 smokes (the A Short truck gap — Vector; A Long — Rook), 5 flashbangs (Sable 1, Quill 1, Vector 1, Drift 2). CTs buy incendiaries, never molotovs.",
+  "steps": [
+   "On the break Sable goes through the Boiler doorway into CT Apartments to Window, Rook through Arch onto Arch Side, Drift forward to the A Short truck, Vector into Library, Quill alone to the back half of B.",
+   "By 1:44 everyone is set and quiet: Sable listening down Second Mid, Rook holding A Long, Drift jiggling the A Short truck line for Top Mid noise, Quill sitting Dark and Quad.",
+   "Sable burns the Second Mid Stairs only when a climb is actually committed — the incendiary is the delay that lets him fall back through Close Apartments onto A Balcony, not an opener.",
+   "Drift trades his forward A Short spot for information, not frags: two flashes, one look, then back into the site to Close Left or Default.",
+   "Quill never contests the Banana exit. He counts bodies out of Banana, burns the Half Wall exit behind them to slow the plant, and gives ground through Fountain toward Garden and the CT lane.",
+   "Vector calls the round's weight at 1:25 from Library; if B is committed, the peel is Vector plus one through CT Spawn and Speedway, and it is called as a retake, not a rescue.",
+   "Rook smokes A Long only to break a committed crash, then falls back through Arch or into Library beside Vector.",
+   "Collapse and retake in pairs from 0:45 — never a solo re-entry, and never back into Pit."
+  ],
+  "roles": [
+   {
+    "slot": "Player 1",
+    "assignee": "Riley \"Sable\" Fox",
+    "role": "CT Apartments / Window",
+    "duty": "Holds Window over Second Mid for the earliest read on an Apartments route, burns the Second Mid Stairs on a committed climb, falls back through Close Apartments onto A Balcony.",
+    "utility": "Second Mid Stairs incendiary, 1 flash"
+   },
+   {
+    "slot": "Player 2",
+    "assignee": "Alex \"Quill\" Novak",
+    "role": "Solo B (deep)",
+    "duty": "Plays the back half of B — Dark and Quad — counts the Banana push, burns the Banana exit at the Half Wall behind it and gives ground alive toward Garden. No Half Wall duel, no Coffin peek, no trade partner.",
+    "utility": "Banana-exit incendiary, 1 flash"
+   },
+   {
+    "slot": "Player 3",
+    "assignee": "Morgan \"Vector\" Hale",
+    "role": "IGL / Library",
+    "duty": "Anchors Library in crossfire with the site, smokes the A Short truck gap to break an entry, makes every rotation call and owns the retake count.",
+    "utility": "A Short truck gap smoke, 1 flash"
+   },
+   {
+    "slot": "Player 4",
+    "assignee": "Sam \"Drift\" Aoki",
+    "role": "Forward A Short",
+    "duty": "Holds the A Short truck line early for the Top Mid read, flashes and gives ground into the site rather than duelling a full-buy entry.",
+    "utility": "2 flashes"
+   },
+   {
+    "slot": "Player 5",
+    "assignee": "Jordan \"Rook\" Reeve",
+    "role": "AWP (A Long)",
+    "duty": "Holds A Long from Arch Side, smokes Long to break a crash, falls back through Arch or into Library.",
+    "utility": "A Long smoke"
+   }
+  ],
+  "timings": [
+   "1:52 — break: Sable through the Boiler doorway to Window, Rook through Arch, Drift to the A Short truck, Vector to Library, Quill to the back of B.",
+   "1:44 — all five set; first listening beat on Second Mid, Top Mid and Banana.",
+   "1:35 — Drift's forward look at Top Mid; he is back in the site by 1:30 whatever he sees.",
+   "1:25 — Vector names the weight of the round from Library.",
+   "1:10 — if B is committed, Vector plus one peel through CT Spawn and Speedway.",
+   "0:55 — Quill's Banana-exit incendiary as the plant goes down, then he plays for the count, not the frag.",
+   "0:45 — retake in pairs only."
+  ],
+  "midround": [
+   "If Second Mid goes loud before 1:35, Sable holds Window and Vector shifts from Library toward the site so the A Balcony drop is trade-able; do not send Sable down the Stairs after them.",
+   "If the Ts default into A Long, Rook's smoke goes late and Vector steps out of Library only once Rook is behind Arch — the crossfire is the point, not the duel.",
+   "If Banana goes silent after 1:30, Quill steps up to Coffin for one listen and immediately returns to Dark; he is the only body on that site and he does not get to gamble it."
+  ],
+  "reactions": [
+   "A T side that meets four players on the A half usually stops defaulting there and swings to Banana — that is the round Quill's count is worth more than any frag he could take.",
+   "Ts who expect a Half Wall duel will burn a molotov on Car for nobody; every wasted T fire on Banana is a nade missing from the B execute.",
+   "Teams that get away with a free Banana twice will start planting fast and stacking the post-plant — Vector should be calling the retake shape before the plant lands, not after."
+  ],
+  "warnings": [
+   "Never call this 'molotov' on comms — CTs carry incendiaries, and a wrong buy costs $600 and the delay.",
+   "We are not anchoring Pit this round; if you fall back into it you are below site level with nobody positioned to trade you.",
+   "Quill is alone by design — if anyone leaves the A half early to 'help', we lose both sites instead of one.",
+   "Do not write anyone into the Graveyard patch behind A; it has been barred since the March 2026 update.",
+   "There is no CT path from Mid into Banana — every peel to B goes through CT Spawn and Speedway or past the Well into Construction, and both are slow. Call it early."
+  ],
+  "backup": "On \"FLIP IT\": Drift and Sable both peel to B through Speedway before the execute, Vector holds A alone from Library with Rook on Arch Side, and A becomes the retake instead."
+ },
+ {
+  "map": "Inferno",
+  "name": "CT Pistol — Banana Deny",
+  "side": "CT",
+  "category": "Pistol",
+  "buy_type": "pistol",
+  "site": "B",
+  "map_area": "Banana / B Site",
+  "tags": [
+   "pistol",
+   "b-site",
+   "banana",
+   "anti-rush"
+  ],
+  "difficulty": "basic",
+  "objective": "Break the pistol-round Banana rush with one incendiary and a guaranteed trade at the Half Wall, then convert the man advantage into the round.",
+  "summary": "CALL: three B, one Boiler, one Pit. Sable and Rook behind the Half Wall by 1:47, incendiary onto Car at 1:45, Quill re-frags from Coffin — no one peeks past the Half Wall alone.",
+  "required_utility": "Pistol money is $800 each. Sable: incendiary ($600) + flashbang ($200) = $800, no armour. Drift: P250 ($300) + smoke ($300) + flashbang ($200) = $800, no armour. Quill: Kevlar ($650), no nade. Vector: Kevlar ($650), no nade. Rook: Kevlar ($650), no nade. Team utility: 1 incendiary (Car), 1 smoke (the A Short truck gap), 2 flashes.",
+  "steps": [
+   "Sable and Rook break toward B and set behind the Half Wall by 1:47; Quill takes Coffin on the site.",
+   "Vector goes to the Boiler doorway for Top Mid information; Drift takes Pit on A with his smoke in hand.",
+   "Sable throws the incendiary onto Car at 1:45 — early enough to catch a five-man rush, late enough that it is still burning at first contact.",
+   "Sable peeks off the fire for one shot only; Rook trades from beside him and both give ground behind the Half Wall.",
+   "Quill holds Coffin at head height and re-frags anything that survives the Half Wall exchange — he does not push into Banana.",
+   "If Banana is quiet at 1:35, Sable drops onto the site and Vector jiggles Top Mid for the A read; Drift smokes the A Short truck gap if three or more arrive on A.",
+   "Vector calls the full rotate at 1:20 and the armoured players lead any push through Speedway."
+  ],
+  "roles": [
+   {
+    "slot": "Player 1",
+    "assignee": "Riley \"Sable\" Fox",
+    "role": "Banana denial",
+    "duty": "Buys the incendiary, throws it onto Car at 1:45, takes one duel and falls back — never trades armour he does not have.",
+    "utility": "Incendiary + flashbang ($800), no armour"
+   },
+   {
+    "slot": "Player 2",
+    "assignee": "Alex \"Quill\" Novak",
+    "role": "B anchor",
+    "duty": "Coffin, head-height angle on the Banana exit, re-frags for Sable and Rook.",
+    "utility": "None — Kevlar ($650)"
+   },
+   {
+    "slot": "Player 3",
+    "assignee": "Morgan \"Vector\" Hale",
+    "role": "IGL / Mid info",
+    "duty": "Boiler doorway, reads Top Mid and the A Short timing, makes the rotate call.",
+    "utility": "None — Kevlar ($650)"
+   },
+   {
+    "slot": "Player 4",
+    "assignee": "Sam \"Drift\" Aoki",
+    "role": "A anchor (Pit)",
+    "duty": "Holds Pit, smokes the A Short truck gap against a stacked A pistol hit, delays until Vector arrives.",
+    "utility": "P250 + smoke + flashbang ($800), no armour"
+   },
+   {
+    "slot": "Player 5",
+    "assignee": "Jordan \"Rook\" Reeve",
+    "role": "Banana trade",
+    "duty": "Stands off Sable's shoulder behind the Half Wall so every Banana duel is a two-on-one.",
+    "utility": "None — Kevlar ($650)"
+   }
+  ],
+  "timings": [
+   "1:52 — break: Sable and Rook to B, Quill to the site, Vector to the Boiler doorway, Drift to Pit.",
+   "1:47 — Sable and Rook behind the Half Wall, Quill at Coffin.",
+   "1:45 — incendiary onto Car.",
+   "1:42 — expect first Banana contact; one peek, one trade, give ground.",
+   "1:35 — if Banana is quiet, Sable drops to site and Vector jiggles Top Mid.",
+   "1:20 — Vector's rotate call.",
+   "0:45 — retakes in pairs only."
+  ],
+  "midround": [
+   "If the rush comes before the fire lands, both B players fall straight back to the site and let Quill's Coffin angle do the work — the incendiary then goes on the Banana exit behind them.",
+   "If the Ts split three A and two Banana, Drift smokes the A Short truck gap and holds Pit for the delay while Vector peels from the Boiler doorway.",
+   "If we win the Half Wall exchange two-for-zero, Sable and Rook push to Sandbags (Banana) and take the map control the round is worth."
+  ],
+  "reactions": [
+   "Almost every pistol T side takes Banana first — the fire on Car is the single highest-value $600 on the CT pistol.",
+   "Ts who eat the incendiary usually wait it out at Sandbags (Banana); the second contact comes eight to ten seconds later, so do not over-peek in between.",
+   "A T pistol that ignores Banana entirely is going A Short and Long — Vector will hear it from the Boiler doorway before it lands."
+  ],
+  "warnings": [
+   "Sable has no armour: one duel, then behind cover. Trading him is Rook's whole job.",
+   "Never write or call this as a molotov — CTs buy incendiaries.",
+   "Do not have Quill push out of the site into Banana; the Coffin angle is worth more than a hero peek.",
+   "Do not stack four on B — one A pistol player with no delay loses the site for free.",
+   "Pit is sunken: Drift is fighting upward out of it and is playing for time, not for a duel he can win alone."
+  ],
+  "backup": "On \"FALL BACK B\": Sable and Rook collapse to Fountain and New Box with Quill, and the round becomes a three-man site hold with Vector rotating through Speedway."
+ },
+ {
+  "map": "Inferno",
+  "name": "CT Force — Mid Crash",
+  "side": "CT",
+  "category": "Force buy",
+  "buy_type": "semi",
+  "map_area": "Top Mid / Mid / Underpass",
+  "tags": [
+   "force",
+   "aggression",
+   "mid",
+   "anti-eco"
+  ],
+  "difficulty": "advanced",
+  "objective": "Force the round by taking Top Mid and then pushing the Mid choke at close range while the T utility is still going into Banana, then reset to normal positions before the round is decided.",
+  "summary": "CALL: three take the A Short side of Top Mid by 1:44. Drift's Car incendiary 1:43, Bottom Mid smoke and flash 1:41, trio pushes Mid at 1:39 trading in pairs, Underpass mouth burned 1:36 — reset by 1:31, Rook alone on A throughout.",
+  "required_utility": "Force at about $2,700 a man: MP9 ($1,250) + Kevlar and helmet ($1,000) for all five. Sable adds 2 flashes ($400). Quill adds the Bottom Mid smoke ($300) and 1 flash ($200). Vector adds the Underpass mouth incendiary ($600) and no flash. Drift adds the Car incendiary ($600). Rook adds 1 flash ($200). Team total: 2 incendiaries, 1 smoke, 4 flashes. If the bank is short, cut in this order — Rook's flash, Sable's second flash, then Vector's incendiary and the crash goes without a flank seal.",
+  "steps": [
+   "Sable, Quill and Vector break through the Boiler doorway side toward Top Mid; Drift goes alone to the top of Banana, Rook alone to A.",
+   "The trio is on the A Short side of Top Mid at 1:44 and listens — the Ts are on the Bottom Mid line by about that time, so this is a fight for the choke, not a raid on their setup. If Mid is silent and Banana is loud, the crash is off.",
+   "Drift throws the Car incendiary at 1:43 to claim the top of Banana alone, then gives ground behind the Half Wall — no duels he cannot walk away from.",
+   "Quill smokes Bottom Mid at 1:41 to blind the Ledge angle and Sable flashes over it.",
+   "At 1:39 the trio pushes into Mid on the flash, trading in pairs — never three abreast, never one alone in front, and nobody walks past the smoke.",
+   "Vector burns the Underpass mouth at 1:36 so nothing crosses back through Second Mid behind the trio.",
+   "At 1:31 the trio resets: Vector to the Boiler doorway, Sable to A Short, Quill toward Speedway if Drift is calling for help.",
+   "By 1:20 everyone is in standard positions and the round is played out normally with whatever utility survived."
+  ],
+  "roles": [
+   {
+    "slot": "Player 1",
+    "assignee": "Riley \"Sable\" Fox",
+    "role": "Crash lead",
+    "duty": "Flashes over the Bottom Mid smoke and leads the push; resets to A Short afterwards.",
+    "utility": "2 flashes"
+   },
+   {
+    "slot": "Player 2",
+    "assignee": "Alex \"Quill\" Novak",
+    "role": "Crash support",
+    "duty": "Bottom Mid smoke, trades Sable through the choke, first to peel to B if Banana breaks.",
+    "utility": "Bottom Mid smoke, 1 flash"
+   },
+   {
+    "slot": "Player 3",
+    "assignee": "Morgan \"Vector\" Hale",
+    "role": "IGL / crash trail",
+    "duty": "Times the push, burns the Underpass mouth against the flank, calls the reset. He carries no flash on this buy — the incendiary is the seal.",
+    "utility": "Underpass mouth incendiary"
+   },
+   {
+    "slot": "Player 4",
+    "assignee": "Sam \"Drift\" Aoki",
+    "role": "Solo Banana",
+    "duty": "Holds Banana alone with the Car incendiary at 1:43, gives ground to the Half Wall and buys time.",
+    "utility": "Car incendiary"
+   },
+   {
+    "slot": "Player 5",
+    "assignee": "Jordan \"Rook\" Reeve",
+    "role": "Solo A",
+    "duty": "Holds A alone from Library with the Arch Side angle over A Long as his second look; delays until the trio resets.",
+    "utility": "1 flash"
+   }
+  ],
+  "timings": [
+   "1:52 — break: trio toward Top Mid, Drift to the top of Banana, Rook to A.",
+   "1:44 — trio set on the A Short side of Top Mid and listening.",
+   "1:43 — Drift's Car incendiary.",
+   "1:41 — Quill smokes Bottom Mid, Sable flashes over it.",
+   "1:39 — the trio pushes the Mid choke, trading in pairs.",
+   "1:36 — Vector burns the Underpass mouth.",
+   "1:31 — reset: Vector to the Boiler doorway, Sable to A Short, Quill available for B.",
+   "1:20 — standard positions restored."
+  ],
+  "midround": [
+   "If the push finds nobody in Mid, do not chase toward T Ramp — reset immediately, because the Ts are on Banana and Drift is alone.",
+   "If we go two-for-zero in Mid, Quill peels straight to B through CT Spawn and Speedway and we play the man advantage rather than pushing further.",
+   "If Drift reports a five-man Banana before 1:41, cancel the push — Quill keeps the smoke and the trio rotates through Speedway to B."
+  ],
+  "reactions": [
+   "The Ts reach the Bottom Mid line around 1:45, so expect contact at the smoke edge rather than an empty lane — three armoured close-range guns beat their opening spacing there, and that is the whole edge.",
+   "Teams that get pushed once will hold the Ledge and Bottom Mid with an AWP the next round — do not run it twice in a half.",
+   "If the Ts have a Second Mid lurk, the Underpass incendiary is what saves the reset; expect that player behind you otherwise."
+  ],
+  "warnings": [
+   "This gambles the B site on Drift alone — if the read is wrong, the round is lost before the trio can rotate through Speedway.",
+   "Do not chase past the smoke toward T Ramp; the reset time is what makes this survivable.",
+   "Mid does not connect to B — a trio caught deep in Mid cannot help Drift for a long, ugly ten seconds.",
+   "Never buy this as a molotov round: CTs buy incendiaries, and the two fires are $1,200 of a $2,700 buy. If the bank cannot cover the stated loadout, take the cuts in the listed order rather than improvising.",
+   "The Underpass runs below Mid — Vector's fire goes on the mouth, and nobody stands over it expecting high ground."
+  ],
+  "backup": "On \"NO CRASH\": Quill keeps the smoke, the trio falls back to the Boiler doorway and A Short and we play a standard low-buy setup with Drift's incendiary saved for the Banana execute."
+ },
+ {
+  "map": "Inferno",
+  "name": "B Retake — Church and CT Lane",
+  "side": "CT",
+  "category": "Retake",
+  "buy_type": "full",
+  "site": "B",
+  "map_area": "CT Spawn / Speedway / Construction / Garden",
+  "tags": [
+   "retake",
+   "b-site",
+   "post-plant",
+   "utility"
+  ],
+  "difficulty": "advanced",
+  "objective": "Retake B from two directions at once with the Banana exit smoked off, burning the plant at New Box so the Ts have to fight instead of holding angles.",
+  "summary": "CALL: regroup at CT Spawn, Banana-exit smoke at 1:05, plant burned at 1:00, Sable double-flashes from the CT lane at 0:57 while Drift and Quill come out of Garden — abort call at 0:50, kit defuse starts 0:47.",
+  "required_utility": "1 smoke (Banana exit at the Half Wall — Quill), 1 incendiary (the plant at New Box — Vector), 4 flashbangs (Sable 2, Quill 1, Drift 1). Drift carries the defuse kit.",
+  "steps": [
+   "The moment the plant lands Vector calls the count and the positions of every T that has been seen — nobody enters before that count.",
+   "Regroup at CT Spawn: Sable and Vector take the CT lane approach, Quill and Drift loop past the Well / B truck into Construction and out through Garden, Rook sets the long CT lane angle across the far half of the site.",
+   "Quill smokes the Banana exit at the Half Wall at 1:05 so no T can reinforce or exit-frag out of the lane.",
+   "Vector burns the plant at New Box at 1:00 to push the post-plant holders off the bomb and into the open.",
+   "Sable double-flashes over Fountain at 0:57 and both pairs enter on the same flash — CT lane and Garden together.",
+   "Clear in order: Dark and the Pillar beside it, then 1st and 2nd, then Fountain and the Banana side of the site.",
+   "Hard abort at 0:50 — with a 1:15 plant the bomb goes at 0:35, and a kit defuse that has not started by 0:40 cannot finish, so if the site is not clear at 0:50 everyone breaks contact and plays for exits.",
+   "If it is clear, Drift starts the kit defuse at 0:47 behind cover while Rook covers the Banana exit and Sable watches Construction behind them."
+  ],
+  "roles": [
+   {
+    "slot": "Player 1",
+    "assignee": "Riley \"Sable\" Fox",
+    "role": "Retake entry (CT lane)",
+    "duty": "Double-flashes over Fountain and enters first from the CT lane; takes the Banana-side half of the site.",
+    "utility": "2 flashes"
+   },
+   {
+    "slot": "Player 2",
+    "assignee": "Alex \"Quill\" Novak",
+    "role": "Utility support (Garden)",
+    "duty": "Smokes the Banana exit to cut reinforcements, then enters from Garden and clears Dark with Drift.",
+    "utility": "Banana-exit smoke, 1 flash"
+   },
+   {
+    "slot": "Player 3",
+    "assignee": "Morgan \"Vector\" Hale",
+    "role": "IGL / burn",
+    "duty": "Counts the Ts, burns the plant at New Box, enters second from the CT lane and owns the 0:50 abort call.",
+    "utility": "New Box incendiary"
+   },
+   {
+    "slot": "Player 4",
+    "assignee": "Sam \"Drift\" Aoki",
+    "role": "Defuser (Garden)",
+    "duty": "Loops through Construction with Quill, clears the back corner of the site, defuses with the kit under cover from 0:47.",
+    "utility": "1 flash, defuse kit"
+   },
+   {
+    "slot": "Player 5",
+    "assignee": "Jordan \"Rook\" Reeve",
+    "role": "AWP (CT lane angle)",
+    "duty": "Holds the long CT lane angle across the site for exit frags, then covers the Banana exit through the defuse.",
+    "utility": "None — angle and the AWP"
+   }
+  ],
+  "timings": [
+   "1:15 — plant lands at New Box; Vector counts bodies and positions.",
+   "1:12 — regroup at CT Spawn; nobody trickles in alone.",
+   "1:05 — Quill smokes the Banana exit at the Half Wall; the Garden pair moves through Construction.",
+   "1:00 — Vector burns the plant at New Box.",
+   "0:57 — Sable's double flash over Fountain; both pairs enter together.",
+   "0:52 — Fountain, 1st and 2nd cleared.",
+   "0:50 — hard abort check: not clear, break contact.",
+   "0:47 — Drift starts the kit defuse under cover, Rook covers the Banana exit.",
+   "0:40 — last possible kit-defuse start; the bomb detonates at 0:35."
+  ],
+  "midround": [
+   "If the plant lands earlier than 1:15, keep the same order but slide every beat with it — the smoke and the burn still go before the entry, and the abort time moves with the detonation, not with the clock on this page.",
+   "If only one T is left alive on site, skip the incendiary entirely and hunt him with the two pairs — the burn only helps when they have numbers on the bomb.",
+   "If the Banana-exit smoke is missed, Rook holds that exit angle instead of the far lane and the entry becomes a three-man Garden push."
+  ],
+  "reactions": [
+   "Ts post-plant B usually sit Dark, 1st and behind Fountain — that is exactly the clearing order the entry is built around.",
+   "A T holding the Banana exit for an exit frag is blinded by Quill's smoke; expect him to fall back to Dark instead.",
+   "Once the plant burns, the holder normally repositions toward Quad or Dark rather than eating the fire — hold the flash until you hear that move."
+  ],
+  "warnings": [
+   "Never trickle in one at a time; a staggered retake is five one-on-ones against players who are already set.",
+   "Do not enter through the smoke you just threw — it is there to cut Banana, not to walk through.",
+   "Drift must be behind cover to defuse; a kit defuse in the open is a free kill for anyone still alive in Dark.",
+   "Respect the 0:50 abort and the 0:40 kit floor — losing four players to a defuse that could never land costs the next round too.",
+   "Say 'incendiary', not 'molotov' — the burn on the plant is a CT buy."
+  ],
+  "backup": "On \"NO RETAKE\": hold the CT lane and Garden mouths, take exit frags off Rook's angle and Sable's flashes, and keep four alive with the guns for the following round."
+ }
+]
