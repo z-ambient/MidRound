@@ -1285,9 +1285,14 @@ app.get('/api/teams/:teamId/dashboard', auth, requireTeam(null), ah(async (req, 
       pistol: await count(`SELECT COUNT(*) AS c ${bank} AND s.map = ? AND s.category = 'Pistol' AND s.status = 'active'`, teamId, m),
     };
   }
+  // `scheduled_at IS NULL` first: an undated match is not the next one. SQLite
+  // sorts NULLs before every date, so without this a match with no time set —
+  // routine for a league fixture before both teams confirm — outranks a real
+  // one and takes over the dashboard as "Next match · Not scheduled".
   const nextRow = await db.get(`SELECT m.*, o.name AS opponent_name
     FROM matches m LEFT JOIN opponents o ON o.id = m.opponent_id
-    WHERE m.team_id = ? AND m.status = 'upcoming' ORDER BY m.scheduled_at LIMIT 1`, teamId);
+    WHERE m.team_id = ? AND m.status = 'upcoming'
+    ORDER BY m.scheduled_at IS NULL, m.scheduled_at LIMIT 1`, teamId);
   let next_match = null;
   if (nextRow) {
     next_match = {
@@ -1302,7 +1307,8 @@ app.get('/api/teams/:teamId/dashboard', auth, requireTeam(null), ah(async (req, 
     next_match,
     upcoming: await db.all(`SELECT m.id, m.scheduled_at, m.event, m.format, o.name AS opponent_name
       FROM matches m LEFT JOIN opponents o ON o.id = m.opponent_id
-      WHERE m.team_id = ? AND m.status = 'upcoming' ORDER BY m.scheduled_at LIMIT 5`, teamId),
+      WHERE m.team_id = ? AND m.status = 'upcoming'
+      ORDER BY m.scheduled_at IS NULL, m.scheduled_at LIMIT 5`, teamId),
     recent_strategies: await db.all(`SELECT s.id, s.name, s.map, s.side, s.category, s.status, s.updated_at
       ${bank} AND s.status != 'archived' ORDER BY s.updated_at DESC LIMIT 6`, teamId),
     drafts: await db.all(`SELECT s.id, s.name, s.map, s.side, s.category ${bank} AND s.status = 'draft' ORDER BY s.updated_at DESC LIMIT 6`, teamId),
@@ -1332,6 +1338,10 @@ app.use(express.static(path.join(__dirname, 'public'), {
 }));
 
 app.get(/^\/(?!api\/).*/, (req, res) => {
+  // A request that names a file and got this far is a missing asset, not a
+  // route. Handing it index.html answers 200 with HTML, so a mistyped image
+  // path looks like it worked and silently falls back instead of failing.
+  if (path.extname(req.path)) return res.status(404).type('text/plain').send('Not found');
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
