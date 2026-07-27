@@ -6,7 +6,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
 
-COPY server.js db.js faceit.js rate-limit.js validate.js ./
+COPY server.js db.js seed.js faceit.js rate-limit.js validate.js ./
 COPY public ./public
 
 # Run as the non-root "node" user (built into the base image) so a
