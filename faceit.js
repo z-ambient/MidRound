@@ -2,6 +2,7 @@
 // Pulls a team's scheduled/ongoing league & tournament matches into local matches,
 // auto-creating opponents. Uses the server-side FACEIT Data API key (Bearer auth).
 const BASE = process.env.FACEIT_API_BASE || 'https://open.faceit.com/data/v4';
+const db = require('./db');
 
 async function fApi(key, path) {
   const res = await fetch(BASE + path, { headers: { Authorization: `Bearer ${key}` } });
@@ -178,7 +179,7 @@ function parseMatchStats(stats, ourId) {
 
 // Sync one MidRound team that has faceit_api_key + faceit_team_id configured.
 // Returns a summary; never throws on per-championship failures (collected in errors[]).
-async function syncTeam(db, team) {
+async function syncTeam(team) {
   const key = team.faceit_api_key;
   const fteam = team.faceit_team_id;
   const summary = { created: 0, updated: 0, championships: 0, players: 0, stats: 0, results: 0, errors: [] };
@@ -217,7 +218,7 @@ async function syncTeam(db, team) {
       }
       roster.push(entry);
     }
-    db.prepare('UPDATE teams SET faceit_roster = ? WHERE id = ?').run(JSON.stringify(roster), team.id);
+    await db.run('UPDATE teams SET faceit_roster = ? WHERE id = ?', JSON.stringify(roster), team.id);
     for (const mem of (teamInfo.members || []).slice(0, 4)) {
       if (!mem.user_id) continue;
       try {
@@ -231,9 +232,9 @@ async function syncTeam(db, team) {
     summary.errors.push(`team lookup: ${e.message}`);
   }
 
-  const starters = db.prepare('SELECT user_id FROM team_members WHERE team_id = ? AND is_starter = 1').all(team.id).map(r => r.user_id);
+  const starters = (await db.all('SELECT user_id FROM team_members WHERE team_id = ? AND is_starter = 1', team.id)).map(r => r.user_id);
 
-  const upsertMatch = (m, eventName) => {
+  const upsertMatch = async (m, eventName) => {
     const factions = Object.values(m.teams || {});
     const ours = factions.find(f => (f.faction_id || f.team_id) === fteam);
     const opp = factions.find(f => (f.faction_id || f.team_id) !== fteam);
@@ -244,14 +245,14 @@ async function syncTeam(db, team) {
 
     // opponent: reuse by name (case-insensitive) or create
     const oppFid = opp.faction_id || opp.team_id || null;
-    let oppRow = db.prepare('SELECT id FROM opponents WHERE team_id = ? AND lower(name) = lower(?)').get(team.id, oppName);
+    let oppRow = await db.get('SELECT id FROM opponents WHERE team_id = ? AND lower(name) = lower(?)', team.id, oppName);
     if (!oppRow) {
       const t = now();
-      const oid = db.prepare(`INSERT INTO opponents (team_id, name, notes, faceit_team_id, created_at, updated_at) VALUES (?,?,?,?,?,?)`)
-        .run(team.id, oppName, 'Imported from FACEIT.', oppFid, t, t).lastInsertRowid;
+      const oid = (await db.run(`INSERT INTO opponents (team_id, name, notes, faceit_team_id, created_at, updated_at) VALUES (?,?,?,?,?,?) RETURNING id`,
+        team.id, oppName, 'Imported from FACEIT.', oppFid, t, t)).id;
       oppRow = { id: oid };
     } else if (oppFid) {
-      db.prepare('UPDATE opponents SET faceit_team_id = COALESCE(faceit_team_id, ?) WHERE id = ?').run(oppFid, oppRow.id);
+      await db.run('UPDATE opponents SET faceit_team_id = COALESCE(faceit_team_id, ?) WHERE id = ?', oppFid, oppRow.id);
     }
     if (oppFid) touchedOpponents.set(oppFid, oppRow.id);
 
@@ -260,15 +261,15 @@ async function syncTeam(db, team) {
     const status = mapStatus(m.status);
     const event = m.competition_name || eventName || 'FACEIT match';
 
-    const existing = db.prepare('SELECT * FROM matches WHERE team_id = ? AND faceit_match_id = ?').get(team.id, matchId);
+    const existing = await db.get('SELECT * FROM matches WHERE team_id = ? AND faceit_match_id = ?', team.id, matchId);
     if (existing) {
-      db.prepare(`UPDATE matches SET opponent_id = ?, scheduled_at = ?, event = ?, format = ?, status = ? WHERE id = ?`)
-        .run(oppRow.id, scheduled, event, format, status, existing.id);
+      await db.run(`UPDATE matches SET opponent_id = ?, scheduled_at = ?, event = ?, format = ?, status = ? WHERE id = ?`,
+        oppRow.id, scheduled, event, format, status, existing.id);
       summary.updated++;
     } else {
-      db.prepare(`INSERT INTO matches
+      await db.run(`INSERT INTO matches
         (team_id, opponent_id, scheduled_at, event, format, expected_maps, veto_notes, starting_side, roster, subs, status, created_by, created_at, faceit_match_id)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
         team.id, oppRow.id, scheduled, event, format, '[]', null, null,
         JSON.stringify(starters), '[]', status, null, now(), matchId);
       summary.created++;
@@ -282,7 +283,7 @@ async function syncTeam(db, team) {
     for (const type of ['upcoming', 'ongoing', 'past']) {
       try {
         const page = await fApi(key, `/championships/${cid}/matches?type=${type}&offset=0&limit=100`);
-        for (const m of (page.items || [])) upsertMatch(m, champName);
+        for (const m of (page.items || [])) await upsertMatch(m, champName);
         any = true;
       } catch (e) {
         if (e.code !== 404) summary.errors.push(`championship ${cid.slice(0, 8)}…: ${e.message}`);
@@ -297,14 +298,14 @@ async function syncTeam(db, team) {
       const info = await fApi(key, `/teams/${fid}`);
       for (const mem of (info.members || [])) {
         if (!mem.nickname) continue;
-        const exists = db.prepare('SELECT 1 FROM opponent_players WHERE opponent_id = ? AND lower(name) = lower(?)').get(oppId, mem.nickname);
+        const exists = await db.get('SELECT 1 AS x FROM opponent_players WHERE opponent_id = ? AND lower(name) = lower(?)', oppId, mem.nickname);
         if (!exists) {
-          db.prepare('INSERT INTO opponent_players (opponent_id, name, notes, faceit_player_id) VALUES (?,?,?,?)')
-            .run(oppId, mem.nickname, 'Imported from FACEIT.', mem.user_id || null);
+          await db.run('INSERT INTO opponent_players (opponent_id, name, notes, faceit_player_id) VALUES (?,?,?,?)',
+            oppId, mem.nickname, 'Imported from FACEIT.', mem.user_id || null);
           summary.players++;
         } else if (mem.user_id) {
-          db.prepare('UPDATE opponent_players SET faceit_player_id = COALESCE(faceit_player_id, ?) WHERE opponent_id = ? AND lower(name) = lower(?)')
-            .run(mem.user_id, oppId, mem.nickname);
+          await db.run('UPDATE opponent_players SET faceit_player_id = COALESCE(faceit_player_id, ?) WHERE opponent_id = ? AND lower(name) = lower(?)',
+            mem.user_id, oppId, mem.nickname);
         }
       }
     } catch (e) {
@@ -312,32 +313,35 @@ async function syncTeam(db, team) {
     }
   }
 
-  // refresh ELO + last-30 stats for opponent players (at most every 24h, capped per sync)
+  // refresh ELO + last-30 stats for opponent players (at most every 24h,
+  // capped per sync). The staleness check on the stored JSON happens in JS so
+  // the query stays portable across SQLite and Postgres.
   const stale = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
-  const toEnrich = db.prepare(`
-    SELECT op.id, op.faceit_player_id FROM opponent_players op
+  const candidates = await db.all(`
+    SELECT op.id, op.faceit_player_id, op.faceit_stats FROM opponent_players op
     JOIN opponents o ON o.id = op.opponent_id
-    WHERE o.team_id = ? AND op.faceit_player_id IS NOT NULL
-      AND (op.faceit_stats IS NULL OR json_extract(op.faceit_stats, '$.at') < ?)
-    LIMIT 40`).all(team.id, stale);
-  for (const row of toEnrich) {
+    WHERE o.team_id = ? AND op.faceit_player_id IS NOT NULL`, team.id);
+  const isStale = (raw) => {
+    try { return !raw || (JSON.parse(raw).at || '') < stale; } catch { return true; }
+  };
+  for (const row of candidates.filter(r => isStale(r.faceit_stats)).slice(0, 40)) {
     const st = await enrichPlayer(key, row.faceit_player_id, game);
     if (st) {
-      db.prepare('UPDATE opponent_players SET faceit_stats = ? WHERE id = ?').run(JSON.stringify(st), row.id);
+      await db.run('UPDATE opponent_players SET faceit_stats = ? WHERE id = ?', JSON.stringify(st), row.id);
       summary.stats++;
     }
   }
 
   // results + scoreboards for finished matches that don't have one yet
-  const needResults = db.prepare(`SELECT id, faceit_match_id FROM matches
+  const needResults = await db.all(`SELECT id, faceit_match_id FROM matches
     WHERE team_id = ? AND faceit_match_id IS NOT NULL AND status = 'completed' AND faceit_result IS NULL
-    LIMIT 10`).all(team.id);
+    LIMIT 10`, team.id);
   for (const row of needResults) {
     try {
       const stats = await fApi(key, `/matches/${row.faceit_match_id}/stats`);
       const parsed = parseMatchStats(stats, fteam);
       if (parsed) {
-        db.prepare('UPDATE matches SET faceit_result = ? WHERE id = ?').run(JSON.stringify(parsed), row.id);
+        await db.run('UPDATE matches SET faceit_result = ? WHERE id = ?', JSON.stringify(parsed), row.id);
         summary.results++;
       }
     } catch (e) {
@@ -345,7 +349,7 @@ async function syncTeam(db, team) {
     }
   }
 
-  db.prepare('UPDATE teams SET faceit_last_sync = ? WHERE id = ?').run(new Date().toISOString(), team.id);
+  await db.run('UPDATE teams SET faceit_last_sync = ? WHERE id = ?', new Date().toISOString(), team.id);
   return summary;
 }
 

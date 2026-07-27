@@ -7,7 +7,7 @@ const assert = require('node:assert/strict');
 const { useTempDb, startServer, cookieOf, postJson, login } = require('./helpers');
 
 useTempDb();
-const { db } = require('../db');
+const db = require('../db');
 
 let server, base;
 let memberCookie, outsiderCookie, teamId, strategyId;
@@ -41,9 +41,9 @@ test('an outsider cannot record a recent for another team\'s strategy', async ()
     { item_type: 'strategy', item_id: strategyId }, outsiderCookie);
   assert.equal(res.status, 404, 'must look identical to a nonexistent id');
 
-  const rows = db.prepare(`
+  const rows = await db.all(`
     SELECT r.* FROM recents r JOIN users u ON u.id = r.user_id
-    WHERE u.email = 'outsider@example.com'`).all();
+    WHERE u.email = 'outsider@example.com'`);
   assert.equal(rows.length, 0, 'no recents row may be written for a foreign resource');
 });
 

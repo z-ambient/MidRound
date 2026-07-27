@@ -8,7 +8,7 @@ const crypto = require('node:crypto');
 const { useTempDb, startServer, cookieOf, postJson, login } = require('./helpers');
 
 useTempDb();
-const { db, cleanupSessions } = require('../db');
+const db = require('../db');
 
 const sha256 = (s) => crypto.createHash('sha256').update(s).digest('hex');
 
@@ -27,7 +27,7 @@ test('session tokens are stored hashed, never in plaintext', async () => {
   const token = cookieOf(res).split('=')[1];
   assert.ok(token, 'register must set a session cookie');
 
-  const rows = db.prepare('SELECT token_hash FROM sessions').all();
+  const rows = await db.all('SELECT token_hash FROM sessions');
   assert.ok(rows.length >= 1);
   for (const row of rows) {
     assert.match(row.token_hash, /^[0-9a-f]{64}$/, 'every stored token must be a sha256 hex digest');
@@ -59,17 +59,18 @@ test('session cookie is HttpOnly + SameSite=Lax, and Secure only over HTTPS', as
   }
 });
 
-test('cleanup purges expired sessions and non-sha256 token rows, keeps live ones', () => {
+test('cleanup purges expired sessions and non-sha256 token rows, keeps live ones', async () => {
   const past = new Date(Date.now() - 1000).toISOString();
   const future = new Date(Date.now() + 3600_000).toISOString();
-  const ins = db.prepare('INSERT INTO sessions (token_hash, user_id, created_at, expires_at) VALUES (?,?,?,?)');
-  ins.run(sha256('expired-session'), 1, past, past);
-  ins.run('plaintext-token-stored-by-accident', 1, past, future); // not a 64-hex digest
-  ins.run(sha256('live-session'), 1, past, future);
+  const ins = (hash, exp) =>
+    db.run('INSERT INTO sessions (token_hash, user_id, created_at, expires_at) VALUES (?,?,?,?)', hash, 1, past, exp);
+  await ins(sha256('expired-session'), past);
+  await ins('plaintext-token-stored-by-accident', future); // not a 64-hex digest
+  await ins(sha256('live-session'), future);
 
-  cleanupSessions();
+  await db.cleanupSessions();
 
-  const hashes = db.prepare('SELECT token_hash FROM sessions').all().map((r) => r.token_hash);
+  const hashes = (await db.all('SELECT token_hash FROM sessions')).map((r) => r.token_hash);
   assert.ok(!hashes.includes(sha256('expired-session')), 'expired row must be deleted');
   assert.ok(!hashes.includes('plaintext-token-stored-by-accident'), 'malformed row must be deleted');
   assert.ok(hashes.includes(sha256('live-session')), 'valid unexpired row must survive');
@@ -78,12 +79,12 @@ test('cleanup purges expired sessions and non-sha256 token rows, keeps live ones
 test('an expired session cookie is rejected and removed', async () => {
   const token = 'e'.repeat(64); // raw token presented by the "browser"
   const past = new Date(Date.now() - 1000).toISOString();
-  db.prepare('INSERT INTO sessions (token_hash, user_id, created_at, expires_at) VALUES (?,?,?,?)')
-    .run(sha256(token), 1, past, past);
+  await db.run('INSERT INTO sessions (token_hash, user_id, created_at, expires_at) VALUES (?,?,?,?)',
+    sha256(token), 1, past, past);
 
   const res = await fetch(base + '/api/me', { headers: { cookie: `mr_session=${token}` } });
   assert.equal(res.status, 401);
-  const row = db.prepare('SELECT 1 AS x FROM sessions WHERE token_hash = ?').get(sha256(token));
+  const row = await db.get('SELECT 1 AS x FROM sessions WHERE token_hash = ?', sha256(token));
   assert.equal(row, undefined, 'presenting an expired session must delete it');
 });
 

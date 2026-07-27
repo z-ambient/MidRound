@@ -13,8 +13,9 @@ function useTempDb() {
   return process.env.MIDROUND_DB_PATH;
 }
 
-function startServer() {
-  const app = require('../server');
+async function startServer() {
+  const { app, ready } = require('../server');
+  await ready; // schema + seed + cleanup must finish before requests
   return new Promise((resolve) => {
     const server = app.listen(0, '127.0.0.1', () => {
       resolve({ server, base: `http://127.0.0.1:${server.address().port}` });
