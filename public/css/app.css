@@ -561,6 +561,22 @@ a.card:hover, .card.clickable:hover {
 }
 .mm-mapdd-item:hover { background: var(--bg-hover); color: var(--text); }
 .mm-mapdd-item.active { background: var(--accent-bg); color: var(--text); }
+/* strategy-source switch (Solo | Team), same pill language as the map picker */
+.mm-left { display: flex; align-items: center; gap: 10px; }
+.mm-modes {
+  display: inline-flex;
+  border: 1px solid var(--border-strong); border-radius: 999px;
+  background: var(--bg-panel); overflow: hidden;
+}
+.mm-mode-btn {
+  padding: 8px 16px; border: none; background: transparent;
+  font-size: 0.85rem; font-weight: 700; letter-spacing: 0.04em;
+  color: var(--text-3);
+  transition: background 0.1s, color 0.1s;
+}
+.mm-mode-btn + .mm-mode-btn { border-left: 1px solid var(--border-strong); }
+.mm-mode-btn.active { background: var(--accent-bg); color: var(--accent); }
+.mm-mode-btn:not(.active):hover { color: var(--text); background: var(--bg-hover); }
 .mm-sides {
   display: flex; justify-self: center;
   border: 1px solid var(--border-strong); border-radius: 8px;
@@ -699,8 +715,15 @@ a.card:hover, .card.clickable:hover {
   .mm-shell2 { height: auto; overflow: visible; }
   .mm-body2 { grid-template-columns: 1fr; }
   .mm-main2, .mm-aside { overflow-y: visible; }
-  .mm-top2 { grid-template-columns: auto auto; }
+  /* minmax(0,…) lets both columns shrink below their content width; without it
+     the fixed-width side buttons overflow the row and sit on top of the map
+     picker and the source switch in a narrow in-game window */
+  .mm-top2 { grid-template-columns: minmax(0, auto) minmax(0, 1fr); }
   .mm-top2 .mm-right { grid-column: 1 / -1; justify-self: stretch; justify-content: space-between; }
+  .mm-left { flex-wrap: wrap; }
+  .mm-mapdd-btn { min-width: 0; }
+  .mm-sides { width: 100%; }
+  .mm-side-btn { flex: 1; min-width: 0; padding: 10px 12px; font-size: 1rem; }
 }
 
 /* match mode */

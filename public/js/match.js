@@ -1,6 +1,10 @@
 // MidRound — Match Mode: the minimal in-match view for the Steam browser.
-// One data load on entry, then instant client-side switching. Works with a team
-// match (pins/reminders/tendencies on the right) or solo (map + strats only).
+// One data load on entry, then instant client-side switching.
+//
+// Three strategy sources, switchable from the top bar:
+//   solo  — your own personal strategies, no team needed
+//   team  — the team's strategy bank (Team Strats), no match picked
+//   match — Team Strats plus a scheduled match's pins, reminders and opponent
 import { api } from './api.js';
 import { esc, badge, toast, emptyState, spinner, ICONS } from './ui.js';
 import { state, nav, trackView } from './main.js';
@@ -8,8 +12,13 @@ import { strategyDetailHtml, tendencyHtml, buyLabel, mapDot } from './manage.js'
 
 const BUY_GROUPS = [['pistol', 'Pistol'], ['save', 'Save'], ['semi', 'Semi-buy'], ['eco', 'Eco'], ['full', 'Full buy']];
 
-export async function enterMatchMode() {
-  // no team → Solo Match Mode on personal strategies
+// Solo is always reachable — it needs nothing but your own strategies.
+export function enterSoloMode() { nav('/match-mode/solo'); }
+
+// Team resolves to the match you're actually preparing for when there is one,
+// since that adds pins, reminders and the opponent on top of the same Team
+// Strats; otherwise it's the plain team bank.
+export async function enterTeamMode() {
   if (!state.teamId) { nav('/match-mode/solo'); return; }
   try {
     const matches = await api.get(`/api/teams/${state.teamId}/matches`);
@@ -17,13 +26,20 @@ export async function enterMatchMode() {
       .sort((a, b) => (a.scheduled_at || '9999').localeCompare(b.scheduled_at || '9999'));
     const last = Number(localStorage.getItem('mr.mm.lastMatch'));
     const target = upcoming.find(m => m.id === last) || upcoming[0];
-    nav(target ? `/match-mode/${target.id}` : '/match-mode/solo');
-  } catch (e) { toast(e.message, 'err'); }
+    nav(target ? `/match-mode/${target.id}` : '/match-mode/team');
+  } catch (e) {
+    toast(e.message, 'err');
+    nav('/match-mode/team');
+  }
 }
 
 export async function viewMatchMode(root, idStr) {
-  const solo = idStr === 'solo';
-  const matchId = solo ? null : Number(idStr);
+  const mode = idStr === 'solo' ? 'solo' : idStr === 'team' ? 'team' : 'match';
+  const solo = mode === 'solo';
+  const matchId = mode === 'match' ? Number(idStr) : null;
+  // Both team sources need a team id; without one, fall back rather than
+  // firing team requests that would 404.
+  if (!solo && !state.teamId) { nav('/match-mode/solo'); return; }
   root.dataset.shell = '';
   root.innerHTML = `<div class="mm-shell mm-shell2"><div class="mm-main2">${spinner('Loading…')}</div></div>`;
 
@@ -35,7 +51,7 @@ export async function viewMatchMode(root, idStr) {
       api.get('/api/maps'),
       api.get(solo ? '/api/strategies' : `/api/teams/${state.teamId}/strategies`),
     ]);
-    if (!solo) {
+    if (mode === 'match') {
       match = await api.get(`/api/matches/${matchId}`);
       if (match.opponent_id) opponent = await api.get(`/api/opponents/${match.opponent_id}`);
     }
@@ -45,7 +61,8 @@ export async function viewMatchMode(root, idStr) {
   }
 
   const mapNames = maps.map(m => m.name);
-  const stKey = `mr.mm.${solo ? 'solo' : matchId}`;
+  // each source remembers its own map/side/open strategy
+  const stKey = `mr.mm.${mode === 'match' ? matchId : mode}`;
   let saved = {};
   try { saved = JSON.parse(localStorage.getItem(stKey)) || {}; } catch { /* fresh */ }
   const defaultMap = (match && match.expected_maps && match.expected_maps[0]) || mapNames[0];
@@ -54,7 +71,7 @@ export async function viewMatchMode(root, idStr) {
     side: saved.side === 'T' ? 'T' : saved.side === 'CT' ? 'CT' : (match && match.starting_side === 'T' ? 'T' : 'CT'),
     strat: saved.strat || null,
   };
-  if (!solo) localStorage.setItem('mr.mm.lastMatch', String(matchId));
+  if (mode === 'match') localStorage.setItem('mr.mm.lastMatch', String(matchId));
   const persist = () => localStorage.setItem(stKey, JSON.stringify(ui));
 
   const pins = match ? match.pins : [];
@@ -128,13 +145,13 @@ export async function viewMatchMode(root, idStr) {
         <h2>Reminders</h2>
         ${reminders.length
           ? `<ul class="bullets blue">${reminders.map(n => `<li>${esc(n.text)}</li>`).join('')}</ul>`
-          : `<div class="small muted">${solo ? 'Solo session.' : 'No reminders for this match.'}</div>`}
+          : `<div class="small muted">${match ? 'No reminders for this match.' : solo ? 'Solo session.' : 'No match selected.'}</div>`}
       </div>
       <div class="panel mm-panel mm-tendencies">
         <h2>Tendencies${opponent ? ` — ${esc(opponent.name)}` : ''}</h2>
         ${tds.length
           ? tds.map(td => tendencyHtml(td)).join('')
-          : `<div class="small muted">${solo ? 'No opponent in solo mode.' : 'Nothing recorded for this map yet.'}</div>`}
+          : `<div class="small muted">${match ? 'Nothing recorded for this map yet.' : solo ? 'No opponent in solo mode.' : 'No match selected — pick one from Matches for opponent reads.'}</div>`}
       </div>`;
   }
 
@@ -155,13 +172,18 @@ export async function viewMatchMode(root, idStr) {
                   </button>`).join('')}
               </div>
             </div>
+            ${state.teamId ? `
+              <div class="mm-modes" role="group" aria-label="Strategy source">
+                <button class="mm-mode-btn ${solo ? 'active' : ''}" data-mode="solo" aria-pressed="${solo}">Solo</button>
+                <button class="mm-mode-btn ${solo ? '' : 'active'}" data-mode="team" aria-pressed="${!solo}">Team</button>
+              </div>` : ''}
           </div>
           <div class="mm-sides">
             <button class="mm-side-btn ct ${ui.side === 'CT' ? 'active' : ''}" data-side="CT">CT</button>
             <button class="mm-side-btn t ${ui.side === 'T' ? 'active' : ''}" data-side="T">T</button>
           </div>
           <div class="mm-right">
-            <span class="mm-ctx">${match ? `vs ${esc(opponent ? opponent.name : 'TBD')} · ${esc(match.format || '')}` : 'Solo'}</span>
+            <span class="mm-ctx">${match ? `vs ${esc(opponent ? opponent.name : 'TBD')} · ${esc(match.format || '')}` : solo ? 'Your strategies' : 'Team Strats'}</span>
             <a class="btn small" href="#/">Exit</a>
           </div>
         </div>
@@ -188,6 +210,13 @@ export async function viewMatchMode(root, idStr) {
     });
     root.querySelectorAll('[data-side]').forEach(b => b.onclick = () => {
       ui.side = b.dataset.side; ui.strat = null; persist(); render();
+    });
+    // switching source reloads the view; 'team' resolves to the upcoming match
+    // when there is one, so match mode counts as already being on Team
+    root.querySelectorAll('[data-mode]').forEach(b => b.onclick = () => {
+      const want = b.dataset.mode;
+      if (want === 'solo' && !solo) enterSoloMode();
+      else if (want === 'team' && solo) enterTeamMode();
     });
     root.querySelectorAll('[data-open-strat]').forEach(b => b.onclick = () => {
       ui.strat = Number(b.dataset.openStrat);

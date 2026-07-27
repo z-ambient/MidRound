@@ -270,7 +270,10 @@ export async function viewDashboard(el) {
       <div class="kicker">Next match</div>
       <div class="h-opp">Nothing scheduled</div>
       <div class="h-meta">Create a match to set the veto plan and pin your calls.</div>
-      ${can('matches') ? `<div class="h-actions"><a class="btn primary" href="#/matches">Set up a match</a></div>` : ''}
+      <div class="h-actions">
+        <a class="btn primary" href="#/match-mode/team">${ICONS.play} Team Match Mode</a>
+        ${can('matches') ? `<a class="btn" href="#/matches">Set up a match</a>` : ''}
+      </div>
     </div>` : `
     <div class="h-info">
       <div class="kicker">Next match</div>

@@ -36,7 +36,7 @@ const routes = [
   { re: /^\/team$/, view: manage.viewTeam },
   { re: /^\/players\/(\d+)$/, view: manage.viewPlayerProfile },
   { re: /^\/lookup$/, view: manage.viewPlayerLookup },
-  { re: /^\/match-mode\/(solo|\d+)$/, view: match.viewMatchMode, bare: true },
+  { re: /^\/match-mode\/(solo|team|\d+)$/, view: match.viewMatchMode, bare: true },
 ];
 
 export function nav(path) { location.hash = '#' + path; }
@@ -195,8 +195,9 @@ function renderShell(path) {
     localStorage.removeItem('mr.route');
     nav('/login');
   };
-  // without a team this enters Solo Match Mode on personal strategies
-  document.getElementById('btn-matchmode').onclick = () => match.enterMatchMode();
+  // the header button is always Solo — Team Match Mode is entered from the
+  // dashboard, and either one can be switched to from inside Match Mode
+  document.getElementById('btn-matchmode').onclick = () => match.enterSoloMode();
   document.getElementById('menu-toggle').onclick = () => document.getElementById('sidebar').classList.toggle('open');
   const profBtn = document.getElementById('btn-profile');
   const profMenu = app.querySelector('.tb-profile-menu');
