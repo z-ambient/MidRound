@@ -67,15 +67,6 @@ async function route() {
   }
   if (found.public && state.me) { nav('/'); return; }
 
-  // Signed in but not on any team yet — the normal app shell still loads;
-  // pages show the get-started panel until they join or create a team,
-  // which is entirely optional and done from inside the app.
-  if (!found.public && !state.teamId) {
-    renderShell(path);
-    await viewGetStarted(document.getElementById('view'));
-    return;
-  }
-
   if (!found.public) {
     localStorage.setItem('mr.route', location.hash);
   }
@@ -147,7 +138,7 @@ function renderShell(path) {
       <aside class="sidebar" id="sidebar">
         <div class="side-logo">
           <span class="side-logo-badge">${ICONS.logo}</span>
-          <span class="side-logo-sub">Be Prepared.<br>Be Better.</span>
+          <span class="side-logo-sub"><span>Be Prepared</span><span>Be Better</span></span>
         </div>
         ${navLink('/', 'Dashboard', 'dashboard', isActive('/'))}
         ${navLink('/strategies', 'Strategies', 'strategies', isActive('/strategies'))}
@@ -195,10 +186,8 @@ function renderShell(path) {
     localStorage.removeItem('mr.route');
     nav('/login');
   };
-  document.getElementById('btn-matchmode').onclick = () => {
-    if (!state.teamId) return toast('Join or create a team first', 'err');
-    match.enterMatchMode();
-  };
+  // without a team this enters Solo Match Mode on personal strategies
+  document.getElementById('btn-matchmode').onclick = () => match.enterMatchMode();
   document.getElementById('menu-toggle').onclick = () => document.getElementById('sidebar').classList.toggle('open');
   const profBtn = document.getElementById('btn-profile');
   const profMenu = app.querySelector('.tb-profile-menu');
@@ -342,10 +331,9 @@ function viewLogin() {
       <div class="field"><label>Password</label><input type="password" name="password" required autocomplete="current-password"></div>
       <button class="btn primary" type="submit" style="width:100%">Sign in</button>
     </form>
-    <div class="auth-switch">New team? <a href="#/register">Create an account</a></div>
+    <div class="auth-switch">New here? <a href="#/register">Create an account</a></div>
     <div class="demo-box">
-      <b>Demo workspace</b> — sign in as the IGL: <code>morgan@northlight.gg</code> / <code>demo1234</code><br>
-      Also seeded: coach <code>dana@…</code>, analyst <code>priya@…</code>, players <code>riley@…</code>, <code>alex@…</code>, <code>sam@…</code>, <code>jordan@…</code>, owner <code>casey@northlight.gg</code> (same password).
+      <b>Demo workspace</b> — sign in as the IGL: <code>morgan@northlight.gg</code> / <code>demo1234</code>
     </div>`);
   document.getElementById('login-form').onsubmit = async (e) => {
     e.preventDefault();
@@ -387,74 +375,6 @@ function viewRegister() {
     } catch (err) {
       document.getElementById('auth-err').innerHTML = `<div class="auth-err">${esc(err.message)}</div>`;
     }
-  };
-}
-
-// Shown inside the normal app shell while the account isn't on any team:
-// accept a pending invite, redeem an invite code, or create a new org.
-// All of it is optional — the account itself works without a team.
-async function viewGetStarted(el) {
-  let invites = [];
-  try { invites = await api.get('/api/me/invites'); } catch { /* optional */ }
-  el.innerHTML = `
-    <div class="page-head">
-      <div><h1>Welcome, ${esc(state.me.user.name)}</h1>
-      <div class="sub">You're not on a team yet — join one or create your own whenever you're ready.</div></div>
-    </div>
-    <div class="panel" style="max-width:520px">
-      <div id="gs-err"></div>
-      ${invites.length ? `
-        <div class="pm-label" style="padding-left:0">Your invites</div>
-        ${invites.map(i => `
-          <div class="row-item" style="margin-bottom:10px">
-            <span class="grow small"><b>${esc(i.team_name || i.org_name)}</b> · ${esc(roleLabel(i.role))}
-              <div class="muted">invited by ${esc(i.invited_by || 'a team owner')}</div></span>
-            <button class="btn primary small" data-acc="${i.id}">Join</button>
-            <button class="btn ghost small" data-dec="${i.id}">Decline</button>
-          </div>`).join('')}` : ''}
-      <form id="onb-code">
-        <div class="field"><label>Have an invite code?</label><input name="code" placeholder="Paste invite code" autocomplete="off"></div>
-        <button class="btn" type="submit" style="width:100%">Join with code</button>
-      </form>
-      <div class="small muted" style="text-align:center;margin:14px 0">— or —</div>
-      <form id="onb-org">
-        <div class="field"><label>Organization name</label><input name="orgName" required placeholder="e.g. Northlight Esports"></div>
-        <div class="field"><label>Team name</label><input name="teamName" placeholder="Main Team"></div>
-        <button class="btn primary" type="submit" style="width:100%">Create organization</button>
-      </form>
-    </div>`;
-
-  const err = (m) => { document.getElementById('gs-err').innerHTML = `<div class="auth-err">${esc(m)}</div>`; };
-  const enter = (teamId) => {
-    if (teamId) localStorage.setItem('mr.teamId', String(teamId));
-    localStorage.removeItem('mr.route');
-    location.hash = '#/';
-    location.reload();
-  };
-
-  el.querySelectorAll('[data-acc]').forEach(b => b.onclick = async () => {
-    try { enter((await api.post(`/api/invites/${b.dataset.acc}/accept`)).team_id); }
-    catch (e) { err(e.message); }
-  });
-  el.querySelectorAll('[data-dec]').forEach(b => b.onclick = async () => {
-    try { await api.post(`/api/invites/${b.dataset.dec}/decline`); b.closest('.row-item').remove(); }
-    catch (e) { err(e.message); }
-  });
-  el.querySelector('#onb-code').onsubmit = async (e) => {
-    e.preventDefault();
-    const code = new FormData(e.target).get('code')?.trim();
-    if (!code) return err('Paste an invite code first');
-    try { enter((await api.post('/api/invites/redeem', { code })).team_id); }
-    catch (e2) { err(e2.message); }
-  };
-  el.querySelector('#onb-org').onsubmit = async (e) => {
-    e.preventDefault();
-    const f = new FormData(e.target);
-    try {
-      enter((await api.post('/api/orgs', {
-        name: f.get('orgName'), teamName: f.get('teamName')?.trim() || undefined,
-      })).team_id);
-    } catch (e2) { err(e2.message); }
   };
 }
 

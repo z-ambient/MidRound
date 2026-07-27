@@ -8,10 +8,11 @@ const { useTempDb, startServer, login } = require('./helpers');
 
 useTempDb();
 
-let server, base, cookie, teamId;
+let server, base, cookie;
 
+// strategies are always created personal — no team in the URL
 async function createStrategy(body) {
-  return fetch(base + `/api/teams/${teamId}/strategies`, {
+  return fetch(base + '/api/strategies', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', cookie },
     body: JSON.stringify({ name: 'Test strat', map: 'Mirage', side: 'T', ...body }),
@@ -21,8 +22,6 @@ async function createStrategy(body) {
 test.before(async () => {
   ({ server, base } = await startServer());
   cookie = await login(base, 'casey@northlight.gg', 'demo1234');
-  const me = await (await fetch(base + '/api/me', { headers: { cookie } })).json();
-  teamId = me.teams[0].id;
 });
 test.after(() => server.close());
 

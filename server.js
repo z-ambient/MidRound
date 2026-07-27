@@ -186,13 +186,43 @@ function requireTeam(domain) {
 // resolve a child resource -> team, then check
 async function resourceTeam(kind, id) {
   const q = {
-    strategy: 'SELECT team_id FROM strategies WHERE id = ?',
     opponent: 'SELECT team_id FROM opponents WHERE id = ?',
     match: 'SELECT team_id FROM matches WHERE id = ?',
     team_player: 'SELECT team_id FROM team_players WHERE id = ?',
   }[kind];
   const row = await db.get(q, id);
   return row ? row.team_id : null;
+}
+
+// Strategy access: strategies are personal (created_by) and optionally
+// designated into team strategy banks (team_strategies). The creator can do
+// everything; members of a team the strategy is shared with can view it.
+// Returns { strategy, creator } or null.
+async function strategyAccess(req, id) {
+  const strategy = await db.get('SELECT * FROM strategies WHERE id = ?', id);
+  if (!strategy) return null;
+  if (strategy.created_by === req.user.id) return { strategy, creator: true };
+  const shares = await db.all('SELECT team_id FROM team_strategies WHERE strategy_id = ?', id);
+  for (const s of shares) {
+    if (await teamAccess(req, s.team_id)) return { strategy, creator: false };
+  }
+  return null;
+}
+
+// mode 'view': creator or member of a team it's shared with.
+// mode 'edit': creator only — sharing to a team never grants edit rights.
+// No access answers 404 (not 403) so foreign strategy ids stay unconfirmed.
+function requireStrategy(mode) {
+  return ah(async (req, res, next) => {
+    const access = await strategyAccess(req, Number(req.params.id));
+    if (!access) return res.status(404).json({ error: 'Not found' });
+    if (mode === 'edit' && !access.creator) {
+      return res.status(403).json({ error: 'Only the creator can change this strategy' });
+    }
+    req.strategy = access.strategy;
+    req.strategyCreator = access.creator;
+    next();
+  });
 }
 
 function requireResource(kind, domain) {
@@ -343,30 +373,50 @@ async function stratOut(row, userId) {
   }
   const creator = row.created_by ? await db.get('SELECT name FROM users WHERE id = ?', row.created_by) : null;
   out.created_by_name = creator ? creator.name : null;
+  // which team banks this strategy has been added to ("In Team Strats" state)
+  out.shared_team_ids = (await db.all('SELECT team_id FROM team_strategies WHERE strategy_id = ?', row.id))
+    .map(r => r.team_id);
   return out;
 }
 
-app.get('/api/teams/:teamId/strategies', auth, requireTeam(null), ah(async (req, res) => {
-  const q = req.query;
-  let sql = 'SELECT * FROM strategies WHERE team_id = ?';
-  const args = [req.access.team.id];
+// Appends the library filters (map/side/buy/status/tag/text) to a strategy
+// list query. Column names are prefixed with the `s` alias so the same code
+// serves the personal list and the team-bank join.
+function stratListFilters(q, sql, args) {
   const eq = { map: 'map', side: 'side', category: 'category', buy_type: 'buy_type', site: 'site', difficulty: 'difficulty', status: 'status' };
   for (const [param, col] of Object.entries(eq)) {
-    if (q[param]) { sql += ` AND ${col} = ?`; args.push(q[param]); }
+    if (q[param]) { sql += ` AND s.${col} = ?`; args.push(q[param]); }
   }
-  if (!q.status) sql += ` AND status != 'archived'`;
-  if (q.tag) { sql += ` AND tags LIKE ?`; args.push(`%"${q.tag}"%`); }
+  if (!q.status) sql += ` AND s.status != 'archived'`;
+  if (q.tag) { sql += ` AND s.tags LIKE ?`; args.push(`%"${q.tag}"%`); }
   if (q.q) {
-    sql += ` AND (name LIKE ? OR summary LIKE ? OR objective LIKE ? OR tags LIKE ?)`;
+    sql += ` AND (s.name LIKE ? OR s.summary LIKE ? OR s.objective LIKE ? OR s.tags LIKE ?)`;
     const like = `%${q.q}%`;
     args.push(like, like, like, like);
   }
-  sql += ' ORDER BY updated_at DESC';
+  return sql + ' ORDER BY s.updated_at DESC';
+}
+
+// the signed-in user's personal strategies — no team required
+app.get('/api/strategies', auth, ah(async (req, res) => {
+  const args = [req.user.id];
+  const sql = stratListFilters(req.query, 'SELECT s.* FROM strategies s WHERE s.created_by = ?', args);
   const rows = await db.all(sql, ...args);
   res.json(await Promise.all(rows.map(r => stratOut(r, req.user.id))));
 }));
 
-app.post('/api/teams/:teamId/strategies', auth, requireTeam('strategies'), ah(async (req, res) => {
+// a team's strategy bank: personal strategies designated via team_strategies
+app.get('/api/teams/:teamId/strategies', auth, requireTeam(null), ah(async (req, res) => {
+  const args = [req.access.team.id];
+  const sql = stratListFilters(req.query, `SELECT s.*, ts.added_by AS shared_by
+    FROM strategies s JOIN team_strategies ts ON ts.strategy_id = s.id WHERE ts.team_id = ?`, args);
+  const rows = await db.all(sql, ...args);
+  res.json(await Promise.all(rows.map(r => stratOut(r, req.user.id))));
+}));
+
+// New strategies are always personal. There is no create-into-team-bank route;
+// the bank is populated by sharing an existing personal strategy below.
+app.post('/api/strategies', auth, ah(async (req, res) => {
   const b = req.body || {};
   if (!b.name || !b.map || !b.side) {
     return res.status(400).json({ error: 'Name, map, and side are required' });
@@ -376,10 +426,10 @@ app.post('/api/teams/:teamId/strategies', auth, requireTeam('strategies'), ah(as
   b.category = b.category || 'General';
   const t = now();
   const id = (await db.run(`INSERT INTO strategies
-    (team_id, name, map, side, category, buy_type, site, map_area, tags, difficulty, spawn_dependency, required_utility,
+    (name, map, side, category, buy_type, site, map_area, tags, difficulty, spawn_dependency, required_utility,
      objective, summary, steps, roles, timings, midround, reactions, backup, warnings, attachments, status, created_by, created_at, updated_at)
-    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) RETURNING id`,
-    req.access.team.id, b.name, b.map, b.side, b.category, b.buy_type || null, b.site || null, b.map_area || null,
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) RETURNING id`,
+    b.name, b.map, b.side, b.category, b.buy_type || null, b.site || null, b.map_area || null,
     JSON.stringify(b.tags || []), b.difficulty || 'standard', b.spawn_dependency || null, b.required_utility || null,
     b.objective || null, b.summary || null, JSON.stringify(b.steps || []), JSON.stringify(b.roles || []),
     JSON.stringify(b.timings || []), JSON.stringify(b.midround || []), JSON.stringify(b.reactions || []),
@@ -389,11 +439,35 @@ app.post('/api/teams/:teamId/strategies', auth, requireTeam('strategies'), ah(as
   res.json(await stratOut(await db.get('SELECT * FROM strategies WHERE id = ?', id), req.user.id));
 }));
 
-app.get('/api/strategies/:id', auth, requireResource('strategy', null), ah(async (req, res) => {
-  res.json(await stratOut(await db.get('SELECT * FROM strategies WHERE id = ?', Number(req.params.id)), req.user.id));
+// "Add to Team Strats": designate one of your personal strategies into a team
+// bank. Requires being its creator AND having edit rights on that team.
+app.post('/api/strategies/:id/share', auth, requireStrategy('edit'), ah(async (req, res) => {
+  const teamId = Number(req.body?.team_id);
+  if (!(await gateTeam(req, res, teamId, 'strategies'))) return;
+  await db.run(`INSERT INTO team_strategies (strategy_id, team_id, added_by, created_at)
+    VALUES (?,?,?,?) ON CONFLICT DO NOTHING`, req.strategy.id, teamId, req.user.id, now());
+  res.json(await stratOut(await db.get('SELECT * FROM strategies WHERE id = ?', req.strategy.id), req.user.id));
 }));
 
-app.put('/api/strategies/:id', auth, requireResource('strategy', 'strategies'), ah(async (req, res) => {
+// Remove from Team Strats — only the designation goes away, never the
+// strategy. Allowed for the creator, or a team owner curating the bank.
+app.delete('/api/strategies/:id/share/:teamId', auth, requireStrategy('view'), ah(async (req, res) => {
+  const teamId = Number(req.params.teamId);
+  if (!req.strategyCreator) {
+    const access = await teamAccess(req, teamId);
+    if (!access || !CAN.team.includes(access.role)) {
+      return res.status(403).json({ error: 'Only the creator or a team owner can remove this from Team Strats' });
+    }
+  }
+  await db.run('DELETE FROM team_strategies WHERE strategy_id = ? AND team_id = ?', req.strategy.id, teamId);
+  res.json(await stratOut(await db.get('SELECT * FROM strategies WHERE id = ?', req.strategy.id), req.user.id));
+}));
+
+app.get('/api/strategies/:id', auth, requireStrategy('view'), ah(async (req, res) => {
+  res.json(await stratOut(req.strategy, req.user.id));
+}));
+
+app.put('/api/strategies/:id', auth, requireStrategy('edit'), ah(async (req, res) => {
   const id = Number(req.params.id);
   const b = req.body || {};
   const err = strategyError(b, true);
@@ -418,14 +492,16 @@ app.put('/api/strategies/:id', auth, requireResource('strategy', 'strategies'), 
   res.json(await stratOut(await db.get('SELECT * FROM strategies WHERE id = ?', id), req.user.id));
 }));
 
-app.post('/api/strategies/:id/duplicate', auth, requireResource('strategy', 'strategies'), ah(async (req, res) => {
-  const cur = await db.get('SELECT * FROM strategies WHERE id = ?', Number(req.params.id));
+// duplicating makes a fresh personal draft of your own — copies are never
+// auto-shared to any team bank
+app.post('/api/strategies/:id/duplicate', auth, requireStrategy('edit'), ah(async (req, res) => {
+  const cur = req.strategy;
   const t = now();
   const id = (await db.run(`INSERT INTO strategies
-    (team_id, name, map, side, category, buy_type, site, map_area, tags, difficulty, spawn_dependency, required_utility,
+    (name, map, side, category, buy_type, site, map_area, tags, difficulty, spawn_dependency, required_utility,
      objective, summary, steps, roles, timings, midround, reactions, backup, warnings, attachments, status, created_by, created_at, updated_at)
-    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) RETURNING id`,
-    cur.team_id, cur.name + ' (copy)', cur.map, cur.side, cur.category, cur.buy_type, cur.site, cur.map_area,
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) RETURNING id`,
+    cur.name + ' (copy)', cur.map, cur.side, cur.category, cur.buy_type, cur.site, cur.map_area,
     cur.tags, cur.difficulty, cur.spawn_dependency, cur.required_utility, cur.objective, cur.summary,
     cur.steps, cur.roles, cur.timings, cur.midround, cur.reactions, cur.backup, cur.warnings, cur.attachments,
     'draft', req.user.id, t, t
@@ -433,19 +509,18 @@ app.post('/api/strategies/:id/duplicate', auth, requireResource('strategy', 'str
   res.json(await stratOut(await db.get('SELECT * FROM strategies WHERE id = ?', id), req.user.id));
 }));
 
-app.delete('/api/strategies/:id', auth, requireResource('strategy', 'strategies'), ah(async (req, res) => {
-  const cur = await db.get('SELECT status FROM strategies WHERE id = ?', Number(req.params.id));
-  if (cur.status !== 'archived') return res.status(400).json({ error: 'Archive a strategy before deleting it permanently' });
-  await db.run('DELETE FROM strategies WHERE id = ?', Number(req.params.id));
+app.delete('/api/strategies/:id', auth, requireStrategy('edit'), ah(async (req, res) => {
+  if (req.strategy.status !== 'archived') return res.status(400).json({ error: 'Archive a strategy before deleting it permanently' });
+  await db.run('DELETE FROM strategies WHERE id = ?', req.strategy.id);
   res.json({ ok: true });
 }));
 
-app.post('/api/strategies/:id/favorite', auth, requireResource('strategy', null), ah(async (req, res) => {
+app.post('/api/strategies/:id/favorite', auth, requireStrategy('view'), ah(async (req, res) => {
   await db.run('INSERT INTO favorites (user_id, strategy_id) VALUES (?,?) ON CONFLICT DO NOTHING',
     req.user.id, Number(req.params.id));
   res.json({ ok: true });
 }));
-app.delete('/api/strategies/:id/favorite', auth, requireResource('strategy', null), ah(async (req, res) => {
+app.delete('/api/strategies/:id/favorite', auth, requireStrategy('view'), ah(async (req, res) => {
   await db.run('DELETE FROM favorites WHERE user_id = ? AND strategy_id = ?', req.user.id, Number(req.params.id));
   res.json({ ok: true });
 }));
@@ -729,7 +804,10 @@ app.delete('/api/matches/:id', auth, requireResource('match', 'matches'), ah(asy
 app.post('/api/matches/:id/pins', auth, requireResource('match', 'matches'), ah(async (req, res) => {
   const matchId = Number(req.params.id);
   const sid = Number(req.body?.strategy_id);
-  if ((await resourceTeam('strategy', sid)) !== req.teamId) return res.status(400).json({ error: 'Strategy not found' });
+  // pins come from this team's strategy bank — a strategy must be in Team
+  // Strats before it can be pinned to a team match
+  const shared = await db.get('SELECT 1 AS x FROM team_strategies WHERE strategy_id = ? AND team_id = ?', sid, req.teamId);
+  if (!shared) return res.status(400).json({ error: 'Strategy not found' });
   const max = (await db.get('SELECT COALESCE(MAX(sort),-1) AS m FROM match_pins WHERE match_id = ?', matchId)).m;
   await db.run('INSERT INTO match_pins (match_id, strategy_id, sort) VALUES (?,?,?) ON CONFLICT DO NOTHING', matchId, sid, max + 1);
   res.json({ ok: true });
@@ -763,12 +841,16 @@ app.post('/api/recents', auth, ah(async (req, res) => {
   if (!['strategy', 'opponent', 'match'].includes(item_type) || !Number(item_id)) {
     return res.status(400).json({ error: 'Bad recent item' });
   }
-  // The item must exist AND belong to a team the signed-in user can access.
-  // Existence alone is not enough: answering differently for other teams'
-  // ids would both confirm private ids and let anyone write recents rows
-  // pointing at data they cannot see. Same 404 either way, on purpose.
-  const teamId = await resourceTeam(item_type, Number(item_id));
-  if (teamId == null || !(await teamAccess(req, teamId))) return res.status(404).json({ error: 'Not found' });
+  // The item must exist AND be accessible to the signed-in user. Existence
+  // alone is not enough: answering differently for inaccessible ids would
+  // both confirm private ids and let anyone write recents rows pointing at
+  // data they cannot see. Same 404 either way, on purpose.
+  if (item_type === 'strategy') {
+    if (!(await strategyAccess(req, Number(item_id)))) return res.status(404).json({ error: 'Not found' });
+  } else {
+    const teamId = await resourceTeam(item_type, Number(item_id));
+    if (teamId == null || !(await teamAccess(req, teamId))) return res.status(404).json({ error: 'Not found' });
+  }
   await db.run(`INSERT INTO recents (user_id, item_type, item_id, viewed_at) VALUES (?,?,?,?)
     ON CONFLICT (user_id, item_type, item_id) DO UPDATE SET viewed_at = excluded.viewed_at`,
     req.user.id, item_type, Number(item_id), now());
@@ -780,7 +862,11 @@ app.get('/api/teams/:teamId/recents', auth, requireTeam(null), ah(async (req, re
   const out = [];
   for (const r of rows) {
     if (r.item_type === 'strategy') {
-      const s = await db.get('SELECT id, name, map, side, category FROM strategies WHERE id = ? AND team_id = ?', r.item_id, req.access.team.id);
+      // strategies I can still see in this context: my own, or in this team's bank
+      const s = await db.get(`SELECT id, name, map, side, category FROM strategies
+        WHERE id = ? AND (created_by = ? OR EXISTS (
+          SELECT 1 FROM team_strategies ts WHERE ts.strategy_id = strategies.id AND ts.team_id = ?))`,
+        r.item_id, req.user.id, req.access.team.id);
       if (s) out.push({ type: 'strategy', ...s, viewed_at: r.viewed_at });
     } else if (r.item_type === 'opponent') {
       const o = await db.get('SELECT id, name FROM opponents WHERE id = ? AND team_id = ?', r.item_id, req.access.team.id);
@@ -803,9 +889,10 @@ app.get('/api/teams/:teamId/search', auth, requireTeam(null), ah(async (req, res
   const like = `%${q}%`;
   const teamId = req.access.team.id;
   res.json({
-    strategies: await db.all(`SELECT id, name, map, side, category, status FROM strategies
-      WHERE team_id = ? AND (name LIKE ? OR summary LIKE ? OR objective LIKE ? OR tags LIKE ?) LIMIT 15`,
-      teamId, like, like, like, like),
+    strategies: await db.all(`SELECT s.id, s.name, s.map, s.side, s.category, s.status FROM strategies s
+      WHERE (s.created_by = ? OR EXISTS (SELECT 1 FROM team_strategies ts WHERE ts.strategy_id = s.id AND ts.team_id = ?))
+      AND (s.name LIKE ? OR s.summary LIKE ? OR s.objective LIKE ? OR s.tags LIKE ?) LIMIT 15`,
+      req.user.id, teamId, like, like, like, like),
     opponents: await db.all(`SELECT id, name FROM opponents WHERE team_id = ? AND (name LIKE ? OR playstyle LIKE ? OR notes LIKE ?) LIMIT 8`,
       teamId, like, like, like),
     players: await db.all(`SELECT op.id, op.name, op.role, op.opponent_id, o.name AS opponent_name
@@ -1171,13 +1258,15 @@ app.get('/api/teams/:teamId/dashboard', auth, requireTeam(null), ah(async (req, 
   const teamId = req.access.team.id;
   const maps = (await db.all('SELECT name FROM maps WHERE active = 1 ORDER BY name')).map(m => m.name);
   const count = async (sql, ...args) => (await db.get(sql, ...args)).c;
+  // the team dashboard reads the team's strategy bank (Team Strats)
+  const bank = `FROM strategies s JOIN team_strategies ts ON ts.strategy_id = s.id WHERE ts.team_id = ?`;
   const byMap = {};
   for (const m of maps) {
     byMap[m] = {
-      total: await count(`SELECT COUNT(*) AS c FROM strategies WHERE team_id = ? AND map = ? AND status = 'active'`, teamId, m),
-      t: await count(`SELECT COUNT(*) AS c FROM strategies WHERE team_id = ? AND map = ? AND side = 'T' AND status = 'active'`, teamId, m),
-      ct: await count(`SELECT COUNT(*) AS c FROM strategies WHERE team_id = ? AND map = ? AND side = 'CT' AND status = 'active'`, teamId, m),
-      pistol: await count(`SELECT COUNT(*) AS c FROM strategies WHERE team_id = ? AND map = ? AND category = 'Pistol' AND status = 'active'`, teamId, m),
+      total: await count(`SELECT COUNT(*) AS c ${bank} AND s.map = ? AND s.status = 'active'`, teamId, m),
+      t: await count(`SELECT COUNT(*) AS c ${bank} AND s.map = ? AND s.side = 'T' AND s.status = 'active'`, teamId, m),
+      ct: await count(`SELECT COUNT(*) AS c ${bank} AND s.map = ? AND s.side = 'CT' AND s.status = 'active'`, teamId, m),
+      pistol: await count(`SELECT COUNT(*) AS c ${bank} AND s.map = ? AND s.category = 'Pistol' AND s.status = 'active'`, teamId, m),
     };
   }
   const nextRow = await db.get(`SELECT m.*, o.name AS opponent_name
@@ -1198,10 +1287,10 @@ app.get('/api/teams/:teamId/dashboard', auth, requireTeam(null), ah(async (req, 
     upcoming: await db.all(`SELECT m.id, m.scheduled_at, m.event, m.format, o.name AS opponent_name
       FROM matches m LEFT JOIN opponents o ON o.id = m.opponent_id
       WHERE m.team_id = ? AND m.status = 'upcoming' ORDER BY m.scheduled_at LIMIT 5`, teamId),
-    recent_strategies: await db.all(`SELECT id, name, map, side, category, status, updated_at FROM strategies
-      WHERE team_id = ? AND status != 'archived' ORDER BY updated_at DESC LIMIT 6`, teamId),
-    drafts: await db.all(`SELECT id, name, map, side, category FROM strategies WHERE team_id = ? AND status = 'draft' ORDER BY updated_at DESC LIMIT 6`, teamId),
-    archived_count: await count(`SELECT COUNT(*) AS c FROM strategies WHERE team_id = ? AND status = 'archived'`, teamId),
+    recent_strategies: await db.all(`SELECT s.id, s.name, s.map, s.side, s.category, s.status, s.updated_at
+      ${bank} AND s.status != 'archived' ORDER BY s.updated_at DESC LIMIT 6`, teamId),
+    drafts: await db.all(`SELECT s.id, s.name, s.map, s.side, s.category ${bank} AND s.status = 'draft' ORDER BY s.updated_at DESC LIMIT 6`, teamId),
+    archived_count: await count(`SELECT COUNT(*) AS c ${bank} AND s.status = 'archived'`, teamId),
     opponents: await db.all(`SELECT o.id, o.name,
       (SELECT COUNT(*) FROM tendencies t WHERE t.opponent_id = o.id) AS tendency_count,
       (SELECT COUNT(*) FROM opponent_players p WHERE p.opponent_id = o.id) AS player_count

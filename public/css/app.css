@@ -194,6 +194,10 @@ a.dd-item { text-decoration: none; }
   letter-spacing: 2px; text-transform: uppercase;
   line-height: 1.7; padding: 0 4px;
 }
+/* Each line is its own block: letter-spacing leaves a trailing gap after the
+   last letter, which pulls centered text left, and text-indent only corrects
+   a block's first line. One block per line indents both by the same 2px. */
+.side-logo-sub span { display: block; text-indent: 2px; }
 
 /* Shiny CTA — animated conic-gradient border + dots + inner shimmer
    (same technique as LaneLens's Analyze button, in MidRound silver).
@@ -445,6 +449,8 @@ a.card:hover, .card.clickable:hover {
   min-height: 36px;
 }
 .chip:hover { color: var(--text); background: var(--bg-hover); transform: translateY(-1px); }
+.chip:disabled { opacity: 0.45; cursor: not-allowed; }
+.chip:disabled:hover { color: var(--text-2); background: var(--bg-panel); transform: none; }
 .chip.active { background: var(--accent-bg); border-color: var(--accent-dim); color: var(--accent); }
 .chip.active.ct { background: var(--blue-bg); border-color: var(--blue); color: var(--blue); }
 
@@ -1472,6 +1478,9 @@ a.match-row.next:hover { background: var(--bg-hover); }
 .empty {
   text-align: center; padding: 38px 20px; color: var(--text-3);
   border: 1px dashed var(--border-strong); border-radius: var(--radius);
+  /* as the only child of a card grid, span every column so it centers on the
+     page instead of sitting in the first column */
+  grid-column: 1 / -1;
 }
 .empty b { display: block; color: var(--text-2); margin-bottom: 4px; font-size: 1rem; }
 

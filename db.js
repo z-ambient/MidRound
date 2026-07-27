@@ -136,7 +136,6 @@ CREATE TABLE IF NOT EXISTS maps (
 );
 CREATE TABLE IF NOT EXISTS strategies (
   id ${ID},
-  team_id INTEGER NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   map TEXT NOT NULL,
   side TEXT NOT NULL,            -- T | CT
@@ -162,6 +161,13 @@ CREATE TABLE IF NOT EXISTS strategies (
   created_by INTEGER,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS team_strategies (
+  strategy_id INTEGER NOT NULL REFERENCES strategies(id) ON DELETE CASCADE,
+  team_id INTEGER NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
+  added_by INTEGER,
+  created_at TEXT NOT NULL,
+  PRIMARY KEY (strategy_id, team_id)
 );
 CREATE TABLE IF NOT EXISTS favorites (
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -255,7 +261,8 @@ CREATE TABLE IF NOT EXISTS team_players (
   faceit_player_id TEXT,
   faceit_stats TEXT
 );
-CREATE INDEX IF NOT EXISTS idx_strategies_team ON strategies(team_id, map, side, status);
+CREATE INDEX IF NOT EXISTS idx_strategies_creator ON strategies(created_by, map, side, status);
+CREATE INDEX IF NOT EXISTS idx_team_strategies_team ON team_strategies(team_id);
 CREATE INDEX IF NOT EXISTS idx_tendencies_opp ON tendencies(opponent_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions(token_hash);
 `;
@@ -309,6 +316,89 @@ async function backfillTeamPlayers() {
   }
 }
 
+// 2026-07: strategies moved from team ownership (strategies.team_id NOT NULL)
+// to personal ownership (created_by) with team designation via team_strategies.
+// For databases created before that: every existing team strategy becomes a
+// personal strategy of its creator (falling back to the org owner) that is
+// already shared into its old team's strategy bank, then the team_id column
+// is removed. Idempotent — new databases never have the column.
+const STRATEGY_COPY_COLS = `id, name, map, side, category, buy_type, site, map_area, tags, difficulty,
+  spawn_dependency, required_utility, objective, summary, steps, roles, timings, midround, reactions,
+  backup, warnings, attachments, status, created_by, created_at, updated_at`;
+
+async function migrateStrategyOwnership() {
+  let hasTeamId;
+  if (usingPostgres) {
+    hasTeamId = !!(await get(`SELECT 1 AS x FROM information_schema.columns
+      WHERE table_name = 'strategies' AND column_name = 'team_id'`));
+  } else {
+    hasTeamId = sqlite.prepare(`PRAGMA table_info(strategies)`).all().some((c) => c.name === 'team_id');
+  }
+  if (!hasTeamId) return;
+
+  // ownerless team strategies get the org owner as creator so someone can edit them
+  await exec(`UPDATE strategies SET created_by = (
+      SELECT om.user_id FROM org_members om JOIN teams t ON t.org_id = om.org_id
+      WHERE t.id = strategies.team_id AND om.role = 'owner' LIMIT 1)
+    WHERE created_by IS NULL AND team_id IS NOT NULL;`);
+  await run(`INSERT INTO team_strategies (strategy_id, team_id, added_by, created_at)
+    SELECT id, team_id, created_by, ? FROM strategies WHERE team_id IS NOT NULL
+    ON CONFLICT DO NOTHING`, now());
+
+  if (usingPostgres) {
+    await exec('ALTER TABLE strategies DROP COLUMN team_id;');
+    return;
+  }
+  // SQLite cannot drop an FK column in place — rebuild the table without it.
+  // Foreign keys must be OFF so dropping the old table doesn't cascade into
+  // match_pins/favorites/team_strategies rows that reference strategies(id).
+  sqlite.exec('PRAGMA foreign_keys = OFF;');
+  try {
+    sqlite.exec(`
+      BEGIN;
+      CREATE TABLE strategies_new (
+        id INTEGER PRIMARY KEY,
+        name TEXT NOT NULL,
+        map TEXT NOT NULL,
+        side TEXT NOT NULL,
+        category TEXT NOT NULL,
+        buy_type TEXT,
+        site TEXT,
+        map_area TEXT,
+        tags TEXT DEFAULT '[]',
+        difficulty TEXT,
+        spawn_dependency TEXT,
+        required_utility TEXT,
+        objective TEXT,
+        summary TEXT,
+        steps TEXT DEFAULT '[]',
+        roles TEXT DEFAULT '[]',
+        timings TEXT DEFAULT '[]',
+        midround TEXT DEFAULT '[]',
+        reactions TEXT DEFAULT '[]',
+        backup TEXT,
+        warnings TEXT DEFAULT '[]',
+        attachments TEXT DEFAULT '[]',
+        status TEXT DEFAULT 'active',
+        created_by INTEGER,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      );
+      INSERT INTO strategies_new (${STRATEGY_COPY_COLS})
+        SELECT ${STRATEGY_COPY_COLS} FROM strategies;
+      DROP TABLE strategies;
+      ALTER TABLE strategies_new RENAME TO strategies;
+      CREATE INDEX IF NOT EXISTS idx_strategies_creator ON strategies(created_by, map, side, status);
+      COMMIT;
+    `);
+  } catch (e) {
+    try { sqlite.exec('ROLLBACK;'); } catch { /* no open transaction */ }
+    throw e;
+  } finally {
+    sqlite.exec('PRAGMA foreign_keys = ON;');
+  }
+}
+
 let initialized = null;
 
 // Create the schema and run migrations. Called once at startup (server.js
@@ -330,6 +420,7 @@ function init() {
       await addColumn('opponent_players', 'faceit_stats', 'faceit_stats TEXT');
       await addColumn('invites', 'email', 'email TEXT');
       await exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_matches_faceit ON matches(team_id, faceit_match_id) WHERE faceit_match_id IS NOT NULL;');
+      await migrateStrategyOwnership();
       await normalizeAccess();
       await backfillTeamPlayers();
     })();

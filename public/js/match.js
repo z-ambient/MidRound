@@ -9,6 +9,8 @@ import { strategyDetailHtml, tendencyHtml, buyLabel, mapDot } from './manage.js'
 const BUY_GROUPS = [['pistol', 'Pistol'], ['save', 'Save'], ['semi', 'Semi-buy'], ['eco', 'Eco'], ['full', 'Full buy']];
 
 export async function enterMatchMode() {
+  // no team → Solo Match Mode on personal strategies
+  if (!state.teamId) { nav('/match-mode/solo'); return; }
   try {
     const matches = await api.get(`/api/teams/${state.teamId}/matches`);
     const upcoming = matches.filter(m => m.status === 'upcoming')
@@ -27,9 +29,11 @@ export async function viewMatchMode(root, idStr) {
 
   let match = null, opponent = null, maps = [], strategies = [];
   try {
+    // solo runs on your personal strategies; team/match modes run on the
+    // team's strategy bank (Team Strats)
     [maps, strategies] = await Promise.all([
       api.get('/api/maps'),
-      api.get(`/api/teams/${state.teamId}/strategies`),
+      api.get(solo ? '/api/strategies' : `/api/teams/${state.teamId}/strategies`),
     ]);
     if (!solo) {
       match = await api.get(`/api/matches/${matchId}`);

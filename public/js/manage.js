@@ -227,11 +227,27 @@ function fmtMatchDate(iso) {
 
 export async function viewDashboard(el) {
   el.innerHTML = spinner();
-  const [d, allMatches, allStrats] = await Promise.all([
-    api.get(teamUrl('/dashboard')),
-    api.get(teamUrl('/matches')),
-    api.get(teamUrl('/strategies')),
-  ]);
+  const onTeam = !!state.teamId;
+  let d, allMatches, allStrats;
+  if (onTeam) {
+    [d, allMatches, allStrats] = await Promise.all([
+      api.get(teamUrl('/dashboard')),
+      api.get(teamUrl('/matches')),
+      api.get(teamUrl('/strategies')),
+    ]);
+  } else {
+    // same dashboard, personal data: strategies are the user's own, and the
+    // team-fed modules (calendar, next match, roster) render empty in place
+    const [maps, mine] = await Promise.all([api.get('/api/maps'), api.get('/api/strategies')]);
+    allMatches = [];
+    allStrats = mine;
+    const by_map = {};
+    for (const m of maps) {
+      const on = mine.filter(s => s.map === m.name && s.status === 'active');
+      by_map[m.name] = { total: on.length, t: on.filter(s => s.side === 'T').length, ct: on.filter(s => s.side === 'CT').length };
+    }
+    d = { next_match: null, by_map, roster: [], faceit_roster: [], archived_count: 0 };
+  }
   const team = state.me.teams.find(t => t.id === state.teamId);
   const org = team ? state.me.orgs.find(o => o.id === team.org_id) : null;
 
@@ -245,16 +261,25 @@ export async function viewDashboard(el) {
       <div class="h-when"><b>${esc(fmtMatchDate(nm.scheduled_at))}</b> · ${esc(nm.format || '')}${nm.starting_side ? ` · starting ${esc(nm.starting_side)} side` : ''}</div>
       ${nm.expected_maps.length ? `<div class="h-maps">${nm.expected_maps.map(m => `<span class="map-chip">${mapDot(m)}${esc(m)}</span>`).join('')}</div>` : ''}
       <div class="h-actions">
-        <a class="btn primary" href="#/match-mode/${nm.id}">${ICONS.play} Enter Match Mode</a>
+        <a class="btn primary" href="#/match-mode/${nm.id}">${ICONS.play} Team Match Mode</a>
         <a class="btn" href="#/matches/${nm.id}">Match details</a>
       </div>
       <div class="hero-note">${nm.pin_count ? `<b>${nm.pin_count} pinned call${nm.pin_count === 1 ? '' : 's'}</b> ready for this match` : 'No calls pinned yet'}</div>
-    </div>` : `
+    </div>` : onTeam ? `
     <div class="h-info">
       <div class="kicker">Next match</div>
       <div class="h-opp">Nothing scheduled</div>
       <div class="h-meta">Create a match to set the veto plan and pin your calls.</div>
       ${can('matches') ? `<div class="h-actions"><a class="btn primary" href="#/matches">Set up a match</a></div>` : ''}
+    </div>` : `
+    <div class="h-info">
+      <div class="kicker">Next match</div>
+      <div class="h-opp">You're not on a team</div>
+      <div class="h-meta">Team matches appear here once you join or create a team from Team &amp; access.</div>
+      <div class="h-actions">
+        <a class="btn primary" href="#/match-mode/solo">${ICONS.play} Solo Match Mode</a>
+        <a class="btn" href="#/strategies/new">+ New strategy</a>
+      </div>
     </div>`;
 
   const mapsCovered = Object.values(d.by_map).filter(v => v.total > 0).length;
@@ -304,7 +329,7 @@ export async function viewDashboard(el) {
               <h2>Strategies <span class="h-count" id="strat-count"></span></h2>
               <div class="filter-chips" id="strat-filters"></div>
             </div>
-            <a href="#/strategies">Open library →</a>
+            <span>${onTeam ? '' : `<a href="#/strategies/new" style="margin-right:14px">+ New strategy</a>`}<a href="#/strategies">Open library →</a></span>
           </div>
           <div class="list-card" id="strat-list"></div>
         </div>
@@ -313,12 +338,13 @@ export async function viewDashboard(el) {
       <div>
         <aside class="dash-side" style="margin-bottom:16px">
           <div class="team-card">
-            <div class="team-logo">${esc(initials(team ? team.name : 'MR'))}</div>
-            <div class="tc-name">${esc(team ? team.name : '')}</div>
-            <div class="tc-org">${esc(org ? org.name : '')}</div>
+            <div class="team-logo">${onTeam ? esc(initials(team ? team.name : 'MR')) : '—'}</div>
+            <div class="tc-name">${onTeam ? esc(team ? team.name : '') : 'No team yet'}</div>
+            <div class="tc-org">${onTeam ? esc(org ? org.name : '') : "You're not on a team"}</div>
           </div>
-          <div class="cal-head"><b>Roster</b><a href="#/team" class="small" style="color:var(--text-3)">Manage →</a></div>
-          ${d.roster.length ? d.roster.map(p => `
+          <div class="cal-head"><b>Roster</b><a href="#/team" class="small" style="color:var(--text-3)">${onTeam ? 'Manage' : 'Team & access'} →</a></div>
+          ${!onTeam ? `<div class="small muted" style="padding:8px 6px">You're not on a team — create or join one from Team &amp; access.</div>`
+          : d.roster.length ? d.roster.map(p => `
             <a class="list-row" href="#/players/${p.id}">
               <span class="avatar">${esc(initials(p.name))}</span>
               <span class="grow"><span class="r-name">${esc(p.name)}</span><div class="r-sub">${esc(p.game_role || '')}${p.is_starter ? '' : ' · sub'}${!p.game_role && p.user ? esc(p.user.name) : ''}</div></span>
@@ -363,7 +389,7 @@ export async function viewDashboard(el) {
     stratList.innerHTML = fActive.length
       ? fActive.map(stratRow).join('')
       : emptyState(mapFilter === 'all' ? 'No strategies yet' : `No active strategies for ${mapFilter}`,
-          can('strategies') ? 'Create one from the library.' : '');
+          (!onTeam || can('strategies')) ? 'Create one from the library.' : '');
     el.querySelectorAll('[data-mapf]').forEach(b => b.onclick = () => {
       mapFilter = b.dataset.mapf;
       localStorage.setItem('mr.dash.map', mapFilter);
@@ -442,12 +468,23 @@ export async function viewDashboard(el) {
 }
 
 // ---------- strategy library ----------
+// The library has two scopes: "Your Strats" (personal strategies you created)
+// and "Team Strats" (the team's shared bank). New strategies are always
+// created personal; they reach Team Strats via "Add to Team Strats".
+function stratListUrl(params) {
+  const scope = params.scope === 'team' && state.teamId ? 'team' : 'mine';
+  const qs = new URLSearchParams(Object.fromEntries(
+    Object.entries(params).filter(([k, v]) => v && k !== 'scope')));
+  return (scope === 'team' ? teamUrl('/strategies') : '/api/strategies') + '?' + qs;
+}
+
 export async function viewStrategies(el) {
   const q = query();
+  const scope = q.scope === 'team' && state.teamId ? 'team' : 'mine';
   el.innerHTML = spinner();
   const [maps, list] = await Promise.all([
     api.get('/api/maps'),
-    api.get(teamUrl('/strategies?' + new URLSearchParams(Object.fromEntries(Object.entries(q).filter(([, v]) => v))))),
+    api.get(stratListUrl(q)),
   ]);
 
   stratSort(list);
@@ -461,9 +498,15 @@ export async function viewStrategies(el) {
       <div>
         <h1>Strategy library</h1>
         <div class="sub">${list.length} strateg${list.length === 1 ? 'y' : 'ies'}${q.status === 'archived' ? ' · archived' : ''}</div>
+        <div class="filter-chips" style="justify-content:center;margin-top:12px">
+          <button class="chip ${scope === 'mine' ? 'active' : ''}" data-scope="mine">Your Strats</button>
+          ${state.teamId
+            ? `<button class="chip ${scope === 'team' ? 'active' : ''}" data-scope="team">Team Strats</button>`
+            : `<button class="chip" disabled title="You're not on a team">Team Strats</button>`}
+        </div>
         <div class="head-actions" style="justify-content:center;margin-top:12px">
           ${q.status === 'archived' ? `<a class="btn small" href="#/strategies">← Back to active</a>` : ''}
-          ${can('strategies') ? `<a class="btn primary" href="#/strategies/new">+ New strategy</a>` : ''}
+          <a class="btn primary" href="#/strategies/new">+ New strategy</a>
         </div>
       </div>
     </div>
@@ -483,11 +526,23 @@ export async function viewStrategies(el) {
       </div>
     </div>
     <div class="grid cols-3" id="strat-grid">
-      ${list.length ? list.map(s => stratCard(s)).join('') : emptyState('No strategies match', 'Try clearing a filter, or create a new strategy.')}
+      ${list.length ? list.map(s => stratCard(s)).join('') : emptyState('No strategies match',
+        scope === 'team' ? 'Team Strats fill up when members add their strategies with "Add to Team Strats".'
+          : 'Try clearing a filter, or create a new strategy.')}
     </div>
     </div>`;
 
   setMapAmbient(el, q.map);
+
+  // scope switch re-renders the page against the other list
+  el.querySelectorAll('[data-scope]').forEach(b => b.onclick = () => {
+    const cur2 = { ...query(), scope: b.dataset.scope === 'team' ? 'team' : '' };
+    const qs = new URLSearchParams(Object.fromEntries(Object.entries(cur2).filter(([, v]) => v)));
+    const hash = '#/strategies' + ([...qs].length ? '?' + qs : '');
+    history.replaceState(null, '', hash);
+    localStorage.setItem('mr.route', hash);
+    viewStrategies(el);
+  });
 
   // filter switches update in place — only the cards re-render (and flow in),
   // the page chrome stays put and the map band fades in on its own clock
@@ -498,12 +553,14 @@ export async function viewStrategies(el) {
     history.replaceState(null, '', hash);
     localStorage.setItem('mr.route', hash);
     let fresh;
-    try { fresh = await api.get(teamUrl('/strategies?' + qs)); }
+    try { fresh = await api.get(stratListUrl(cur)); }
     catch (e) { toast(e.message, 'err'); return; }
     stratSort(fresh);
     el.querySelector('#strat-grid').innerHTML = fresh.length
       ? fresh.map(s => stratCard(s)).join('')
-      : emptyState('No strategies match', 'Try clearing a filter, or create a new strategy.');
+      : emptyState('No strategies match',
+          cur.scope === 'team' ? 'Team Strats fill up when members add their strategies with "Add to Team Strats".'
+            : 'Try clearing a filter, or create a new strategy.');
     el.querySelectorAll('[data-f]').forEach(b =>
       b.classList.toggle('active', (cur[b.dataset.f] || '') === b.dataset.v));
     const sub = el.querySelector('.page-head .sub');
@@ -540,6 +597,14 @@ export async function viewStrategyDetail(el, id) {
   const s = await api.get(`/api/strategies/${id}`);
   trackView('strategy', s.id);
 
+  // Personal ownership: only the creator edits. Team members who see this
+  // via Team Strats can read and favorite it. "Add to Team Strats" shares
+  // the strategy into the current team's bank (creator + edit rights only).
+  const mine = s.created_by === state.me.user.id;
+  const inTeam = !!state.teamId && (s.shared_team_ids || []).includes(state.teamId);
+  const canShare = mine && !!state.teamId && can('strategies') && !inTeam;
+  const canUnshare = inTeam && (mine || can('team'));
+
   el.innerHTML = `
     <div class="strat-wrap">
     <div class="detail-head">
@@ -548,11 +613,14 @@ export async function viewStrategyDetail(el, id) {
           <h1>${esc(s.name)} ${statusBadge(s.status)}</h1>
           <div class="detail-meta">
             ${sideTag(s.side)} ${badge(s.map)} ${s.buy_type ? badge(buyLabel(s.buy_type)) : ''}
+            ${inTeam ? badge('In Team Strats', 'ok') : ''}
           </div>
         </div>
         <div class="head-actions">
           <button class="btn" id="btn-fav" title="Favorite">${s.favorite ? ICONS.starFill : ICONS.star} ${s.favorite ? 'Favorited' : 'Favorite'}</button>
-          ${can('strategies') ? `
+          ${canShare ? `<button class="btn primary" id="btn-share">Add to Team Strats</button>` : ''}
+          ${canUnshare ? `<button class="btn" id="btn-unshare">Remove from Team Strats</button>` : ''}
+          ${mine ? `
             <a class="btn" href="#/strategies/${s.id}/edit">Edit</a>
             <button class="btn" id="btn-dup">Duplicate</button>
             ${s.status !== 'archived'
@@ -572,6 +640,21 @@ export async function viewStrategyDetail(el, id) {
     if (s.favorite) { await api.del(`/api/strategies/${s.id}/favorite`); } else { await api.post(`/api/strategies/${s.id}/favorite`); }
     viewStrategyDetail(el, id);
   };
+  el.querySelector('#btn-share') && (el.querySelector('#btn-share').onclick = async () => {
+    try {
+      await api.post(`/api/strategies/${s.id}/share`, { team_id: state.teamId });
+      toast('Added to Team Strats', 'ok');
+      viewStrategyDetail(el, id);
+    } catch (e) { toast(e.message, 'err'); }
+  });
+  el.querySelector('#btn-unshare') && (el.querySelector('#btn-unshare').onclick = async () => {
+    if (!await confirmDialog({ title: 'Remove from Team Strats?', message: `"${s.name}" leaves the team bank. The strategy itself stays with its creator.`, confirmText: 'Remove', danger: true })) return;
+    try {
+      await api.del(`/api/strategies/${s.id}/share/${state.teamId}`);
+      toast('Removed from Team Strats', 'ok');
+      viewStrategyDetail(el, id);
+    } catch (e) { toast(e.message, 'err'); }
+  });
   el.querySelector('#btn-dup') && (el.querySelector('#btn-dup').onclick = async () => {
     const copy = await api.post(`/api/strategies/${s.id}/duplicate`);
     toast('Duplicated as draft', 'ok');
@@ -598,7 +681,8 @@ export async function viewStrategyDetail(el, id) {
 
 // ---------- strategy editor ----------
 export async function viewStrategyEdit(el, id) {
-  if (!can('strategies')) { el.innerHTML = emptyState('Not allowed', 'Your role cannot edit strategies.'); return; }
+  // creating is open to everyone (new strategies are always personal);
+  // editing an existing one is creator-only
   el.innerHTML = spinner();
   const maps = await api.get('/api/maps');
   let s = id ? await api.get(`/api/strategies/${id}`) : {
@@ -606,6 +690,10 @@ export async function viewStrategyEdit(el, id) {
     required_utility: '', objective: '', summary: '', steps: [],
     warnings: [], attachments: [], status: 'draft',
   };
+  if (id && s.created_by !== state.me.user.id) {
+    el.innerHTML = emptyState('Not allowed', 'Only the creator can edit this strategy.');
+    return;
+  }
 
   const attRow = (a = {}) => `
     <div class="rolerow-wide" data-att-row style="margin-bottom:8px">
@@ -683,7 +771,7 @@ export async function viewStrategyEdit(el, id) {
       if (id) {
         s = await api.put(`/api/strategies/${id}`, body);
       } else {
-        s = await api.post(teamUrl('/strategies'), body);
+        s = await api.post('/api/strategies', body);
         id = s.id;
         history.replaceState(null, '', `#/strategies/${id}/edit`);
         localStorage.setItem('mr.route', `#/strategies/${id}/edit`);
@@ -704,6 +792,7 @@ export async function viewStrategyEdit(el, id) {
 
 // ---------- opponents ----------
 export async function viewOpponentDetail(el, id) {
+  if (!state.teamId) { el.innerHTML = emptyState("You're not on a team", 'Create or join a team from Team & access to scout opponents.'); return; }
   el.innerHTML = spinner();
   const o = await api.get(`/api/opponents/${id}`);
   trackView('opponent', o.id);
@@ -903,6 +992,33 @@ export async function viewOpponentDetail(el, id) {
 
 // ---------- matches ----------
 export async function viewMatches(el) {
+  if (!state.teamId) {
+    // same page shell, team modules empty
+    el.innerHTML = `
+      <div class="mo-page">
+      <div class="page-head center">
+        <div>
+          <h1>Matches</h1>
+          <div class="sub">You're not on a team</div>
+        </div>
+      </div>
+      <div class="mo-cols">
+        <div>
+          <div class="sec">
+            <div class="sec-head"><h2>Upcoming</h2></div>
+            ${emptyState("You're not on a team", 'Create or join a team from Team & access to use team match prep.')}
+          </div>
+        </div>
+        <div>
+          <div class="sec">
+            <div class="sec-head"><h2>Opponents</h2></div>
+            ${emptyState("You're not on a team", 'Opponent scouting lives with your team.')}
+          </div>
+        </div>
+      </div>
+      </div>`;
+    return;
+  }
   el.innerHTML = spinner();
   const [matches, opps] = await Promise.all([api.get(teamUrl('/matches')), api.get(teamUrl('/opponents'))]);
   const upcoming = matches.filter(m => m.status === 'upcoming')
@@ -1028,6 +1144,7 @@ export async function viewMatches(el) {
 }
 
 export async function viewMatchDetail(el, id) {
+  if (!state.teamId) { el.innerHTML = emptyState("You're not on a team", 'Create or join a team from Team & access to use team match prep.'); return; }
   el.innerHTML = spinner();
   const [m, opps, allStrats, members, slots] = await Promise.all([
     api.get(`/api/matches/${id}`),
@@ -1248,6 +1365,25 @@ export async function viewMatchDetail(el, id) {
 // ---------- team ----------
 // ---------- player lookup ----------
 export async function viewPlayerLookup(el) {
+  if (!state.teamId) {
+    // lookups run through the team's FACEIT API key — keep the page shell,
+    // disable the form
+    el.innerHTML = `
+      <div class="lookup-page">
+      <div class="page-head center">
+        <div>
+          <h1>Player Lookup</h1>
+          <div class="sub">Pull any player's FACEIT stats by nickname</div>
+        </div>
+      </div>
+      <form class="lookup-bar">
+        <input placeholder="FACEIT nickname…" disabled>
+        <button class="btn primary" type="button" disabled>Look up</button>
+      </form>
+      ${emptyState("You're not on a team", 'Lookups use your team\'s FACEIT connection — create or join a team from Team & access.')}
+      </div>`;
+    return;
+  }
   const last = localStorage.getItem('mr.lookup') || '';
   el.innerHTML = `
     <div class="lookup-page">
@@ -1386,6 +1522,7 @@ export async function viewPlayerLookup(el) {
 
 // ---------- player profile ----------
 export async function viewPlayerProfile(el, id) {
+  if (!state.teamId) { el.innerHTML = emptyState("You're not on a team", 'Player profiles belong to a team roster.'); return; }
   el.innerHTML = spinner();
   let p;
   try { p = await api.get(`/api/team-players/${id}`); }
@@ -1477,6 +1614,7 @@ export async function viewPlayerProfile(el, id) {
 }
 
 export async function viewTeam(el) {
+  if (!state.teamId) return viewTeamOnboarding(el);
   el.innerHTML = spinner();
   const [data, fc, players] = await Promise.all([
     api.get(teamUrl('/members')),
@@ -1692,5 +1830,81 @@ export async function viewTeam(el) {
     await api.del(`/api/invites/${b.dataset.delInvite}`);
     viewTeam(el);
   });
+}
+
+// Team & access without a team — the one place for team onboarding: accept a
+// pending invite, redeem an invite code, or create a new organization. The
+// rest of the app works fine without any of it.
+async function viewTeamOnboarding(el) {
+  el.innerHTML = spinner();
+  let invites = [];
+  try { invites = await api.get('/api/me/invites'); } catch { /* optional */ }
+
+  el.innerHTML = `
+    <div class="page-head">
+      <div><h1>Team & access</h1><div class="sub">You're not on a team — join one or create your own whenever you're ready.</div></div>
+    </div>
+    <div id="gs-err"></div>
+    <div class="panel" style="margin-bottom:14px">
+      <h2>Your invites${invites.length ? ` (${invites.length})` : ''}</h2>
+      <div class="rowlist">
+        ${invites.length ? invites.map(i => `
+          <div class="row-item">
+            <span class="grow small"><b>${esc(i.team_name || i.org_name)}</b> · ${esc(roleLabel(i.role))}
+              <div class="muted">invited by ${esc(i.invited_by || 'a team owner')}</div></span>
+            <button class="btn primary small" data-acc="${i.id}">Accept</button>
+            <button class="btn ghost small" data-dec="${i.id}">Decline</button>
+          </div>`).join('')
+        : '<div class="small muted">No pending invites. Ask a team owner to invite this email, or use an invite code below.</div>'}
+      </div>
+      <form id="onb-code" class="row-item" style="margin-top:12px">
+        <input name="code" placeholder="Have an invite code? Paste it here" class="grow" autocomplete="off">
+        <button class="btn small" type="submit">Join with code</button>
+      </form>
+    </div>
+    <div class="panel">
+      <h2>Create a new organization</h2>
+      <p class="small muted" style="margin-bottom:10px">You become the owner and can invite teammates afterwards.</p>
+      <form id="onb-org">
+        <div class="form-2col">
+          <div class="field"><label>Organization name</label><input name="orgName" required placeholder="e.g. Northlight Esports"></div>
+          <div class="field"><label>Team name</label><input name="teamName" placeholder="Main Team"></div>
+        </div>
+        <button class="btn primary small" type="submit">Create organization</button>
+      </form>
+    </div>`;
+
+  const err = (m) => { el.querySelector('#gs-err').innerHTML = `<div class="auth-err">${esc(m)}</div>`; };
+  const enter = (teamId) => {
+    if (teamId) localStorage.setItem('mr.teamId', String(teamId));
+    localStorage.removeItem('mr.route');
+    location.hash = '#/';
+    location.reload();
+  };
+
+  el.querySelectorAll('[data-acc]').forEach(b => b.onclick = async () => {
+    try { enter((await api.post(`/api/invites/${b.dataset.acc}/accept`)).team_id); }
+    catch (e) { err(e.message); }
+  });
+  el.querySelectorAll('[data-dec]').forEach(b => b.onclick = async () => {
+    try { await api.post(`/api/invites/${b.dataset.dec}/decline`); viewTeamOnboarding(el); }
+    catch (e) { err(e.message); }
+  });
+  el.querySelector('#onb-code').onsubmit = async (e) => {
+    e.preventDefault();
+    const code = new FormData(e.target).get('code')?.trim();
+    if (!code) return err('Paste an invite code first');
+    try { enter((await api.post('/api/invites/redeem', { code })).team_id); }
+    catch (e2) { err(e2.message); }
+  };
+  el.querySelector('#onb-org').onsubmit = async (e) => {
+    e.preventDefault();
+    const f = new FormData(e.target);
+    try {
+      enter((await api.post('/api/orgs', {
+        name: f.get('orgName'), teamName: f.get('teamName')?.trim() || undefined,
+      })).team_id);
+    } catch (e2) { err(e2.message); }
+  };
 }
 

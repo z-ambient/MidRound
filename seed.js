@@ -139,16 +139,25 @@ async function seedIfEmpty() {
     'Ecos are 5-man stacks on one site with full saves — never split saves.', 'normal', users.analyst, t);
 
   // ---- Strategies ----
-  const S = (o) => run(`INSERT INTO strategies
-    (team_id, name, map, side, category, buy_type, site, map_area, tags, difficulty, spawn_dependency, required_utility,
-     objective, summary, steps, roles, timings, midround, reactions, backup, warnings, attachments, status, created_by, created_at, updated_at)
-    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) RETURNING id`,
-    teamId, o.name, o.map, o.side, o.category, o.buy || null, o.site || null, o.area || null,
-    J(o.tags || []), o.difficulty || 'standard', o.spawn || null, o.util || null,
-    o.objective || null, o.summary || null, J(o.steps || []), J(o.roles || []),
-    J(o.timings || []), J(o.midround || []), J(o.reactions || []), o.backup || null,
-    J(o.warnings || []), J(o.attachments || []), o.status || 'active', o.by || users.coach, t, t
-  ).then((r) => r.id);
+  // Personal strategies (owned by their creator) designated into the team's
+  // strategy bank via team_strategies — the same shape "Add to Team Strats"
+  // produces in the app.
+  const S = async (o) => {
+    const by = o.by || users.coach;
+    const id = (await run(`INSERT INTO strategies
+      (name, map, side, category, buy_type, site, map_area, tags, difficulty, spawn_dependency, required_utility,
+       objective, summary, steps, roles, timings, midround, reactions, backup, warnings, attachments, status, created_by, created_at, updated_at)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) RETURNING id`,
+      o.name, o.map, o.side, o.category, o.buy || null, o.site || null, o.area || null,
+      J(o.tags || []), o.difficulty || 'standard', o.spawn || null, o.util || null,
+      o.objective || null, o.summary || null, J(o.steps || []), J(o.roles || []),
+      J(o.timings || []), J(o.midround || []), J(o.reactions || []), o.backup || null,
+      J(o.warnings || []), J(o.attachments || []), o.status || 'active', by, t, t
+    )).id;
+    await run('INSERT INTO team_strategies (strategy_id, team_id, added_by, created_at) VALUES (?,?,?,?)',
+      id, teamId, by, t);
+    return id;
+  };
 
   const aSplit = await S({
     name: 'A Split', map: 'Mirage', side: 'T', category: 'Execute', buy: 'full', site: 'A', area: 'Mid / Palace / Ramp',
