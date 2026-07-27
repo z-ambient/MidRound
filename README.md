@@ -1,5 +1,7 @@
 # MidRound
 
+![tests](https://github.com/z-ambient/MidRound/actions/workflows/test.yml/badge.svg)
+
 **The tactical command center for Counter-Strike teams.**
 
 A private tactical workspace for competitive CS2 teams: strategy library, opponent
@@ -13,6 +15,8 @@ npm start        # http://localhost:4310
 ```
 
 Requires Node 24+ (uses the built-in `node:sqlite` module — no native deps).
+Set `DATABASE_URL=postgres://...` to run against Postgres instead of the local
+SQLite file (see `.env.example`). Run the security test suite with `npm test`.
 The database (`midround.db`) is created and seeded automatically on first run.
 
 ## Demo accounts
