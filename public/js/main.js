@@ -332,9 +332,21 @@ function viewLogin() {
       <button class="btn primary" type="submit" style="width:100%">Sign in</button>
     </form>
     <div class="auth-switch">New here? <a href="#/register">Create an account</a></div>
-    <div class="demo-box">
-      <b>Demo workspace</b> — sign in as the IGL: <code>morgan@northlight.gg</code> / <code>demo1234</code>
-    </div>`);
+    <div id="demo-hint"></div>`);
+
+  // Only advertise the demo sign-in when this install actually has it —
+  // production skips the demo seed, and the credentials come from the server
+  // so the hint can never drift from what was really seeded.
+  api.get('/api/demo').then(d => {
+    if (!d || !d.available) return;
+    const box = document.getElementById('demo-hint');
+    if (!box) return;
+    box.innerHTML = `
+      <div class="demo-box">
+        <b>Demo workspace</b> — sign in as ${esc(d.role || 'the demo user')}:
+        <code>${esc(d.email)}</code> / <code>${esc(d.password)}</code>
+      </div>`;
+  }).catch(() => { /* no demo hint is fine */ });
   document.getElementById('login-form').onsubmit = async (e) => {
     e.preventDefault();
     const f = new FormData(e.target);

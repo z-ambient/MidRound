@@ -288,6 +288,19 @@ app.post('/api/auth/logout', authLimiter, auth, ah(async (req, res) => {
   res.json({ ok: true });
 }));
 
+// Does this install actually have the demo workspace? The login page only
+// offers the demo sign-in when the answer is yes: production skips the demo
+// seed, and a hint for an account that does not exist just looks broken.
+// The credentials are the demo's published ones (the page prints them), and
+// are returned only when that seeded account really is present.
+app.get('/api/demo', meLimiter, ah(async (req, res) => {
+  // required lazily: db.js keeps production from ever loading the seeder, and
+  // this only reads its constants — it never seeds.
+  const { DEMO_LOGIN } = require('./seed');
+  const exists = await db.get('SELECT 1 AS x FROM users WHERE email = ?', DEMO_LOGIN.email);
+  res.json(exists ? { available: true, ...DEMO_LOGIN } : { available: false });
+}));
+
 app.get('/api/me', meLimiter, auth, ah(async (req, res) => {
   const orgs = await db.all(`
     SELECT o.id, o.name, m.role FROM organizations o

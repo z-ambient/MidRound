@@ -5,6 +5,11 @@ const { get, run, backfillTeamPlayers } = require('./db');
 const now = () => new Date().toISOString();
 const J = JSON.stringify;
 
+// The demo sign-in the login page offers. Single source of truth: the page
+// asks the server for this (GET /api/demo) instead of hard-coding it, so the
+// hint can never advertise a login the seed does not actually create.
+const DEMO_LOGIN = { email: 'morgan@northlight.gg', password: 'demo1234', role: 'the IGL' };
+
 async function seedIfEmpty() {
   // Never seed the demo org (8 accounts, shared well-known password) into a
   // production database — the first real user registers their own org
@@ -14,7 +19,7 @@ async function seedIfEmpty() {
   if (count > 0) return;
 
   const t = now();
-  const hash = bcrypt.hashSync('demo1234', 10);
+  const hash = bcrypt.hashSync(DEMO_LOGIN.password, 10);
 
   const users = {};
   for (const [key, email, name] of [
@@ -56,9 +61,8 @@ async function seedIfEmpty() {
   await tm(users.p4, 'Lurk', 1);
   await tm(users.p5, 'AWP', 1);
 
-  for (const m of ['Mirage', 'Inferno', 'Nuke', 'Ancient', 'Anubis', 'Dust2', 'Train']) {
-    await run('INSERT INTO maps (name, active) VALUES (?,1)', m);
-  }
+  // Maps are not demo data — db.init() seeds the active-duty pool for every
+  // install, including production, before this runs.
 
   // ---- Opponents ----
   const insOpp = (...args) => run(`INSERT INTO opponents
@@ -612,7 +616,7 @@ async function seedIfEmpty() {
   }
 
   await backfillTeamPlayers();
-  console.log('[midround] seeded demo data (org: Northlight Gaming, 8 users, password: demo1234)');
+  console.log(`[midround] seeded demo data (org: Northlight Gaming, 8 users, password: ${DEMO_LOGIN.password})`);
 }
 
-module.exports = { seedIfEmpty };
+module.exports = { seedIfEmpty, DEMO_LOGIN };

@@ -399,6 +399,19 @@ async function migrateStrategyOwnership() {
   }
 }
 
+// The CS2 active-duty pool is core app data, not demo content: without it the
+// strategy library has no map tiles and the editor's map picker is empty. It
+// used to be created by the demo seed, which never runs in production. Seeded
+// only when the table is empty, so a curated map list is never fought with.
+const DEFAULT_MAPS = ['Mirage', 'Inferno', 'Nuke', 'Ancient', 'Anubis', 'Dust2', 'Train'];
+
+async function ensureMaps() {
+  if ((await get('SELECT COUNT(*) AS c FROM maps')).c) return;
+  for (const name of DEFAULT_MAPS) {
+    await run('INSERT INTO maps (name, active) VALUES (?,1) ON CONFLICT DO NOTHING', name);
+  }
+}
+
 let initialized = null;
 
 // Create the schema and run migrations. Called once at startup (server.js
@@ -421,6 +434,7 @@ function init() {
       await addColumn('invites', 'email', 'email TEXT');
       await exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_matches_faceit ON matches(team_id, faceit_match_id) WHERE faceit_match_id IS NOT NULL;');
       await migrateStrategyOwnership();
+      await ensureMaps();
       await normalizeAccess();
       await backfillTeamPlayers();
     })();
