@@ -841,6 +841,8 @@ a.card:hover, .card.clickable:hover {
   box-shadow: 0 0 0 1px var(--accent), 0 4px 16px rgba(250, 251, 252, 0.15);
 }
 .map-tile.active span { color: var(--text); }
+/* the "+ Add map" tile is currently not rendered — kept so restoring the
+   button is a one-line change in manage.js */
 .map-tile.add { align-items: center; border-style: dashed; }
 .map-tile.add span { color: var(--text-3); }
 .map-tile.add:hover span { color: var(--text); }

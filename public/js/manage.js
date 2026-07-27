@@ -517,7 +517,6 @@ export async function viewStrategies(el) {
       <div class="map-tiles">
         ${mapTile(null, 'All maps', !(q.map), `data-f="map" data-v=""`)}
         ${maps.map(m => mapTile(m.name, m.name, q.map === m.name, `data-f="map" data-v="${esc(m.name)}"`)).join('')}
-        ${can('strategies') ? `<button class="map-tile add" id="add-map" title="Add a map"><span>+ Add map</span></button>` : ''}
       </div>
       <div class="filter-chips">
         ${chip('side', '', 'Both sides')}
@@ -576,22 +575,6 @@ export async function viewStrategies(el) {
     else delete cur[b.dataset.f];
     applyFilters();
   });
-
-  const addMap = el.querySelector('#add-map');
-  if (addMap) addMap.onclick = async () => {
-    const name = await inputDialog({
-      title: 'Add map',
-      label: 'Map name',
-      placeholder: 'e.g. Overpass',
-      confirmText: 'Add map',
-    });
-    if (!name) return;
-    try {
-      await api.post('/api/maps', { name });
-      toast('Map added', 'ok');
-      viewStrategies(el);
-    } catch (e) { toast(e.message, 'err'); }
-  };
 }
 
 // ---------- strategy detail ----------
