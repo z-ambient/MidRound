@@ -353,11 +353,11 @@ function viewLogin() {
     <div class="auth-switch">New here? <a href="#/register">Create an account</a></div>
     <div id="demo-hint"></div>`);
 
-  // The hint is drawn immediately and only ever removed when the server says
-  // outright that this install has no demo account (production, which skips
-  // the demo seed). Waiting on the request to draw it meant any hiccup — a
-  // restart mid-load, a rate-limited response — silently swallowed it, and a
-  // vanished hint reads as "the demo was taken away".
+  // Always on screen. Every attempt to be clever about when to show this —
+  // waiting for the server, hiding it when the server could not be reached or
+  // reported no demo — ended with it missing when it was wanted. Nothing here
+  // removes it. /api/demo is still consulted, but only ever to correct the
+  // values it displays.
   const demoBox = (d) => `
     <div class="demo-box">
       <b>Demo workspace</b> — sign in as ${esc(d.role || 'the demo user')}:
@@ -365,11 +365,9 @@ function viewLogin() {
     </div>`;
   const hint = document.getElementById('demo-hint');
   hint.innerHTML = demoBox(DEMO_LOGIN);
-  api.get('/api/demo').then(d => {
-    if (!d) return;                                   // unreadable — keep what we drew
-    if (d.available === false) { hint.innerHTML = ''; return; }
-    if (d.available) hint.innerHTML = demoBox(d);     // server is the source of truth
-  }).catch(() => { /* leave the hint alone */ });
+  api.get('/api/demo')
+    .then(d => { if (d && d.available) hint.innerHTML = demoBox(d); })
+    .catch(() => { /* keep what is already on screen */ });
   document.getElementById('login-form').onsubmit = async (e) => {
     e.preventDefault();
     const f = new FormData(e.target);

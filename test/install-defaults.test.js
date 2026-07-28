@@ -66,9 +66,13 @@ test('reading the demo hint repeatedly does not exhaust a budget', async () => {
   assert.ok(codes.every((c) => c === 200), 'every read should succeed');
 });
 
-test('the demo hint is withheld when the demo account is absent', async () => {
+// Server-side only. The login page deliberately shows its demo hint no matter
+// what this returns — hiding it on the server's say-so kept making it vanish
+// when it was wanted. This still matters so the endpoint never hands out
+// credentials for an account that does not exist.
+test('the endpoint reports no demo, and no credentials, when the account is absent', async () => {
   await db.run('DELETE FROM users WHERE email = ?', DEMO_LOGIN.email);
   const demo = await (await fetch(base + '/api/demo')).json();
-  assert.equal(demo.available, false, 'a production install must not advertise the demo');
+  assert.equal(demo.available, false);
   assert.equal(demo.password, undefined, 'no credentials when there is no demo account');
 });
