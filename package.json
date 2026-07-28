@@ -11,7 +11,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "test": "node --test"
+    "test": "node --test",
+    "reset-demo": "node scripts/reset-demo.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

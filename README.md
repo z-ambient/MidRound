@@ -32,9 +32,18 @@ All seeded accounts use password `demo1234`:
 | `riley@` / `alex@` / `sam@` / `jordan@northlight.gg` | Players |
 
 Seeded content: the **Northlight Prime** team, two scouted opponents (Ironclad
-Syndicate, Blue Harbor Esports) with player profiles and tendencies, ~15 strategies
-(Mirage + Inferno, including the full **A Split** execute), and two upcoming BO3
-matches with pinned calls and timeout notes.
+Syndicate, Blue Harbor Esports) with player profiles and tendencies, 35 strategies
+across Mirage, Inferno and Cache (including the full **A Split** execute), and two
+upcoming BO3 matches with pinned calls and timeout notes.
+
+The demo workspace is deliberately public — its sign-in is printed on the login
+page — so it is seeded on **every** install, production included, and the login
+page always offers it. Two consequences worth knowing before you deploy:
+
+- All eight accounts share one published password, `casey@` owns the org, and
+  everyone lands in the same workspace, so any visitor can change the demo's
+  data. `npm run reset-demo` puts it back (`-- --dry` to preview).
+- Set `SEED_DEMO=0` to leave the demo out of an install entirely.
 
 ## Structure
 
@@ -69,4 +78,8 @@ Analyst edits scouting; IGL edits strategies and matches and runs Match Mode;
 Player and Read Only are view-only. New members join via one-time invite codes
 (Team & access page) — no shared passwords.
 
-To reset the demo data, stop the server and delete `midround.db*`.
+To restore the demo workspace after visitors have changed it, run
+`npm run reset-demo` (add `-- --dry` to see what it would remove first). It
+replaces only the demo org and its eight accounts — every other account, org and
+strategy is left alone. Deleting `midround.db*` still works, but takes real data
+with it.

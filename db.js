@@ -464,10 +464,10 @@ async function cleanupSessions() {
 }
 
 // Demo data lives in seed.js; required lazily so seed.js can require this
-// module's helpers without a circular-import problem. The production check
-// lives HERE, before the require, so production never even loads seed.js.
+// module's helpers without a circular-import problem. Whether to seed is
+// decided in seed.js — the demo workspace is public and ships everywhere now,
+// so there is no environment check to make here.
 function seedIfEmpty() {
-  if (process.env.NODE_ENV === 'production' && process.env.SEED_DEMO !== '1') return;
   return require('./seed').seedIfEmpty();
 }
 

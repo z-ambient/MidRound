@@ -10,35 +10,49 @@ const J = JSON.stringify;
 // hint can never advertise a login the seed does not actually create.
 const DEMO_LOGIN = { email: 'morgan@northlight.gg', password: 'demo1234', role: 'the IGL' };
 
+// Identifies the demo workspace: what seeding checks for, and what
+// scripts/reset-demo.js removes. Nothing outside this org is demo data.
+const DEMO_ORG = 'Northlight Gaming';
+const DEMO_USERS = [
+  ['owner',   'casey@northlight.gg',  'Casey Winter'],
+  ['coach',   'dana@northlight.gg',   'Dana "Compass" Reyes'],
+  ['analyst', 'priya@northlight.gg',  'Priya "Ledger" Anand'],
+  ['igl',     'morgan@northlight.gg', 'Morgan "Vector" Hale'],
+  ['p2',      'riley@northlight.gg',  'Riley "Sable" Fox'],
+  ['p3',      'alex@northlight.gg',   'Alex "Quill" Novak'],
+  ['p4',      'sam@northlight.gg',    'Sam "Drift" Aoki'],
+  ['p5',      'jordan@northlight.gg', 'Jordan "Pillar" Reeve'],
+];
+
 async function seedIfEmpty() {
-  // Never seed the demo org (8 accounts, shared well-known password) into a
-  // production database — the first real user registers their own org
-  // instead. Set SEED_DEMO=1 to override for a staging environment.
-  if (process.env.NODE_ENV === 'production' && process.env.SEED_DEMO !== '1') return;
-  const count = (await get('SELECT COUNT(*) AS c FROM users')).c;
-  if (count > 0) return;
+  // The demo workspace is public on purpose: its sign-in is printed on the
+  // login page for anyone to use. So it is seeded on every install, production
+  // included, and the check is "does the demo org already exist" rather than
+  // "is the database empty" — otherwise it could never appear alongside real
+  // accounts. Set SEED_DEMO=0 to leave it out.
+  //
+  // Understand what that means before deploying: these eight accounts share a
+  // published password, one of them owns the org, and everyone signs into the
+  // same workspace, so any visitor can change the demo's data. `npm run
+  // reset-demo` puts it back.
+  if (process.env.SEED_DEMO === '0') return;
+  if (await get('SELECT id FROM organizations WHERE name = ?', DEMO_ORG)) return;
 
   const t = now();
   const hash = bcrypt.hashSync(DEMO_LOGIN.password, 10);
 
   const users = {};
-  for (const [key, email, name] of [
-    ['owner',   'casey@northlight.gg',  'Casey Winter'],
-    ['coach',   'dana@northlight.gg',   'Dana "Compass" Reyes'],
-    ['analyst', 'priya@northlight.gg',  'Priya "Ledger" Anand'],
-    ['igl',     'morgan@northlight.gg', 'Morgan "Vector" Hale'],
-    ['p2',      'riley@northlight.gg',  'Riley "Sable" Fox'],
-    ['p3',      'alex@northlight.gg',   'Alex "Quill" Novak'],
-    ['p4',      'sam@northlight.gg',    'Sam "Drift" Aoki'],
-    ['p5',      'jordan@northlight.gg', 'Jordan "Pillar" Reeve'],
-  ]) {
-    users[key] = (await run(
+  for (const [key, email, name] of DEMO_USERS) {
+    // reuse rather than insert: the email column is unique, and a half-seeded
+    // install must not wedge every future boot on a constraint error
+    const existing = await get('SELECT id FROM users WHERE email = ?', email);
+    users[key] = existing ? existing.id : (await run(
       'INSERT INTO users (email, name, password_hash, created_at) VALUES (?,?,?,?) RETURNING id',
       email, name, hash, t)).id;
   }
 
   const orgId = (await run('INSERT INTO organizations (name, created_at) VALUES (?,?) RETURNING id',
-    'Northlight Gaming', t)).id;
+    DEMO_ORG, t)).id;
   const teamId = (await run('INSERT INTO teams (org_id, name) VALUES (?,?) RETURNING id',
     orgId, 'Northlight Prime')).id;
 
@@ -631,4 +645,7 @@ async function seedIfEmpty() {
   console.log(`[midround] seeded demo data (org: Northlight Gaming, 8 users, password: ${DEMO_LOGIN.password})`);
 }
 
-module.exports = { seedIfEmpty, DEMO_LOGIN };
+module.exports = {
+  seedIfEmpty, DEMO_LOGIN, DEMO_ORG,
+  DEMO_EMAILS: DEMO_USERS.map(([, email]) => email),
+};
