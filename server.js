@@ -43,8 +43,12 @@ app.use((err, req, res, next) => {
 // - writes are bounded so one client can't hammer the database
 // - FACEIT routes spend the team's server-side API key (and its own quota),
 //   so they get the tightest shared budget
+// - the demo hint is read on every visit to the login page and must not
+//   compete with /api/me for the same budget: exhausting it used to make the
+//   hint disappear, which looks like the demo account was removed
 const authLimiter = rateLimit({ max: 10 });
 const meLimiter = rateLimit({ max: 30 });
+const demoLimiter = rateLimit({ max: 120 });
 const writeLimiter = rateLimit({ max: 120 });
 const faceitLimiter = rateLimit({ max: 10 });
 
@@ -293,7 +297,7 @@ app.post('/api/auth/logout', authLimiter, auth, ah(async (req, res) => {
 // seed, and a hint for an account that does not exist just looks broken.
 // The credentials are the demo's published ones (the page prints them), and
 // are returned only when that seeded account really is present.
-app.get('/api/demo', meLimiter, ah(async (req, res) => {
+app.get('/api/demo', demoLimiter, ah(async (req, res) => {
   // required lazily: db.js keeps production from ever loading the seeder, and
   // this only reads its constants — it never seeds.
   const { DEMO_LOGIN } = require('./seed');

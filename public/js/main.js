@@ -18,6 +18,11 @@ export const CAN = {
 };
 export const can = (domain) => CAN[domain].includes(state.role);
 
+// What the login page shows before /api/demo answers. The server owns the real
+// values and replaces these; this only exists so the hint is never blank while
+// the request is in flight, or if it never arrives.
+const DEMO_LOGIN = { email: 'morgan@northlight.gg', password: 'demo1234', role: 'the IGL' };
+
 const app = document.getElementById('app');
 
 // ---------- routing ----------
@@ -348,19 +353,23 @@ function viewLogin() {
     <div class="auth-switch">New here? <a href="#/register">Create an account</a></div>
     <div id="demo-hint"></div>`);
 
-  // Only advertise the demo sign-in when this install actually has it —
-  // production skips the demo seed, and the credentials come from the server
-  // so the hint can never drift from what was really seeded.
+  // The hint is drawn immediately and only ever removed when the server says
+  // outright that this install has no demo account (production, which skips
+  // the demo seed). Waiting on the request to draw it meant any hiccup — a
+  // restart mid-load, a rate-limited response — silently swallowed it, and a
+  // vanished hint reads as "the demo was taken away".
+  const demoBox = (d) => `
+    <div class="demo-box">
+      <b>Demo workspace</b> — sign in as ${esc(d.role || 'the demo user')}:
+      <code>${esc(d.email)}</code> / <code>${esc(d.password)}</code>
+    </div>`;
+  const hint = document.getElementById('demo-hint');
+  hint.innerHTML = demoBox(DEMO_LOGIN);
   api.get('/api/demo').then(d => {
-    if (!d || !d.available) return;
-    const box = document.getElementById('demo-hint');
-    if (!box) return;
-    box.innerHTML = `
-      <div class="demo-box">
-        <b>Demo workspace</b> — sign in as ${esc(d.role || 'the demo user')}:
-        <code>${esc(d.email)}</code> / <code>${esc(d.password)}</code>
-      </div>`;
-  }).catch(() => { /* no demo hint is fine */ });
+    if (!d) return;                                   // unreadable — keep what we drew
+    if (d.available === false) { hint.innerHTML = ''; return; }
+    if (d.available) hint.innerHTML = demoBox(d);     // server is the source of truth
+  }).catch(() => { /* leave the hint alone */ });
   document.getElementById('login-form').onsubmit = async (e) => {
     e.preventDefault();
     const f = new FormData(e.target);

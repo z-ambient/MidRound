@@ -53,6 +53,19 @@ test('the advertised demo login actually signs in', async () => {
   assert.equal(demo.email, DEMO_LOGIN.email);
 });
 
+// Regression: /api/demo used to share /api/me's 30-per-minute budget, so an
+// ordinary run of page loads exhausted it, the endpoint started answering 429,
+// and the login page quietly dropped the demo hint — indistinguishable from
+// the demo account having been removed.
+test('reading the demo hint repeatedly does not exhaust a budget', async () => {
+  const codes = [];
+  for (let i = 0; i < 40; i++) {
+    codes.push((await fetch(base + '/api/demo')).status);
+  }
+  assert.ok(!codes.includes(429), `the demo hint must not rate-limit in normal use, got ${codes.filter((c) => c === 429).length} x 429`);
+  assert.ok(codes.every((c) => c === 200), 'every read should succeed');
+});
+
 test('the demo hint is withheld when the demo account is absent', async () => {
   await db.run('DELETE FROM users WHERE email = ?', DEMO_LOGIN.email);
   const demo = await (await fetch(base + '/api/demo')).json();
