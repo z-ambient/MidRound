@@ -336,7 +336,7 @@ function authFrame(inner) {
   app.innerHTML = `
     <div class="auth-wrap"><div class="auth-card">
       <div class="auth-logo">${ICONS.logo}<span class="wm-name">MidRound</span></div>
-      <div class="auth-tagline">The tactical command center for Counter-Strike teams</div>
+      <div class="auth-tagline">Be Prepared. Be Better.</div>
       <div class="panel">${inner}</div>
       <div id="auth-extra"></div>
     </div></div>`;
