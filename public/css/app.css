@@ -1468,7 +1468,10 @@ a.match-row.next:hover { background: var(--bg-hover); }
     repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.018) 0 1px, transparent 1px 32px),
     var(--bg-panel);
 }
-.auth-logo { display: flex; align-items: center; gap: 10px; justify-content: center; margin-bottom: 6px; }
+/* Nudged left so the wordmark reads as centred: the icon sits inside the same
+   centred row, which pushes "MidRound" right of the page's true centre. Shifts
+   the whole lockup, since moving the text alone would run it into the icon. */
+.auth-logo { display: flex; align-items: center; gap: 10px; justify-content: center; margin-bottom: 6px; transform: translateX(-20px); }
 .auth-logo .wm-name { font-size: 1.35rem; font-weight: 700; }
 .auth-tagline { text-align: center; color: var(--text-3); font-size: 0.86rem; margin-bottom: 22px; }
 .auth-err { background: var(--danger-bg); border: 1px solid rgba(224,108,95,.4); color: var(--danger); border-radius: var(--radius-sm); padding: 9px 12px; font-size: 0.87rem; margin-bottom: 12px; }
