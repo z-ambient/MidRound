@@ -561,6 +561,12 @@ a.card:hover, .card.clickable:hover {
 }
 .mm-mapdd-item:hover { background: var(--bg-hover); color: var(--text); }
 .mm-mapdd-item.active { background: var(--accent-bg); color: var(--text); }
+/* call count for the side you're on, so an empty map is obvious before you pick it */
+.mm-mapdd-count {
+  margin-left: auto; padding-left: 18px;
+  color: var(--text-3); font-size: 0.85rem; font-variant-numeric: tabular-nums;
+}
+.mm-mapdd-item.no-calls { color: var(--text-3); }
 /* strategy-source switch (Solo | Team), same pill language as the map picker */
 .mm-left { display: flex; align-items: center; gap: 10px; }
 .mm-modes {

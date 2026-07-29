@@ -65,10 +65,21 @@ export async function viewMatchMode(root, idStr) {
   const stKey = `mr.mm.${mode === 'match' ? matchId : mode}`;
   let saved = {};
   try { saved = JSON.parse(localStorage.getItem(stKey)) || {}; } catch { /* fresh */ }
-  const defaultMap = (match && match.expected_maps && match.expected_maps[0]) || mapNames[0];
+  // how many active calls this source holds for a map (optionally one side) —
+  // drives both where we open and the counts in the map picker
+  const callCount = (map, side) =>
+    strategies.filter(s => s.status === 'active' && s.map === map && (!side || s.side === side)).length;
+
+  const startSide = saved.side === 'T' ? 'T' : saved.side === 'CT' ? 'CT' : (match && match.starting_side === 'T' ? 'T' : 'CT');
+  // Where to open. An explicit signal wins: the map you last had open here, or
+  // the match's first expected map. With neither, open on a map this source
+  // actually covers — always starting on the first map in the list showed an
+  // empty board whenever the team's bank didn't happen to cover that map, which
+  // reads as "the team strats aren't loading".
+  const explicitMap = [saved.map, ...(match ? match.expected_maps || [] : [])].find(m => mapNames.includes(m));
   const ui = {
-    map: mapNames.includes(saved.map) ? saved.map : (mapNames.includes(defaultMap) ? defaultMap : mapNames[0]),
-    side: saved.side === 'T' ? 'T' : saved.side === 'CT' ? 'CT' : (match && match.starting_side === 'T' ? 'T' : 'CT'),
+    map: explicitMap || mapNames.find(m => callCount(m, startSide)) || mapNames.find(m => callCount(m)) || mapNames[0],
+    side: startSide,
     strat: saved.strat || null,
   };
   if (mode === 'match') localStorage.setItem('mr.mm.lastMatch', String(matchId));
@@ -90,7 +101,9 @@ export async function viewMatchMode(root, idStr) {
   function stratList() {
     const pool = strategies.filter(s => s.status === 'active' && s.map === ui.map && s.side === ui.side);
     if (!pool.length) {
-      return emptyState(`No ${ui.side} strategies for ${ui.map}`, 'Add them in the strategy library.');
+      return emptyState(`No ${ui.side} strategies for ${ui.map}`, solo
+        ? 'Add them in the strategy library.'
+        : 'Nothing in Team Strats for this map — add them from the strategy library with "Add to Team Strats".');
     }
     // pinned first within each group, then by name
     const order = (a, b) => (pinnedIds.has(b.id) - pinnedIds.has(a.id)) || a.name.localeCompare(b.name);
@@ -166,10 +179,13 @@ export async function viewMatchMode(root, idStr) {
                 <svg class="chev" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2.5 4.5L6 8l3.5-3.5"/></svg>
               </button>
               <div class="mm-mapdd-menu" role="listbox" aria-label="Map" hidden>
-                ${mapNames.map(m => `
-                  <button class="mm-mapdd-item ${m === ui.map ? 'active' : ''}" role="option" aria-selected="${m === ui.map}" data-map="${esc(m)}">
-                    ${mapDot(m)}${esc(m)}
-                  </button>`).join('')}
+                ${mapNames.map(m => {
+                  const n = callCount(m, ui.side);
+                  return `
+                  <button class="mm-mapdd-item ${m === ui.map ? 'active' : ''} ${n ? '' : 'no-calls'}" role="option" aria-selected="${m === ui.map}" data-map="${esc(m)}">
+                    ${mapDot(m)}${esc(m)}<span class="mm-mapdd-count" title="${n} ${esc(ui.side)} call${n === 1 ? '' : 's'}">${n}</span>
+                  </button>`;
+                }).join('')}
               </div>
             </div>
             ${state.teamId ? `
