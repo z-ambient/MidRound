@@ -16,7 +16,7 @@
     "install-starters": "node scripts/install-starters.js"
   },
   "dependencies": {
-    "bcryptjs": "^2.4.3",
+    "bcryptjs": "^3.0.3",
     "express": "^4.21.2",
     "pg": "^8.22.0"
   }
