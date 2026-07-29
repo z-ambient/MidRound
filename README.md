@@ -50,6 +50,12 @@ page always offers it. Two consequences worth knowing before you deploy:
 - `server.js` — Express API: cookie sessions (hashed tokens), role-based permissions,
   CRUD for strategies / opponents / matches / pins / invites, global search.
 - `db.js` — SQLite schema + demo seed.
+- `starter-strategies.js` + `seed-data/starter-strategies.json` — the personal
+  library every new account is created with: a T and a CT default per map, plain
+  templates to edit or delete. Personal, never added to a team's bank.
+  `npm run install-starters` backfills accounts that predate them
+  (`-- --dry` to preview, `-- --force` to include accounts that already have
+  strategies of their own).
 - `public/` — dependency-free SPA (ES modules, hash routing, dark theme).
   - `js/main.js` — router, shell, auth
   - `js/manage.js` — Management Mode (dashboard, strategy library + editor, scouting, matches, team)

@@ -12,7 +12,8 @@
     "start": "node server.js",
     "dev": "node server.js",
     "test": "node --test",
-    "reset-demo": "node scripts/reset-demo.js"
+    "reset-demo": "node scripts/reset-demo.js",
+    "install-starters": "node scripts/install-starters.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

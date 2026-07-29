@@ -1,0 +1,610 @@
+[
+  {
+    "map": "Ancient",
+    "name": "T Default — Mid and Donut Control",
+    "side": "T",
+    "category": "Default",
+    "buy_type": "full",
+    "site": null,
+    "map_area": "Mid / Donut / B Ramp",
+    "tags": ["default", "map-control", "starter"],
+    "difficulty": "basic",
+    "objective": "Take mid and donut for information, keep everyone alive, then commit to whichever site the CTs have thinned out.",
+    "summary": "CALL: two mid behind the smoke, one donut, two on B ramp. Default until 1:10, then hit the side that gave up contact.",
+    "required_utility": "1 mid smoke, 1 molotov for donut, 2 flashes for the first A main peek.",
+    "steps": [
+      "Two players take mid behind an early smoke and hold the boxes for information — no hero peeks.",
+      "One player walks donut quietly and listens for rotations; they are the lurk when the call comes.",
+      "Two hold B ramp, trade every contact, and keep the CTs honest on that side.",
+      "At 1:10 the IGL calls the site off what mid and B ramp found, and the mid pair joins the hit."
+    ],
+    "timings": [
+      "1:50 — mid smoke, spread mid / donut / B ramp.",
+      "1:10 — commit call; everyone regroups on the chosen side.",
+      "0:40 — latest plant, then hold the post-plant crossfire."
+    ],
+    "midround": [
+      "Mid opens cheap: push the boxes and take the A ramp entrance before the rotation lands.",
+      "Two contacts on B ramp: keep them busy there and swing everything through mid to A."
+    ],
+    "reactions": [
+      "Double AWP on mid — stop peeking, molotov the angle and play the B ramp lane instead.",
+      "The donut player dies for free: assume A is stacked and default to B."
+    ],
+    "warnings": [
+      "Nobody commits while the mid pair is trading blind. Map control first, execute second."
+    ],
+    "backup": "If the default has given you nothing by 0:55, run a five-man B ramp hit and play the post-plant from cave.",
+    "roles": []
+  },
+  {
+    "map": "Ancient",
+    "name": "CT Default — 2-1-2 with Mid Priority",
+    "side": "CT",
+    "category": "Default",
+    "buy_type": "full",
+    "site": null,
+    "map_area": "Mid / A Ramp / B Ramp",
+    "tags": ["default", "setup", "starter"],
+    "difficulty": "basic",
+    "objective": "Hold mid so either site can be supported, and give up nothing for free in the first thirty seconds.",
+    "summary": "CALL: 2 A, 1 mid, 2 B. Mid has priority — the first sign of a mid take and the nearest site sends one across.",
+    "required_utility": "1 mid smoke or molotov for the early contest, 1 A ramp molotov, 1 B ramp molotov.",
+    "steps": [
+      "Mid player takes the early duel only with a teammate watching; otherwise they play for information and fall back.",
+      "A pair splits between the ramp entrance and site, one always in a position that can trade the other.",
+      "B pair holds ramp from a crossfire — one close, one deep — and burns the ramp on any five-man noise.",
+      "Every retake regroups first: no one enters the site alone with utility still in the bag."
+    ],
+    "timings": [
+      "1:50 — set the crossfires, no early aggression without a trade partner.",
+      "1:20 — mid player reports what is happening and the stack shifts one player if needed.",
+      "0:40 — start the retake, together, on utility."
+    ],
+    "midround": [
+      "Mid is lost: pull the mid player back to the site he can reach first and play a 3-2 stack.",
+      "Both entrances quiet at 1:00 — expect a late five-man; collapse only on confirmed contact."
+    ],
+    "reactions": [
+      "Fast B ramp: burn the ramp, delay from the anchor's crossfire and let the rotation arrive before trading.",
+      "A split through mid: give the site, keep the players, retake from two directions."
+    ],
+    "warnings": [
+      "Do not push mid without a smoke and a trade. A dead mid player is a free site for the T side."
+    ],
+    "backup": "If the mid player keeps dying, drop to a 3-2 with no mid presence and play a pure retake round.",
+    "roles": []
+  },
+  {
+    "map": "Anubis",
+    "name": "T Default — Mid and Water Control",
+    "side": "T",
+    "category": "Default",
+    "buy_type": "full",
+    "site": null,
+    "map_area": "Mid / Water / A Main",
+    "tags": ["default", "map-control", "starter"],
+    "difficulty": "basic",
+    "objective": "Own mid and the water crossing so both sites stay open, then commit late with everyone alive.",
+    "summary": "CALL: two mid, one water, two A main. Trade every duel, decide the site at 1:05.",
+    "required_utility": "2 mid smokes, 1 molotov for the connector, 2 flashes for the A main entry.",
+    "steps": [
+      "Smoke the CT sightline into mid and take the mid boxes with two players.",
+      "One player crosses water for information and to threaten the B rotation.",
+      "Two hold A main, take space without peeking the connector alone, and wait for the call.",
+      "Commit at 1:05 with the mid pair joining whichever side is thin."
+    ],
+    "timings": [
+      "1:50 — mid smoke, spread mid / water / A main.",
+      "1:05 — commit call.",
+      "0:40 — latest plant."
+    ],
+    "midround": [
+      "Mid is free: take the connector and threaten both sites from the middle of the map.",
+      "Water contact wins: swing everything B before the CTs re-set."
+    ],
+    "reactions": [
+      "AWP holding mid: re-smoke and cross under it rather than trading rifles for an AWP.",
+      "A main gets molotoved early — that is usually a two-player A hold; take mid harder."
+    ],
+    "warnings": [
+      "Water is loud. Cross once, with a purpose, and never as a lone lurk with no support."
+    ],
+    "backup": "No control by 0:55: five-man A main with everything you have left and plant for the post-plant crossfire.",
+    "roles": []
+  },
+  {
+    "map": "Anubis",
+    "name": "CT Default — 2-1-2 with Mid Support",
+    "side": "CT",
+    "category": "Default",
+    "buy_type": "full",
+    "site": null,
+    "map_area": "Mid / Connector / B Main",
+    "tags": ["default", "setup", "starter"],
+    "difficulty": "basic",
+    "objective": "Deny mid cheaply, keep both sites supportable, and win rounds on rotations rather than opening duels.",
+    "summary": "CALL: 2 A, 1 mid, 2 B. Mid plays for information; the connector is the rotation, keep it clear.",
+    "required_utility": "1 mid molotov, 1 smoke for the water crossing, 1 A main molotov.",
+    "steps": [
+      "Mid player holds from a position they can leave alive and calls the first push.",
+      "A pair sets a crossfire covering main and connector, one always trading the other.",
+      "B pair holds the main entrance and the far angle, with the molotov saved for a rush.",
+      "Rotate through connector as a pair, never one at a time into an open site."
+    ],
+    "timings": [
+      "1:50 — crossfires set, mid checks and falls back.",
+      "1:15 — the stack shifts one player toward the reported pressure.",
+      "0:40 — retake together on utility."
+    ],
+    "midround": [
+      "Water is taken: assume B and pre-rotate one from A through connector.",
+      "Nothing found by 1:00: expect a late hit, hold the angles and stop peeking."
+    ],
+    "reactions": [
+      "Five-man A main: delay with the molotov, fall back off site and retake with the rotation.",
+      "Mid smoke goes up early — that is a split; hold the site, not the smoke."
+    ],
+    "warnings": [
+      "Never contest mid alone once the smokes are out. Information is worth more than the duel."
+    ],
+    "backup": "If mid keeps falling, drop to a 3-2 stack, give mid away and play pure retakes with saved utility.",
+    "roles": []
+  },
+  {
+    "map": "Cache",
+    "name": "T Default — Mid Control into A",
+    "side": "T",
+    "category": "Default",
+    "buy_type": "full",
+    "site": null,
+    "map_area": "Garage / Mid / A Main",
+    "tags": ["default", "map-control", "starter"],
+    "difficulty": "basic",
+    "objective": "Win the mid floor cheaply and turn it into an A opening, with B main as the fallback the CTs have to respect.",
+    "summary": "CALL: two through garage to the mid floor, one B main, two A main. On mid control, execute A; otherwise hit B.",
+    "required_utility": "1 smoke for the CT connector, 1 molotov for the mid boxes, 2 flashes for the A main exit.",
+    "steps": [
+      "Smoke the connector from inside garage, then take the mid floor with two players.",
+      "One player holds B main to keep the B anchor at home — no solo entry.",
+      "Two hold A main and stay unseen until the mid call comes.",
+      "On mid control, the A main pair enters on flashes while mid takes the site from behind."
+    ],
+    "timings": [
+      "1:50 — connector smoke, spread garage / A main / B main.",
+      "1:35 — mid floor taken and called.",
+      "1:10 — execute on the called side."
+    ],
+    "midround": [
+      "Mid is empty: take highway and open A from the back before the rotation.",
+      "B main contact wins the duel: everyone swings B, mid holds the rotation."
+    ],
+    "reactions": [
+      "AWP in checkers: molotov it and cross the mid floor under the smoke instead of peeking it.",
+      "The A main pair gets molotoved: that is an aggressive anchor — punish with the mid entry."
+    ],
+    "warnings": [
+      "Do not walk into the mid floor before the connector smoke lands. It is the whole reason the take works."
+    ],
+    "backup": "No mid by 0:55: five-man B main with the molotov on heaven and plant for the vents crossfire.",
+    "roles": []
+  },
+  {
+    "map": "Cache",
+    "name": "CT Default — 2-1-2 Mid Priority",
+    "side": "CT",
+    "category": "Default",
+    "buy_type": "full",
+    "site": null,
+    "map_area": "Mid / A Site / B Site",
+    "tags": ["default", "setup", "starter"],
+    "difficulty": "basic",
+    "objective": "Keep the mid floor contested so neither site can be taken for free, and retake as a group when it goes.",
+    "summary": "CALL: 2 A, 1 mid, 2 B. Mid holds the boxes for information and falls back the moment it is smoked.",
+    "required_utility": "1 molotov for the mid floor, 1 A main molotov, 1 smoke for the B retake.",
+    "steps": [
+      "Mid player holds the boxes with a teammate ready to trade from A, and leaves alive when the smokes come out.",
+      "A pair covers main and the back of site in a crossfire — never both looking at the same angle.",
+      "B pair holds main and heaven, burning main on the first rush noise.",
+      "Retakes go together, with utility, from two directions."
+    ],
+    "timings": [
+      "1:50 — set up, mid checks the floor and reports.",
+      "1:20 — shift one player toward the reported pressure.",
+      "0:40 — grouped retake."
+    ],
+    "midround": [
+      "Mid falls: pull back to the sites and play a 3-2, giving up the floor rather than a player.",
+      "No contact by 1:00: expect a late execute — reset utility and hold."
+    ],
+    "reactions": [
+      "Fast B main: delay from heaven, fall off site and retake with the A rotation.",
+      "Highway pressure means an A split is coming — hold site, not the entrances."
+    ],
+    "warnings": [
+      "Do not hold the mid floor after it is smoked. Trading it for a player loses the round twice over."
+    ],
+    "backup": "If mid is lost every round, stack 3-2 and play a full retake game with saved utility.",
+    "roles": []
+  },
+  {
+    "map": "Dust2",
+    "name": "T Default — Long and Catwalk Pressure",
+    "side": "T",
+    "category": "Default",
+    "buy_type": "full",
+    "site": null,
+    "map_area": "A Long / Catwalk / Tunnels",
+    "tags": ["default", "map-control", "starter"],
+    "difficulty": "basic",
+    "objective": "Threaten long and catwalk at the same time so the CTs cannot commit, then take the site that gives first.",
+    "summary": "CALL: two long, one mid doors, two tunnels. Take space, trade everything, commit at 1:05.",
+    "required_utility": "1 smoke for the long corner, 1 smoke for mid doors, 1 molotov for the catwalk peek, 2 flashes.",
+    "steps": [
+      "Smoke the long corner and take long control with two players — no blind wide peeks.",
+      "One player takes mid doors for the catwalk threat and the B rotation read.",
+      "Two take upper tunnels and hold there for the call.",
+      "Commit at 1:05: A through long with the mid player cutting off the rotation, or B out of tunnels."
+    ],
+    "timings": [
+      "1:50 — long corner smoke, spread long / mid / tunnels.",
+      "1:05 — commit call.",
+      "0:40 — latest plant."
+    ],
+    "midround": [
+      "Long is free: take the pit and force the rotation, then decide.",
+      "Tunnels contact wins: hit B immediately while the CT is still one down."
+    ],
+    "reactions": [
+      "AWP holding long: re-smoke and go B — do not feed it.",
+      "Doors molotov on your mid player means an aggressive CT mid; take catwalk behind it."
+    ],
+    "warnings": [
+      "Do not take long with one player. Every angle there needs a trade behind it."
+    ],
+    "backup": "No space by 0:55: five-man B tunnels on the last flashes and play the post-plant from the back of site.",
+    "roles": []
+  },
+  {
+    "map": "Dust2",
+    "name": "CT Default — 2-1-2 with Mid Doors Priority",
+    "side": "CT",
+    "category": "Default",
+    "buy_type": "full",
+    "site": null,
+    "map_area": "Mid / A Site / B Site",
+    "tags": ["default", "setup", "starter"],
+    "difficulty": "basic",
+    "objective": "Hold mid so rotations stay fast, delay both sites with utility, and retake together.",
+    "summary": "CALL: 2 A, 1 mid, 2 B. Mid plays doors for information, never for a hero duel.",
+    "required_utility": "1 molotov for catwalk, 1 molotov for tunnels, 1 smoke for the long corner.",
+    "steps": [
+      "Mid player checks doors early with a trade from A, then plays passive for the catwalk read.",
+      "A pair splits long and site — the long player delays with utility instead of duelling.",
+      "B pair holds tunnels and the far angle, burning tunnels on the first rush noise.",
+      "Rotate through mid only when it is confirmed clear; otherwise take the long way as a pair."
+    ],
+    "timings": [
+      "1:50 — crossfires set, mid checks doors.",
+      "1:15 — one player shifts toward the reported pressure.",
+      "0:40 — grouped retake on utility."
+    ],
+    "midround": [
+      "Catwalk taken: pull mid back to A and play the site instead of the corridor.",
+      "Quiet at 1:00: expect a late five-man, hold angles and stop peeking."
+    ],
+    "reactions": [
+      "Tunnels rush: molotov, delay from the crossfire and retake with the mid rotation.",
+      "Long smoke without contact usually means a fake — do not commit both A players to it."
+    ],
+    "warnings": [
+      "Losing the mid player early costs you both rotations. Information beats the duel."
+    ],
+    "backup": "If mid keeps dying, drop to 3-2, give up mid and play retakes with all utility saved.",
+    "roles": []
+  },
+  {
+    "map": "Inferno",
+    "name": "T Default — Banana Control and Apartments",
+    "side": "T",
+    "category": "Default",
+    "buy_type": "full",
+    "site": null,
+    "map_area": "Banana / Apartments / Second Mid",
+    "tags": ["default", "map-control", "starter"],
+    "difficulty": "basic",
+    "objective": "Take banana with utility, hold it, and use the threat to open A through apartments and second mid.",
+    "summary": "CALL: three banana with the molotov, two apartments. Hold banana, decide the side at 1:05.",
+    "required_utility": "1 molotov and 1 smoke for banana, 1 smoke for the CT sightline into second mid, 2 flashes for the balcony drop.",
+    "steps": [
+      "Molotov the banana choke, take the top with three players and hold it — do not over-push into CT.",
+      "Two take apartments quietly and hold balcony for information.",
+      "If banana holds, one stays there and the rest swing A through second mid.",
+      "Commit at 1:05 with flashes for whichever entrance you chose."
+    ],
+    "timings": [
+      "1:50 — banana molotov, spread banana / apartments.",
+      "1:30 — banana control confirmed or given up.",
+      "1:05 — commit call."
+    ],
+    "midround": [
+      "Banana is free: keep two there as a real B threat and take A with three through second mid.",
+      "Apartments meets an aggressive CT — trade it and hit A immediately while they are one down."
+    ],
+    "reactions": [
+      "Double molotov on banana means a heavy B hold; give it up and take A.",
+      "Balcony gets flashed and pushed: fall back to apartments, trade, and re-take the space with utility."
+    ],
+    "warnings": [
+      "Do not push out of banana without the second molotov. Falling back with five alive beats owning banana with three."
+    ],
+    "backup": "No control by 0:55: five-man B out of banana on the last utility and play the post-plant from the back of site.",
+    "roles": []
+  },
+  {
+    "map": "Inferno",
+    "name": "CT Default — 2-1-2 with Banana Priority",
+    "side": "CT",
+    "category": "Default",
+    "buy_type": "full",
+    "site": null,
+    "map_area": "Banana / A Site / B Site",
+    "tags": ["default", "setup", "starter"],
+    "difficulty": "basic",
+    "objective": "Deny banana with utility rather than duels, hold A with a crossfire, and retake as a group.",
+    "summary": "CALL: 2 A, 1 apartments, 2 B. Banana gets the molotov every round — the duel is optional, the utility is not.",
+    "required_utility": "1 banana molotov (every round), 1 smoke for the banana fallback, 1 molotov for apartments.",
+    "steps": [
+      "B pair molotovs banana on the standard timing and plays the crossfire behind it, never both peeking.",
+      "The apartments player checks balcony for information and falls back to A when the utility comes out.",
+      "A pair holds pit and the back of site so a fast take still has to trade twice.",
+      "Retakes are grouped and on utility — no solo entries into a planted site."
+    ],
+    "timings": [
+      "1:50 — banana molotov, positions set.",
+      "1:20 — one player shifts toward reported pressure.",
+      "0:40 — grouped retake."
+    ],
+    "midround": [
+      "Banana given up early: pull both B players back to site and play the retake from CT.",
+      "Apartments quiet at 1:00: expect a B commit, pre-rotate one player."
+    ],
+    "reactions": [
+      "Five-man banana: burn it, fall back off site, retake with the A rotation and utility.",
+      "Second mid smoke means an A split — hold the site, not the corridors."
+    ],
+    "warnings": [
+      "Never trade the apartments player for free. Falling back with information wins more rounds than the opening kill."
+    ],
+    "backup": "If banana falls every round, stack 3-2 to B and play A as a pure retake site.",
+    "roles": []
+  },
+  {
+    "map": "Mirage",
+    "name": "T Default — Top Mid Control",
+    "side": "T",
+    "category": "Default",
+    "buy_type": "full",
+    "site": null,
+    "map_area": "Mid / Palace / Apartments",
+    "tags": ["default", "map-control", "starter"],
+    "difficulty": "basic",
+    "objective": "Take top mid and connector pressure so both sites open up, then commit late with five alive.",
+    "summary": "CALL: two top mid behind the smokes, one palace, two apartments. Default until 1:05, then hit the thin side.",
+    "required_utility": "Window smoke, top mid smoke, 1 molotov for connector, 2 flashes for the entry.",
+    "steps": [
+      "Smoke window and top mid, then take the mid boxes with two players.",
+      "One player takes palace quietly for the A threat and the connector read.",
+      "Two hold apartments and stay unseen — no early underpass noise.",
+      "Commit at 1:05: A with palace and mid, or B out of apartments with the mid pair cutting the rotation."
+    ],
+    "timings": [
+      "1:50 — window and top mid smokes, spread mid / palace / apartments.",
+      "1:05 — commit call.",
+      "0:40 — latest plant."
+    ],
+    "midround": [
+      "Connector opens: take it and split A from two directions immediately.",
+      "Apartments contact wins: hit B while the CT is a player down."
+    ],
+    "reactions": [
+      "AWP re-peeking top mid through the smoke: molotov the spot and move on rather than trading.",
+      "Palace gets molotoved early — expect an aggressive A hold and swing B."
+    ],
+    "warnings": [
+      "Do not cross top mid before both smokes land, and never as a lone player with no trade."
+    ],
+    "backup": "Nothing by 0:55: five-man apartments, plant for the market and van crossfire and play the post-plant.",
+    "roles": []
+  },
+  {
+    "map": "Mirage",
+    "name": "CT Default — 2-1-2 with Window Priority",
+    "side": "CT",
+    "category": "Default",
+    "buy_type": "full",
+    "site": null,
+    "map_area": "Mid / A Site / B Site",
+    "tags": ["default", "setup", "starter"],
+    "difficulty": "basic",
+    "objective": "Contest mid early with utility, keep window alive, and make every take cost the T side two trades.",
+    "summary": "CALL: 2 A, 1 window, 2 B. Window plays for information and falls back the moment the smokes come out.",
+    "required_utility": "1 molotov for top mid, 1 A ramp molotov, 1 smoke for the B retake.",
+    "steps": [
+      "The mid player holds window, checks top mid early and leaves alive once it is smoked.",
+      "A pair covers ramp and palace in a crossfire, with the ramp molotov saved for the execute.",
+      "B pair holds apartments and the far angle, one always able to trade the other.",
+      "Rotate through connector as a pair and retake together on utility."
+    ],
+    "timings": [
+      "1:50 — positions set, window checks top mid.",
+      "1:15 — shift one player toward the reported pressure.",
+      "0:40 — grouped retake."
+    ],
+    "midround": [
+      "Mid is smoked and taken: pull window back to A and play a 3-2.",
+      "Nothing found by 1:00: expect a late execute — reset utility and hold your angles."
+    ],
+    "reactions": [
+      "Fast apartments: molotov underpass, delay from the crossfire and retake with the A rotation.",
+      "Palace and ramp utility at the same time is a full A execute — give the site, keep the players."
+    ],
+    "warnings": [
+      "Do not hold window after the smokes land. A dead mid player hands the T side connector for free."
+    ],
+    "backup": "If mid is lost every round, drop to 3-2 with no window presence and play pure retakes.",
+    "roles": []
+  },
+  {
+    "map": "Nuke",
+    "name": "T Default — Outside Control",
+    "side": "T",
+    "category": "Default",
+    "buy_type": "full",
+    "site": null,
+    "map_area": "Outside / Lobby / Secret",
+    "tags": ["default", "map-control", "starter"],
+    "difficulty": "basic",
+    "objective": "Take outside with utility to open the B threat, and use lobby pressure so the CTs cannot fully commit.",
+    "summary": "CALL: three outside behind the smokes, two lobby. Hold outside, decide upper or lower at 1:05.",
+    "required_utility": "2 smokes for the outside crossing, 1 molotov for the far corner, 2 flashes for the lobby entry.",
+    "steps": [
+      "Smoke the outside crossing and take the space with three players — cross together, not one at a time.",
+      "Two hold lobby for the upper threat and to read the rotation.",
+      "Hold what you took: outside control is the round, do not trade it away early.",
+      "Commit at 1:05 — lower through secret with the lobby pair holding upper, or a full upper hit off the outside threat."
+    ],
+    "timings": [
+      "1:50 — outside smokes, spread outside / lobby.",
+      "1:30 — outside control confirmed.",
+      "1:05 — commit call."
+    ],
+    "midround": [
+      "Outside is free: push secret early and take lower before the rotation arrives.",
+      "Lobby wins its duel: hit upper immediately while the CT side is one down."
+    ],
+    "reactions": [
+      "Heavy outside utility means a stacked yard — swing back to lobby and hit upper.",
+      "The secret door opens on you: fall back, trade, and re-take with the last smokes."
+    ],
+    "warnings": [
+      "Do not cross outside without both smokes. One player caught in the open loses the whole plan."
+    ],
+    "backup": "No control by 0:55: five-man lobby on the last flashes and play the post-plant from the back of upper.",
+    "roles": []
+  },
+  {
+    "map": "Nuke",
+    "name": "CT Default — 2-1-2 Ramp and Yard",
+    "side": "CT",
+    "category": "Default",
+    "buy_type": "full",
+    "site": null,
+    "map_area": "Yard / Ramp / Lower",
+    "tags": ["default", "setup", "starter"],
+    "difficulty": "basic",
+    "objective": "Deny outside cheaply, hold ramp with utility, and keep lower supportable from heaven.",
+    "summary": "CALL: 2 upper, 1 yard, 2 lower/ramp. Yard plays for information, ramp gets the molotov every round.",
+    "required_utility": "1 ramp molotov (every round), 1 smoke for the yard fallback, 1 molotov for the secret entrance.",
+    "steps": [
+      "The yard player takes the early information duel only with a trade, then falls back inside.",
+      "Ramp is burned on the standard timing and held from a crossfire, not a solo peek.",
+      "Upper pair covers hut and the back of site so a fast take still has to trade twice.",
+      "Rotate through heaven as a pair and retake lower together on utility."
+    ],
+    "timings": [
+      "1:50 — ramp molotov, positions set, yard checks.",
+      "1:20 — shift one player toward the reported pressure.",
+      "0:40 — grouped retake."
+    ],
+    "midround": [
+      "Outside is lost: pull the yard player in and play upper and heaven rather than contesting the open.",
+      "Nothing by 1:00: expect a late lower hit through secret — pre-rotate one to heaven."
+    ],
+    "reactions": [
+      "Five-man ramp: burn it, delay from the crossfire, retake lower with the upper rotation.",
+      "Vents noise during an outside take is usually the split — hold the site, not the corridor."
+    ],
+    "warnings": [
+      "Never lose the yard player for free. Without them you are blind to every outside timing."
+    ],
+    "backup": "If outside falls every round, give it up by default, stack upper 3-2 and play lower as a retake site.",
+    "roles": []
+  },
+  {
+    "map": "Train",
+    "name": "T Default — Ivy and Popdog Control",
+    "side": "T",
+    "category": "Default",
+    "buy_type": "full",
+    "site": null,
+    "map_area": "Ivy / Popdog / Lower B",
+    "tags": ["default", "map-control", "starter"],
+    "difficulty": "basic",
+    "objective": "Take ivy and popdog to threaten A from two directions, while B keeps the CTs from over-committing.",
+    "summary": "CALL: two ivy, one popdog, two toward B. Hold the space, commit at 1:05 with everyone alive.",
+    "required_utility": "1 smoke for the ivy exit, 1 molotov for popdog, 2 flashes for the A entry.",
+    "steps": [
+      "Two take ivy behind the smoke and hold it — the space matters more than the opening kill.",
+      "One takes popdog for the connector read and the rotation cut.",
+      "Two hold the B side, trade every contact and keep the anchor honest.",
+      "Commit at 1:05: A with the ivy pair and popdog, or B with the mid players cutting the rotation."
+    ],
+    "timings": [
+      "1:50 — ivy smoke, spread ivy / popdog / B.",
+      "1:05 — commit call.",
+      "0:40 — latest plant."
+    ],
+    "midround": [
+      "Ivy is free: take the connector and open A from two sides before the rotation lands.",
+      "B contact wins: swing everything there while the CT side is one down."
+    ],
+    "reactions": [
+      "AWP holding the ivy exit: re-smoke and take popdog instead of feeding it.",
+      "Popdog molotoved early means an aggressive connector — punish with the A entry."
+    ],
+    "warnings": [
+      "Do not enter a site off one player's space. The default only pays off if you commit together."
+    ],
+    "backup": "Nothing by 0:55: five-man B with the last utility and play the post-plant from behind the trains.",
+    "roles": []
+  },
+  {
+    "map": "Train",
+    "name": "CT Default — 2-1-2 with Connector Priority",
+    "side": "CT",
+    "category": "Default",
+    "buy_type": "full",
+    "site": null,
+    "map_area": "Connector / A Site / B Site",
+    "tags": ["default", "setup", "starter"],
+    "difficulty": "basic",
+    "objective": "Hold connector so both sites stay reachable, delay with utility, and retake as a group.",
+    "summary": "CALL: 2 A, 1 connector, 2 B. Connector plays for information and never duels without a trade.",
+    "required_utility": "1 molotov for ivy, 1 molotov for the B entrance, 1 smoke for the retake.",
+    "steps": [
+      "The connector player checks ivy early with a trade behind them, then plays passive.",
+      "A pair holds the site from a crossfire between the trains, never both on the same angle.",
+      "B pair delays the entrance with the molotov and falls back rather than trading blind.",
+      "Retakes are grouped, on utility, and from two directions."
+    ],
+    "timings": [
+      "1:50 — positions set, connector checks ivy.",
+      "1:15 — shift one player toward reported pressure.",
+      "0:40 — grouped retake."
+    ],
+    "midround": [
+      "Ivy and popdog are both taken: pull connector back to A and play a 3-2.",
+      "Quiet at 1:00: expect a late five-man — reset utility and hold your angles."
+    ],
+    "reactions": [
+      "Fast B: burn the entrance, delay from the crossfire and retake with the A rotation.",
+      "Smokes on the connector mean a split is coming — hold the site, not the corridor."
+    ],
+    "warnings": [
+      "Losing connector for free gives the T side both sites at once. Information first, duels second."
+    ],
+    "backup": "If connector keeps falling, stack 3-2, give it up by default and play a pure retake round.",
+    "roles": []
+  }
+]

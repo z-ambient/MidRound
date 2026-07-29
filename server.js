@@ -6,6 +6,7 @@ const bcrypt = require('bcryptjs');
 const db = require('./db');
 const faceit = require('./faceit');
 const { rateLimit, clientIp, TRUSTED_PROXY_HOPS } = require('./rate-limit');
+const { installStarterStrategies } = require('./starter-strategies');
 const v = require('./validate');
 
 const app = express();
@@ -260,6 +261,15 @@ app.post('/api/auth/register', authLimiter, ah(async (req, res) => {
   const userId = (await db.run(
     'INSERT INTO users (email, name, password_hash, created_at) VALUES (?,?,?,?) RETURNING id',
     email.toLowerCase(), name.trim(), bcrypt.hashSync(password, 10), t)).id;
+
+  // A personal T and CT default per map, so the new account opens on a library
+  // and a Match Mode board with something in them. Never fatal: an account
+  // without its starters beats a signup that failed at the last step.
+  try {
+    await installStarterStrategies(userId, t);
+  } catch (e) {
+    console.error(`[midround] starter strategies failed for user ${userId}: ${e.message}`);
+  }
 
   const token = crypto.randomBytes(32).toString('hex');
   await db.run('INSERT INTO sessions (token_hash, user_id, created_at, expires_at) VALUES (?,?,?,?)',

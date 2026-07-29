@@ -42,6 +42,33 @@ test('a brand-new user with no team can see the maps', async () => {
   assert.ok(maps.length >= 7, 'the strategy library would have no map tiles');
 });
 
+// A new account used to open on an empty library, an empty dashboard and an
+// empty Match Mode board. It now starts with a T and a CT default per map —
+// personal ones: nothing may put them in a team's bank on the user's behalf.
+test('a brand-new user starts with a personal T and CT default per map', async () => {
+  const reg = await postJson(base, '/api/auth/register', {
+    email: 'starters@example.com', password: 'password123', name: 'Star Ter',
+  });
+  assert.equal(reg.status, 200);
+  const cookie = cookieOf(reg);
+
+  const maps = await (await fetch(base + '/api/maps', { headers: { cookie } })).json();
+  const mine = await (await fetch(base + '/api/strategies', { headers: { cookie } })).json();
+
+  for (const m of maps) {
+    for (const side of ['T', 'CT']) {
+      const hit = mine.filter((s) => s.map === m.name && s.side === side && s.status === 'active');
+      assert.equal(hit.length, 1, `expected exactly one active ${side} starter for ${m.name}, got ${hit.length}`);
+    }
+  }
+  assert.equal(mine.length, maps.length * 2, 'the starter set must not seed maps this install does not run');
+
+  const user = await db.get('SELECT id FROM users WHERE email = ?', 'starters@example.com');
+  const shared = await db.get(
+    'SELECT COUNT(*) AS c FROM team_strategies WHERE strategy_id IN (SELECT id FROM strategies WHERE created_by = ?)', user.id);
+  assert.equal(shared.c, 0, 'starters are personal — they must never land in a team bank');
+});
+
 test('the advertised demo login actually signs in', async () => {
   const demo = await (await fetch(base + '/api/demo')).json();
   assert.equal(demo.available, true, 'demo data is seeded in tests');
