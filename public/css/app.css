@@ -1098,8 +1098,8 @@ a.cov-row:hover { background: var(--bg-hover); }
   color: var(--text-2); font-weight: 600; font-size: 0.9rem; white-space: nowrap;
 }
 /* `display: flex` above outranks the browser's own [hidden] { display: none },
-   so without this a hidden dropdown row still paints — and "My player profile"
-   shows up looking normal while carrying no href, dead to every click. */
+   so without this a dropdown row marked hidden still paints, looking normal
+   while doing nothing. */
 .dd-item[hidden] { display: none; }
 .dd-item:hover:not(:disabled) { background: var(--bg-hover); color: var(--text); }
 .dd-item.active { background: var(--accent-bg); color: var(--text); }

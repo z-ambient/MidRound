@@ -40,6 +40,7 @@ const routes = [
   { re: /^\/matches\/(\d+)$/, view: manage.viewMatchDetail },
   { re: /^\/team$/, view: manage.viewTeam },
   { re: /^\/players\/(\d+)$/, view: manage.viewPlayerProfile },
+  { re: /^\/me$/, view: manage.viewMyProfile },
   { re: /^\/lookup$/, view: manage.viewPlayerLookup },
   { re: /^\/match-mode\/(solo|team|\d+)$/, view: match.viewMatchMode, bare: true },
 ];
@@ -138,8 +139,8 @@ function renderShell(path) {
       a.classList.toggle('active', active);
     });
     app.querySelector('.sidebar')?.classList.remove('open');
-    // re-resolve the profile link: it depends on roster data that can change
-    // (or have failed to load) after the shell was first built
+    // refresh the menu: team list and pending invites can change after the
+    // shell was first built (or have failed to load then)
     populateProfileMenu();
     return;
   }
@@ -182,7 +183,7 @@ function renderShell(path) {
                 <b>${esc(state.me.user.name)}</b>
                 <div class="small muted">${team ? `${esc(team.name)} · ${esc(roleLabel(state.role))}` : 'No team yet'}</div>
               </div>
-              <a class="dd-item" id="pm-profile" hidden>My player profile</a>
+              <a class="dd-item" id="pm-profile" href="#/me">My player profile</a>
               <div id="pm-teams"></div>
               <div id="pm-invites"></div>
               <button class="dd-item" id="btn-logout">Sign out</button>
@@ -211,25 +212,20 @@ function renderShell(path) {
     profMenu.hidden = !open;
     profBtn.setAttribute('aria-expanded', String(open));
   };
+  // the menu links stay in place across navigations, so close it on the way out
+  // or it sits open on top of the page it just sent you to
+  document.getElementById('pm-profile').onclick = () => {
+    profMenu.hidden = true;
+    profBtn.setAttribute('aria-expanded', 'false');
+  };
   populateProfileMenu();
   wireGlobalSearch();
 }
 
-// fills the profile menu: my player-profile link, team switcher, pending invites
+// fills the profile menu: team switcher, pending invites
+// (the "My player profile" link is static — #/me resolves to the signed-in
+// user's roster seat when they hold one, so every account gets the entry)
 async function populateProfileMenu() {
-  const profileLink = document.getElementById('pm-profile');
-  // Reset first: the link is only meaningful while it points at a roster slot,
-  // and this runs again on later navigations. An href left over from another
-  // team — or a visible row with no href at all — is a link that goes nowhere.
-  if (profileLink) { profileLink.hidden = true; profileLink.removeAttribute('href'); }
-  if (profileLink && state.teamId) {
-    try {
-      const players = await api.get(`/api/teams/${state.teamId}/players`);
-      const mine = players.find(p => p.user_id === state.me.user.id);
-      if (mine) { profileLink.hidden = false; profileLink.href = `#/players/${mine.id}`; }
-    } catch { /* fine — no roster access */ }
-  }
-
   const tEl = document.getElementById('pm-teams');
   if (tEl && state.me.teams.length > 1) {
     tEl.innerHTML = `<div class="pm-label">Switch team</div>` + state.me.teams.map(t =>

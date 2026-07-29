@@ -1506,6 +1506,67 @@ export async function viewPlayerLookup(el) {
   input.focus();
 }
 
+// ---------- my profile ----------
+// Reached from "My player profile" in the topbar menu, which every account has.
+// Holding a roster seat is what gives you a player profile, so this resolves the
+// signed-in user's seat on the current team and shows that profile. Accounts
+// without a seat (a brand-new signup, or a member an owner hasn't put on the
+// roster) get the account view below instead of a dead end.
+export async function viewMyProfile(el) {
+  el.innerHTML = spinner();
+  if (state.teamId) {
+    try {
+      const players = await api.get(teamUrl('/players'));
+      const mine = players.find(p => p.user_id === state.me.user.id);
+      if (mine) return viewPlayerProfile(el, mine.id);
+    } catch { /* no roster access — fall through to the account view */ }
+  }
+
+  const u = state.me.user;
+  const team = state.me.teams.find(t => t.id === state.teamId);
+  el.innerHTML = `
+    <div class="page-head center" style="margin-bottom:16px">
+      <div>
+        <div class="team-logo" style="width:74px;height:74px;font-size:1.3rem">${esc(initials(u.name))}</div>
+        <h1>${esc(u.name)}</h1>
+        <div class="sub">${esc(u.email)}${team ? ` · ${esc(team.name)} · ${esc(roleLabel(state.role))}` : ' · No team yet'}</div>
+      </div>
+    </div>
+    <div class="pp-grid">
+      <div class="panel">
+        <h2>Player profile</h2>
+        ${team ? `
+          <p class="small muted">You don't hold a seat on ${esc(team.name)}'s roster yet, so there are no FACEIT stats to show here.
+            ${can('team')
+              ? 'Add a player on the Team page and assign your account to it — this page then shows your ELO, form and recent matches.'
+              : 'A team owner can add you to the roster on the Team page and assign your account to that player — this page then shows your ELO, form and recent matches.'}</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
+            <a class="btn small" href="#/team">Team &amp; access</a>
+            <a class="btn small" href="#/lookup">Look up my FACEIT stats</a>
+          </div>`
+        : `
+          <p class="small muted">Player profiles hang off a team roster. Create a team or accept an invite, and once you hold a seat this page shows your ELO, form and recent matches.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
+            <a class="btn small" href="#/team">Team &amp; access</a>
+          </div>`}
+      </div>
+      <div class="panel">
+        <h2>Account</h2>
+        <div class="rowlist">
+          <div class="row-item"><span class="muted small grow">Name</span><b>${esc(u.name)}</b></div>
+          <div class="row-item"><span class="muted small grow">Email</span><b>${esc(u.email)}</b></div>
+          ${state.me.teams.length
+            ? state.me.teams.map(t => {
+                const org = state.me.orgs.find(o => o.id === t.org_id);
+                return `<div class="row-item"><span class="muted small grow">Team</span>
+                  <span style="text-align:right"><b>${esc(t.name)}</b>${org ? `<div class="small muted">${esc(roleLabel(org.role))}</div>` : ''}</span></div>`;
+              }).join('')
+            : `<div class="row-item"><span class="muted small grow">Teams</span><b>None yet</b></div>`}
+        </div>
+      </div>
+    </div>`;
+}
+
 // ---------- player profile ----------
 export async function viewPlayerProfile(el, id) {
   if (!state.teamId) { el.innerHTML = emptyState("You're not on a team", 'Player profiles belong to a team roster.'); return; }
